@@ -45,7 +45,7 @@ object EnglishLayout {
 
             // Row 3: ZXCVBN
             listOf(
-                KeyData("⇧", keyType = KeyType.MODIFIER, flex = 1.3f),
+                KeyData("⬆", keyType = KeyType.MODIFIER, flex = 1.3f),
                 KeyData("z", "Z"),
                 KeyData("x", "X"),
                 KeyData("c", "C"),

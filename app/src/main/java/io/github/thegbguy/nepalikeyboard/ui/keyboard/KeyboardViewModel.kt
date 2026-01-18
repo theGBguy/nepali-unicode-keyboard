@@ -2,16 +2,21 @@ package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
 import android.view.inputmethod.InputConnection
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyboardLayout
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel for managing keyboard state and handling key interactions.
@@ -23,6 +28,9 @@ class KeyboardViewModel : ViewModel() {
 
     // Reference to InputConnection (set by IME service)
     var inputConnection: InputConnection? = null
+
+    // Job for handling backspace long-press repeating deletion
+    private var backspaceJob: Job? = null
 
     init {
         // Initialize with English layout
@@ -40,6 +48,42 @@ class KeyboardViewModel : ViewModel() {
             KeyType.FUNCTION -> handleFunctionKey(key)
             KeyType.SPACER -> { /* Do nothing */ }
         }
+    }
+
+    /**
+     * Handles backspace long-press start.
+     * Starts a coroutine that deletes characters repeatedly with increasing speed.
+     */
+    fun onBackspaceLongPressStart() {
+        // Cancel any existing job
+        backspaceJob?.cancel()
+
+        backspaceJob = viewModelScope.launch {
+            // Initial delay before repeating starts
+            delay(500)
+
+            // Start with slower deletion
+            var delayTime = 100L
+
+            while (isActive) {
+                inputConnection?.deleteSurroundingText(1, 0)
+                delay(delayTime)
+
+                // Speed up deletion over time (minimum 30ms delay)
+                if (delayTime > 30) {
+                    delayTime = (delayTime * 0.9).toLong()
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles backspace long-press end.
+     * Stops the repeating deletion.
+     */
+    fun onBackspaceLongPressEnd() {
+        backspaceJob?.cancel()
+        backspaceJob = null
     }
 
     /**

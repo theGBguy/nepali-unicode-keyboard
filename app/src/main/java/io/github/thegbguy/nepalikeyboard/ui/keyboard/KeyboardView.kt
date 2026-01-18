@@ -2,6 +2,7 @@ package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,6 +61,8 @@ fun KeyboardView(
                     keys = row,
                     isShifted = state.isShifted,
                     onKeyClick = { key -> viewModel.onKeyClick(key) },
+                    onBackspaceLongPressStart = { viewModel.onBackspaceLongPressStart() },
+                    onBackspaceLongPressEnd = { viewModel.onBackspaceLongPressEnd() },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -96,6 +100,8 @@ fun KeyboardRow(
     keys: List<KeyData>,
     isShifted: Boolean,
     onKeyClick: (KeyData) -> Unit,
+    onBackspaceLongPressStart: () -> Unit,
+    onBackspaceLongPressEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -108,6 +114,8 @@ fun KeyboardRow(
                 keyData = key,
                 isShifted = isShifted,
                 onClick = { onKeyClick(key) },
+                onLongPressStart = if (key.primary == "⌫") onBackspaceLongPressStart else null,
+                onLongPressEnd = if (key.primary == "⌫") onBackspaceLongPressEnd else null,
                 modifier = Modifier.weight(key.flex)
             )
         }
@@ -122,6 +130,8 @@ fun Key(
     keyData: KeyData,
     isShifted: Boolean,
     onClick: () -> Unit,
+    onLongPressStart: (() -> Unit)? = null,
+    onLongPressEnd: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = when (keyData.keyType) {
@@ -142,7 +152,30 @@ fun Key(
             .height(48.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(backgroundColor)
-            .clickable(enabled = keyData.keyType != KeyType.SPACER) { onClick() },
+            .then(
+                if (keyData.keyType != KeyType.SPACER && onLongPressStart != null && onLongPressEnd != null) {
+                    // Use pointerInput for backspace to handle long-press
+                    Modifier.pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                onClick()
+                                val pressed = tryAwaitRelease()
+                                if (pressed) {
+                                    onLongPressEnd()
+                                }
+                            },
+                            onLongPress = {
+                                onLongPressStart()
+                            }
+                        )
+                    }
+                } else if (keyData.keyType != KeyType.SPACER) {
+                    // Regular clickable for other keys
+                    Modifier.clickable { onClick() }
+                } else {
+                    Modifier
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         if (keyData.keyType != KeyType.SPACER) {
