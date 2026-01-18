@@ -32,6 +32,10 @@ class KeyboardViewModel : ViewModel() {
     // Job for handling backspace long-press repeating deletion
     private var backspaceJob: Job? = null
 
+    // Track last shift press time for double-tap caps lock detection
+    private var lastShiftPressTime: Long = 0
+    private val DOUBLE_TAP_TIMEOUT_MS = 300L // Time window for double-tap detection
+
     init {
         // Initialize with English layout
         updateLayout()
@@ -139,13 +143,41 @@ class KeyboardViewModel : ViewModel() {
     private fun handleModifierKey(key: KeyData) {
         when (key.primary) {
             "⇧" -> {
-                // Shift key - toggle shift state
-                val newShiftState = !_state.value.isShifted
-                _state.update {
-                    it.copy(
-                        isShifted = newShiftState,
-                        isCapsLock = false
-                    )
+                // Shift key - handle single tap, double tap (caps lock), and caps lock toggle
+                val currentTime = System.currentTimeMillis()
+                val currentState = _state.value
+
+                when {
+                    // If caps lock is already enabled, turn it off
+                    currentState.isCapsLock -> {
+                        _state.update {
+                            it.copy(
+                                isShifted = false,
+                                isCapsLock = false
+                            )
+                        }
+                        lastShiftPressTime = 0 // Reset double-tap detection
+                    }
+                    // If shift was pressed recently (double-tap), enable caps lock
+                    currentState.isShifted && (currentTime - lastShiftPressTime) <= DOUBLE_TAP_TIMEOUT_MS -> {
+                        _state.update {
+                            it.copy(
+                                isShifted = true,
+                                isCapsLock = true
+                            )
+                        }
+                        lastShiftPressTime = currentTime
+                    }
+                    // Otherwise, just toggle shift (single tap)
+                    else -> {
+                        _state.update {
+                            it.copy(
+                                isShifted = !currentState.isShifted,
+                                isCapsLock = false
+                            )
+                        }
+                        lastShiftPressTime = currentTime
+                    }
                 }
             }
         }
@@ -161,15 +193,22 @@ class KeyboardViewModel : ViewModel() {
                 // Language switch key
                 switchLanguage()
             }
-            "?123", "123" -> {
-                // Switch to numbers layout
+            "?123" -> {
+                // Switch to numbers layout from main layout
                 toggleNumbersLayout()
+            }
+            "123" -> {
+                // Switch back to numbers from symbols layout
+                if (_state.value.showingSymbols) {
+                    toggleSymbolsLayout()
+                }
             }
             "ABC" -> {
                 // Switch back to main layout
                 if (_state.value.showingSymbols) {
                     toggleSymbolsLayout()
-                } else {
+                }
+                if (_state.value.showingNumbers) {
                     toggleNumbersLayout()
                 }
             }
@@ -188,14 +227,14 @@ class KeyboardViewModel : ViewModel() {
             }
             currentState.showingNumbers -> {
                 when (currentState.currentLanguage) {
-                    LanguageMode.NEPALI, LanguageMode.TRANSLITERATION -> NepaliLayout.getNumbersLayout()
-                    LanguageMode.ENGLISH -> EnglishLayout.getNumbersLayout()
+                    LanguageMode.NEPALI -> NepaliLayout.getNumbersLayout()
+                    LanguageMode.TRANSLITERATION, LanguageMode.ENGLISH -> EnglishLayout.getNumbersLayout()
                 }
             }
             else -> {
                 when (currentState.currentLanguage) {
                     LanguageMode.NEPALI -> NepaliLayout.getLayout()
-                    LanguageMode.TRANSLITERATION -> NepaliLayout.getLayout() // Will be replaced in Phase 2
+                    LanguageMode.TRANSLITERATION -> EnglishLayout.getLayout() // Use English keys for transliteration
                     LanguageMode.ENGLISH -> EnglishLayout.getLayout()
                 }
             }
