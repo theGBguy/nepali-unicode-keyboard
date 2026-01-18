@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Nepali Keyboard</string>
+
+    <!-- IME Configuration -->
+    <string name="ime_name">Nepali Keyboard - नेपाली</string>
+    <string name="settings_name">Nepali Keyboard Settings</string>
+
+    <!-- Language modes -->
+    <string name="mode_nepali">नेपाली</string>
+    <string name="mode_english">English</string>
+    <string name="mode_transliteration">Transliteration</string>
+
+    <!-- Key labels -->
+    <string name="key_space">Space</string>
+    <string name="key_enter">Enter</string>
+    <string name="key_delete">Delete</string>
+    <string name="key_shift">Shift</string>
+    <string name="key_language_switch">Language</string>
+
+    <!-- Instructions -->
+    <string name="enable_keyboard_instruction">To use Nepali Keyboard:\n\n1. Go to Settings → System → Languages &amp; input → Virtual keyboard\n2. Enable \"Nepali Keyboard\"\n3. Open any app with text input\n4. Tap the keyboard icon or long-press space bar\n5. Select \"Nepali Keyboard\"</string>
+
+    <!-- Settings (for Phase 3) -->
+    <string name="settings_haptic_feedback">Haptic feedback</string>
+    <string name="settings_sound_feedback">Sound on keypress</string>
+    <string name="settings_auto_capitalization">Auto-capitalization</string>
+    <string name="settings_theme">Keyboard theme</string>
+</resources>
