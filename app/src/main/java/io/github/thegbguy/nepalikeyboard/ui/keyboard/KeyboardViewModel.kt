@@ -7,6 +7,9 @@ import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyboardLayout
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.domain.model.TransliterationBuffer
+import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliTransliterationEngine
+import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationEngine
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
 import kotlinx.coroutines.Job
@@ -36,6 +39,9 @@ class KeyboardViewModel : ViewModel() {
     private var lastShiftPressTime: Long = 0
     private val DOUBLE_TAP_TIMEOUT_MS = 300L // Time window for double-tap detection
 
+    // Transliteration engine for romanized to Devanagari conversion
+    private val transliterationEngine: TransliterationEngine = NepaliTransliterationEngine()
+
     init {
         // Initialize with English layout
         updateLayout()
@@ -59,6 +65,18 @@ class KeyboardViewModel : ViewModel() {
      * Starts a coroutine that deletes characters repeatedly with increasing speed.
      */
     fun onBackspaceLongPressStart() {
+        // Clear transliteration buffer immediately on long press
+        if (_state.value.transliterationBuffer.isNotEmpty()) {
+            inputConnection?.finishComposingText()
+            _state.update {
+                it.copy(
+                    transliterationBuffer = TransliterationBuffer(),
+                    suggestions = emptyList(),
+                    showSuggestionBar = false
+                )
+            }
+        }
+
         // Cancel any existing job
         backspaceJob?.cancel()
 
@@ -94,9 +112,24 @@ class KeyboardViewModel : ViewModel() {
      * Switches to the next language mode.
      */
     fun switchLanguage() {
+        // If switching away from transliteration with uncommitted text, auto-commit
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
+            && _state.value.transliterationBuffer.isNotEmpty()
+        ) {
+            val buffer = _state.value.transliterationBuffer
+            val output = transliterationEngine.commitBuffer(buffer)
+            // commitText replaces composing text
+            inputConnection?.commitText(output, 1)
+        }
+
         _state.update { currentState ->
             val newMode = currentState.currentLanguage.next()
-            currentState.copy(currentLanguage = newMode)
+            currentState.copy(
+                currentLanguage = newMode,
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
         }
         updateLayout()
     }
@@ -105,6 +138,24 @@ class KeyboardViewModel : ViewModel() {
      * Toggles between main and numbers layout.
      */
     fun toggleNumbersLayout() {
+        // Auto-commit buffer if switching away from transliteration
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
+            && _state.value.transliterationBuffer.isNotEmpty()
+        ) {
+            val buffer = _state.value.transliterationBuffer
+            val output = transliterationEngine.commitBuffer(buffer)
+            // commitText replaces composing text
+            inputConnection?.commitText(output, 1)
+
+            _state.update {
+                it.copy(
+                    transliterationBuffer = TransliterationBuffer(),
+                    suggestions = emptyList(),
+                    showSuggestionBar = false
+                )
+            }
+        }
+
         _state.update { it.copy(showingNumbers = !it.showingNumbers) }
         updateLayout()
     }
@@ -118,8 +169,30 @@ class KeyboardViewModel : ViewModel() {
     }
 
     private fun handleCharacterKey(key: KeyData) {
-        val output = key.getOutput(_state.value.isShifted)
-        inputConnection?.commitText(output, 1)
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
+            // Transliteration mode - buffer input and show romanized text
+            val output = key.getOutput(_state.value.isShifted)
+            val currentBuffer = _state.value.transliterationBuffer
+
+            val newBuffer = transliterationEngine.processInput(currentBuffer, output)
+
+            _state.update {
+                it.copy(
+                    transliterationBuffer = newBuffer,
+                    suggestions = newBuffer.candidates.map { candidate -> candidate.devanagari },
+                    showSuggestionBar = newBuffer.isNotEmpty()
+                )
+            }
+
+            // Show romanized text as composing text (underlined in input field)
+            // User will see "namaste" not "नमस्ते" until they press space
+            inputConnection?.setComposingText(newBuffer.romanizedText, 1)
+
+        } else {
+            // Direct input mode (existing behavior for English and Nepali)
+            val output = key.getOutput(_state.value.isShifted)
+            inputConnection?.commitText(output, 1)
+        }
 
         // Reset shift after character input (unless caps lock)
         if (_state.value.isShifted && !_state.value.isCapsLock) {
@@ -131,7 +204,29 @@ class KeyboardViewModel : ViewModel() {
         when (key.primary) {
             " " -> {
                 // Space key
-                inputConnection?.commitText(" ", 1)
+                if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
+                    && _state.value.transliterationBuffer.isNotEmpty()
+                ) {
+                    // Commit transliteration buffer
+                    val buffer = _state.value.transliterationBuffer
+                    val output = transliterationEngine.commitBuffer(buffer)
+
+                    // commitText automatically replaces the composing text (romanized)
+                    // with the Devanagari output, so no need to finishComposingText first
+                    inputConnection?.commitText(output + " ", 1)
+
+                    // Clear buffer
+                    _state.update {
+                        it.copy(
+                            transliterationBuffer = TransliterationBuffer(),
+                            suggestions = emptyList(),
+                            showSuggestionBar = false
+                        )
+                    }
+                } else {
+                    // Normal space
+                    inputConnection?.commitText(" ", 1)
+                }
             }
             "↵" -> {
                 // Enter key
@@ -187,7 +282,32 @@ class KeyboardViewModel : ViewModel() {
         when (key.primary) {
             "⌫" -> {
                 // Backspace key
-                inputConnection?.deleteSurroundingText(1, 0)
+                if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
+                    && _state.value.transliterationBuffer.isNotEmpty()
+                ) {
+                    // Delete from buffer
+                    val newBuffer = transliterationEngine.handleBackspace(
+                        _state.value.transliterationBuffer
+                    )
+
+                    _state.update {
+                        it.copy(
+                            transliterationBuffer = newBuffer,
+                            suggestions = newBuffer.candidates.map { candidate -> candidate.devanagari },
+                            showSuggestionBar = newBuffer.isNotEmpty()
+                        )
+                    }
+
+                    if (newBuffer.isEmpty()) {
+                        inputConnection?.finishComposingText()
+                    } else {
+                        // Show romanized text, not Devanagari
+                        inputConnection?.setComposingText(newBuffer.romanizedText, 1)
+                    }
+                } else {
+                    // Normal backspace
+                    inputConnection?.deleteSurroundingText(1, 0)
+                }
             }
             "🌐" -> {
                 // Language switch key
@@ -244,16 +364,42 @@ class KeyboardViewModel : ViewModel() {
     }
 
     /**
+     * Handles suggestion click in transliteration mode.
+     * Commits the selected suggestion and clears the buffer.
+     */
+    fun onSuggestionClick(suggestion: String) {
+        if (_state.value.currentLanguage != LanguageMode.TRANSLITERATION) return
+
+        // Commit the selected suggestion (replaces composing text)
+        inputConnection?.commitText(suggestion + " ", 1)
+
+        // Clear buffer
+        _state.update {
+            it.copy(
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
+    }
+
+    /**
      * Updates the keyboard state when input field changes.
      */
     fun onInputStarted() {
+        // Clear any composing text from transliteration
+        inputConnection?.finishComposingText()
+
         // Reset state when new input field is focused
         _state.update {
             it.copy(
                 isShifted = false,
                 isCapsLock = false,
                 showingNumbers = false,
-                showingSymbols = false
+                showingSymbols = false,
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
             )
         }
         updateLayout()
@@ -270,5 +416,7 @@ data class KeyboardState(
     val isCapsLock: Boolean = false,
     val showingNumbers: Boolean = false,
     val showingSymbols: Boolean = false,
-    val suggestions: List<String> = emptyList() // For Phase 2
+    val suggestions: List<String> = emptyList(),
+    val transliterationBuffer: TransliterationBuffer = TransliterationBuffer(),
+    val showSuggestionBar: Boolean = false
 )

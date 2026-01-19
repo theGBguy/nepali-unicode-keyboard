@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.SuggestionBar
 
 /**
  * Main keyboard view composable.
@@ -54,6 +55,15 @@ fun KeyboardView(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
+
+            // Suggestion bar for transliteration
+            if (state.showSuggestionBar) {
+                SuggestionBar(
+                    suggestions = state.suggestions,
+                    primarySuggestion = state.transliterationBuffer.primaryCandidate,
+                    onSuggestionClick = { viewModel.onSuggestionClick(it) }
+                )
+            }
 
             // Keyboard rows
             state.currentLayout.rows.forEach { row ->
