@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
-import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.SuggestionBar
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.VoiceInputBar
 
 /**
  * Main keyboard view composable.
@@ -56,14 +56,16 @@ fun KeyboardView(
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
 
-            // Suggestion bar for transliteration
-            if (state.showSuggestionBar) {
-                SuggestionBar(
-                    suggestions = state.suggestions,
-                    primarySuggestion = state.transliterationBuffer.primaryCandidate,
-                    onSuggestionClick = { viewModel.onSuggestionClick(it) }
-                )
-            }
+            // Voice input bar with suggestions and mic button
+            VoiceInputBar(
+                suggestions = if (state.showSuggestionBar) state.suggestions else emptyList(),
+                primarySuggestion = state.transliterationBuffer.primaryCandidate,
+                isListening = state.isVoiceListening,
+                partialResult = state.partialVoiceResult,
+                errorMessage = state.voiceError,
+                onSuggestionClick = { viewModel.onSuggestionClick(it) },
+                onMicClick = { viewModel.toggleVoiceInput() }
+            )
 
             // Keyboard rows
             state.currentLayout.rows.forEach { row ->

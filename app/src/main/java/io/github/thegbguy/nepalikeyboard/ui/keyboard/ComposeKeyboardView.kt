@@ -6,8 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 
-class ComposeKeyboardView(context: Context) : AbstractComposeView(context) {
+class ComposeKeyboardView(
+    context: Context,
+    private val speechRecognitionManager: SpeechRecognitionManager? = null
+) : AbstractComposeView(context) {
 
     @Composable
     override fun Content() {
@@ -19,6 +23,13 @@ class ComposeKeyboardView(context: Context) : AbstractComposeView(context) {
         // Update InputConnection when composition happens
         LaunchedEffect(imeService) {
             viewModel.inputConnection = imeService?.currentInputConnection
+        }
+
+        // Set up speech recognition manager with context for permission checking
+        LaunchedEffect(speechRecognitionManager) {
+            speechRecognitionManager?.let {
+                viewModel.setSpeechRecognitionManager(it, context)
+            }
         }
 
         KeyboardView(viewModel = viewModel)

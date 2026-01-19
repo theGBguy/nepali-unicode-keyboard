@@ -10,6 +10,11 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.domain.model.TransliterationBuffer
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliTransliterationEngine
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationEngine
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
 import kotlinx.coroutines.Job
@@ -41,6 +46,15 @@ class KeyboardViewModel : ViewModel() {
 
     // Transliteration engine for romanized to Devanagari conversion
     private val transliterationEngine: TransliterationEngine = NepaliTransliterationEngine()
+
+    // Speech recognition manager (set by IME service)
+    private var speechRecognitionManager: SpeechRecognitionManager? = null
+
+    // Context for permission checking (set by IME service)
+    private var appContext: Context? = null
+
+    // Job for clearing voice error after delay
+    private var voiceErrorClearJob: Job? = null
 
     init {
         // Initialize with English layout
@@ -390,6 +404,11 @@ class KeyboardViewModel : ViewModel() {
         // Clear any composing text from transliteration
         inputConnection?.finishComposingText()
 
+        // Stop voice input if active
+        if (_state.value.isVoiceListening) {
+            stopVoiceInput()
+        }
+
         // Reset state when new input field is focused
         _state.update {
             it.copy(
@@ -399,10 +418,177 @@ class KeyboardViewModel : ViewModel() {
                 showingSymbols = false,
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
-                showSuggestionBar = false
+                showSuggestionBar = false,
+                isVoiceListening = false,
+                voiceError = null,
+                partialVoiceResult = null
             )
         }
         updateLayout()
+    }
+
+    // ==================== Voice Typing Methods ====================
+
+    /**
+     * Sets the speech recognition manager and context.
+     * Called by the IME service when it's ready.
+     */
+    fun setSpeechRecognitionManager(manager: SpeechRecognitionManager, context: Context) {
+        speechRecognitionManager = manager
+        appContext = context.applicationContext
+        setupSpeechRecognitionListener()
+    }
+
+    private fun setupSpeechRecognitionListener() {
+        speechRecognitionManager?.setListener(object : SpeechRecognitionManager.SpeechRecognitionListener {
+            override fun onReadyForSpeech() {
+                _state.update {
+                    it.copy(
+                        isVoiceListening = true,
+                        voiceError = null,
+                        partialVoiceResult = null
+                    )
+                }
+            }
+
+            override fun onBeginningOfSpeech() {
+                // Speech input has begun
+            }
+
+            override fun onEndOfSpeech() {
+                _state.update {
+                    it.copy(isVoiceListening = false)
+                }
+            }
+
+            override fun onResults(results: List<String>) {
+                // Commit the first (best) result
+                val text = results.firstOrNull()
+                if (!text.isNullOrEmpty()) {
+                    inputConnection?.commitText(text, 1)
+                }
+                _state.update {
+                    it.copy(
+                        isVoiceListening = false,
+                        partialVoiceResult = null
+                    )
+                }
+            }
+
+            override fun onError(errorMessage: String) {
+                _state.update {
+                    it.copy(
+                        isVoiceListening = false,
+                        voiceError = errorMessage,
+                        partialVoiceResult = null
+                    )
+                }
+                // Clear error after 3 seconds
+                voiceErrorClearJob?.cancel()
+                voiceErrorClearJob = viewModelScope.launch {
+                    delay(3000)
+                    _state.update { it.copy(voiceError = null) }
+                }
+            }
+
+            override fun onPartialResults(partialResults: List<String>) {
+                val partial = partialResults.firstOrNull()
+                if (!partial.isNullOrEmpty()) {
+                    _state.update {
+                        it.copy(partialVoiceResult = partial)
+                    }
+                }
+            }
+        })
+    }
+
+    /**
+     * Check if speech recognition is available.
+     */
+    fun isVoiceInputAvailable(): Boolean {
+        return speechRecognitionManager?.isRecognitionAvailable() == true
+    }
+
+    /**
+     * Check if microphone permission is granted.
+     */
+    private fun hasMicrophonePermission(): Boolean {
+        val context = appContext ?: return false
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    /**
+     * Start voice input.
+     */
+    fun startVoiceInput() {
+        // Check microphone permission first
+        if (!hasMicrophonePermission()) {
+            _state.update {
+                it.copy(voiceError = "Microphone permission required. Open app to grant.")
+            }
+            // Clear error after 4 seconds
+            voiceErrorClearJob?.cancel()
+            voiceErrorClearJob = viewModelScope.launch {
+                delay(4000)
+                _state.update { it.copy(voiceError = null) }
+            }
+            return
+        }
+
+        // Auto-commit any pending transliteration buffer
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
+            && _state.value.transliterationBuffer.isNotEmpty()
+        ) {
+            val buffer = _state.value.transliterationBuffer
+            val output = transliterationEngine.commitBuffer(buffer)
+            inputConnection?.commitText(output, 1)
+            _state.update {
+                it.copy(
+                    transliterationBuffer = TransliterationBuffer(),
+                    suggestions = emptyList(),
+                    showSuggestionBar = false
+                )
+            }
+        }
+
+        speechRecognitionManager?.startListening()
+    }
+
+    /**
+     * Stop voice input.
+     */
+    fun stopVoiceInput() {
+        speechRecognitionManager?.stopListening()
+        _state.update {
+            it.copy(
+                isVoiceListening = false,
+                partialVoiceResult = null
+            )
+        }
+    }
+
+    /**
+     * Toggle voice input on/off.
+     */
+    fun toggleVoiceInput() {
+        if (_state.value.isVoiceListening) {
+            stopVoiceInput()
+        } else {
+            startVoiceInput()
+        }
+    }
+
+    /**
+     * Clean up voice resources.
+     * Called when the ViewModel is cleared.
+     */
+    override fun onCleared() {
+        super.onCleared()
+        voiceErrorClearJob?.cancel()
+        speechRecognitionManager?.destroy()
     }
 }
 
@@ -418,5 +604,9 @@ data class KeyboardState(
     val showingSymbols: Boolean = false,
     val suggestions: List<String> = emptyList(),
     val transliterationBuffer: TransliterationBuffer = TransliterationBuffer(),
-    val showSuggestionBar: Boolean = false
+    val showSuggestionBar: Boolean = false,
+    // Voice typing state
+    val isVoiceListening: Boolean = false,
+    val voiceError: String? = null,
+    val partialVoiceResult: String? = null
 )

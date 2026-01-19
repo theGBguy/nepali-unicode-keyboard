@@ -13,6 +13,7 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
 
 /**
@@ -33,6 +34,9 @@ class NepaliIMEService : InputMethodService(),
     private var lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
 
+    // Speech recognition manager for voice typing
+    private var speechRecognitionManager: SpeechRecognitionManager? = null
+
     override val lifecycle: Lifecycle
         get() = lifecycleRegistry
 
@@ -49,10 +53,13 @@ class NepaliIMEService : InputMethodService(),
         super.onCreate()
         savedStateRegistryController.performRestore(null)
         handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+
+        // Initialize speech recognition manager
+        speechRecognitionManager = SpeechRecognitionManager(this)
     }
 
     override fun onCreateInputView(): View {
-        val view = ComposeKeyboardView(this)
+        val view = ComposeKeyboardView(this, speechRecognitionManager)
 
         // Configure window to not overlap with system navigation bar
         window?.window?.let { window ->
@@ -68,6 +75,8 @@ class NepaliIMEService : InputMethodService(),
 
     override fun onDestroy() {
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        speechRecognitionManager?.destroy()
+        speechRecognitionManager = null
         super.onDestroy()
     }
 }

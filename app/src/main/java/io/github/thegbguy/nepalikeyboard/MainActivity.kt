@@ -1,13 +1,17 @@
 package io.github.thegbguy.nepalikeyboard
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import io.github.thegbguy.nepalikeyboard.ui.theme.NepaliKeyboardTheme
 
 class MainActivity : ComponentActivity() {
@@ -53,6 +58,20 @@ fun WelcomeScreen(
     val context = LocalContext.current
     var currentStep by remember { mutableStateOf(0) }
     var testText by remember { mutableStateOf("") }
+    var micPermissionGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val micPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        micPermissionGranted = isGranted
+    }
 
     Column(
         modifier = modifier
@@ -84,7 +103,7 @@ fun WelcomeScreen(
         // Stepper Indicator
         StepperIndicator(
             currentStep = currentStep,
-            totalSteps = 3,
+            totalSteps = 4,
             modifier = Modifier.padding(vertical = 24.dp)
         )
 
@@ -100,14 +119,20 @@ fun WelcomeScreen(
                 0 -> Step1EnableKeyboard(onEnableKeyboard)
                 1 -> Step2SetAsDefault(context)
                 2 -> Step3TestKeyboard(testText) { testText = it }
+                3 -> Step4EnableVoiceTyping(
+                    isPermissionGranted = micPermissionGranted,
+                    onRequestPermission = {
+                        micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                )
             }
         }
 
         // Navigation Buttons
         StepperNavigation(
             currentStep = currentStep,
-            totalSteps = 3,
-            onNext = { if (currentStep < 2) currentStep++ },
+            totalSteps = 4,
+            onNext = { if (currentStep < 3) currentStep++ },
             onPrevious = { if (currentStep > 0) currentStep-- },
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -349,6 +374,143 @@ fun Step3TestKeyboard(
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun Step4EnableVoiceTyping(
+    isPermissionGranted: Boolean,
+    onRequestPermission: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = "Step 4: Enable Voice Typing",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Grant microphone permission to use voice typing in Nepali.",
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        if (isPermissionGranted) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "✓",
+                        fontSize = 24.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "Microphone Permission Granted",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = "Voice typing is ready to use!",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "How to use voice typing:",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "1. Tap the microphone button on the keyboard",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = "2. Speak in Nepali",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = "3. Your speech will be converted to text",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        } else {
+            Button(
+                onClick = onRequestPermission,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                Text(
+                    text = "Grant Microphone Permission",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "🎤 This permission allows you to use voice typing to input text in Nepali by speaking",
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "You can skip this step if you don't want to use voice typing",
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
