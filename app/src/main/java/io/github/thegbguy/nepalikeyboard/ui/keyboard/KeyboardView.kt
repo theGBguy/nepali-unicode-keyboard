@@ -1,30 +1,49 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import android.view.HapticFeedbackConstants
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,237 +52,292 @@ import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
-import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.VoiceInputBar
+import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
+
+private val KeyHeight = 42.dp
+private val NumberRowKeyHeight = 36.dp
+private val KeyGap = 5.dp
+private val RowGap = 7.dp
+private val KeyShape = RoundedCornerShape(7.dp)
+private val PreviewShape = RoundedCornerShape(10.dp)
+private val PreviewWidth = 46.dp
+private val PreviewHeight = 56.dp
 
 /**
- * Main keyboard view composable.
+ * The keyboard: strip, then key rows. Colours follow the system light/dark setting.
  */
 @Composable
 fun KeyboardView(
     viewModel: KeyboardViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val colors = keyboardColors()
+    val enterLabel = enterKeyLabel(state.field)
+    val spaceLabel = stringResource(
+        when (state.currentLanguage) {
+            LanguageMode.NEPALI -> R.string.mode_nepali
+            LanguageMode.TRANSLITERATION -> R.string.space_romanized
+            LanguageMode.ENGLISH -> R.string.mode_english
+        }
+    )
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFF1E1E1E) // Dark background
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.background)
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(start = 3.dp, end = 3.dp, bottom = 4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(vertical = 4.dp, horizontal = 2.dp)
-        ) {
-            // Language indicator bar
-            LanguageIndicator(
-                currentLanguage = stringResource(state.currentLanguage.labelRes()),
+        val buffer = state.transliterationBuffer
+        KeyboardStrip(
+            colors = colors,
+            suggestions = if (state.showSuggestionBar) state.suggestions else emptyList(),
+            primarySuggestion = buffer.primaryCandidate,
+            latinText = if (state.showSuggestionBar) buffer.romanizedText else "",
+            isListening = state.isVoiceListening,
+            partialResult = state.partialVoiceResult,
+            errorMessage = state.voiceError,
+            showMic = state.field.allowsVoice,
+            onSuggestionClick = { viewModel.onSuggestionClick(it) },
+            onKeepLatin = { viewModel.onKeepLatin() },
+            onMicClick = { viewModel.toggleVoiceInput() }
+        )
+
+        state.currentLayout.rows.forEach { row ->
+            val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
+            val isNumberRow = allCharacters && row.all { it.primary.singleOrNull()?.isDigit() == true }
+            // Indent short letter rows (the 9-key home row) by half a key on each side
+            val indent = if (allCharacters) ((10f - row.sumOf { it.flex.toDouble() }.toFloat()) / 2f).coerceAtLeast(0f) else 0f
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            )
-
-            // Voice input bar with suggestions and mic button
-            VoiceInputBar(
-                suggestions = if (state.showSuggestionBar) state.suggestions else emptyList(),
-                primarySuggestion = state.transliterationBuffer.primaryCandidate,
-                isListening = state.isVoiceListening,
-                partialResult = state.partialVoiceResult,
-                errorMessage = state.voiceError,
-                onSuggestionClick = { viewModel.onSuggestionClick(it) },
-                onMicClick = { viewModel.toggleVoiceInput() },
-                showMic = state.field.allowsVoice
-            )
-
-            val enterLabel = enterKeyLabel(state.field)
-
-            // Keyboard rows
-            state.currentLayout.rows.forEach { row ->
-                KeyboardRow(
-                    keys = row,
-                    isShifted = state.isShifted,
-                    isCapsLock = state.isCapsLock,
-                    onKeyClick = { key -> viewModel.onKeyClick(key) },
-                    onBackspaceLongPressStart = { viewModel.onBackspaceLongPressStart() },
-                    onBackspaceLongPressEnd = { viewModel.onBackspaceLongPressEnd() },
-                    enterLabel = enterLabel,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    .padding(bottom = RowGap),
+                horizontalArrangement = Arrangement.spacedBy(KeyGap)
+            ) {
+                if (indent > 0f) Box(Modifier.weight(indent))
+                row.forEach { key ->
+                    val alternate = keyAlternate(key, state.isShifted)
+                    val isBackspace = key.primary == "⌫"
+                    Key(
+                        key = key,
+                        visual = keyVisual(key, state, enterLabel, spaceLabel, colors),
+                        colors = colors,
+                        height = if (isNumberRow) NumberRowKeyHeight else KeyHeight,
+                        onTap = { viewModel.onKeyClick(key) },
+                        onLongPress = alternate?.let { alt -> { viewModel.onKeyLongPress(alt) } },
+                        onRepeatStart = if (isBackspace) ({ viewModel.onBackspaceLongPressStart() }) else null,
+                        onRepeatEnd = if (isBackspace) ({ viewModel.onBackspaceLongPressEnd() }) else null,
+                        modifier = Modifier.weight(key.flex)
+                    )
+                }
+                if (indent > 0f) Box(Modifier.weight(indent))
             }
         }
     }
 }
 
+/** How a key is drawn: a label or an icon, an optional corner hint, and its colours. */
+data class KeyVisual(
+    val text: String? = null,
+    @param:DrawableRes val icon: Int? = null,
+    val hint: String? = null,
+    val background: Color,
+    val content: Color,
+    val fontSize: TextUnit = 21.sp,
+    val description: String? = null,
+    val showsPreview: Boolean = false
+)
+
 /**
- * Language indicator at the top of keyboard.
+ * The character a long-press types, shown as the key's corner hint: the Nepali shift character,
+ * or the first long-press symbol. Uppercase Latin letters don't count (shift already gives them).
  */
+private fun keyAlternate(key: KeyData, isShifted: Boolean): String? {
+    if (key.keyType != KeyType.CHARACTER || isShifted) return null
+    val shift = key.shift
+    if (shift != null && shift != key.primary && shift != key.primary.uppercase()) return shift
+    return key.longPress?.firstOrNull { it != key.primary }
+}
+
 @Composable
-fun LanguageIndicator(
-    currentLanguage: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = currentLanguage,
-            color = Color(0xFF9E9E9E),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
+private fun keyVisual(
+    key: KeyData,
+    state: KeyboardState,
+    enter: EnterKeyLabel,
+    spaceLabel: String,
+    colors: KeyboardColors
+): KeyVisual {
+    val nepaliKeys = state.currentLanguage == LanguageMode.NEPALI
+    return when (key.primary) {
+        "↵" -> KeyVisual(
+            text = enter.text, icon = enter.icon, background = colors.accent, content = colors.onAccent,
+            fontSize = 13.sp, description = enter.description
+        )
+        "⌫" -> KeyVisual(
+            icon = R.drawable.ic_ui_backspace, background = colors.functionKey, content = colors.keyText,
+            description = stringResource(R.string.key_delete)
+        )
+        "⇧" -> KeyVisual(
+            icon = if (state.isCapsLock) R.drawable.ic_ui_shift_lock else R.drawable.ic_ui_shift,
+            background = colors.functionKey,
+            content = if (state.isShifted) colors.accent else colors.keyText,
+            description = stringResource(if (state.isCapsLock) R.string.key_caps_lock else R.string.key_shift)
+        )
+        "🌐" -> KeyVisual(
+            icon = R.drawable.ic_ui_language, background = colors.functionKey, content = colors.keyText,
+            description = stringResource(R.string.key_language)
+        )
+        " " -> KeyVisual(
+            text = spaceLabel, background = colors.key, content = colors.hint, fontSize = 12.sp,
+            description = stringResource(R.string.key_space)
+        )
+        "?123", "123", "=+/" -> KeyVisual(
+            text = if (key.primary == "?123" && nepaliKeys) "?१२३" else key.primary,
+            background = colors.functionKey, content = colors.keyText, fontSize = 14.sp,
+            description = stringResource(R.string.key_numbers)
+        )
+        "ABC" -> KeyVisual(
+            text = if (nepaliKeys) "कखग" else "ABC",
+            background = colors.functionKey, content = colors.keyText, fontSize = 14.sp,
+            description = stringResource(R.string.key_letters)
+        )
+        else -> KeyVisual(
+            text = key.getOutput(state.isShifted),
+            hint = keyAlternate(key, state.isShifted),
+            background = if (key.keyType == KeyType.CHARACTER) colors.key else colors.functionKey,
+            content = colors.keyText,
+            fontSize = if (key.primary.length > 2) 14.sp else 21.sp,
+            showsPreview = key.keyType == KeyType.CHARACTER
         )
     }
 }
 
 /**
- * A single row of keys.
+ * One key. Taps fire on release; a long-press types the corner hint; backspace deletes on
+ * touch-down and repeats while held. Each press gives a light haptic tick, and character keys
+ * show a preview bubble above the finger.
  */
 @Composable
-fun KeyboardRow(
-    keys: List<KeyData>,
-    isShifted: Boolean,
-    isCapsLock: Boolean,
-    onKeyClick: (KeyData) -> Unit,
-    onBackspaceLongPressStart: () -> Unit,
-    onBackspaceLongPressEnd: () -> Unit,
-    enterLabel: EnterKeyLabel,
+private fun Key(
+    key: KeyData,
+    visual: KeyVisual,
+    colors: KeyboardColors,
+    height: Dp,
+    onTap: () -> Unit,
+    onLongPress: (() -> Unit)?,
+    onRepeatStart: (() -> Unit)?,
+    onRepeatEnd: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = 2.dp, vertical = 3.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        keys.forEach { key ->
-            Key(
-                keyData = key,
-                isShifted = isShifted,
-                isCapsLock = isCapsLock,
-                onClick = { onKeyClick(key) },
-                onLongPressStart = if (key.primary == "⌫") onBackspaceLongPressStart else null,
-                onLongPressEnd = if (key.primary == "⌫") onBackspaceLongPressEnd else null,
-                label = if (key.primary == "↵") enterLabel.text else null,
-                contentDescription = if (key.primary == "↵") enterLabel.description else null,
-                modifier = Modifier.weight(key.flex)
-            )
-        }
-    }
-}
-
-/**
- * Individual key composable.
- */
-@Composable
-fun Key(
-    keyData: KeyData,
-    isShifted: Boolean,
-    isCapsLock: Boolean,
-    onClick: () -> Unit,
-    onLongPressStart: (() -> Unit)? = null,
-    onLongPressEnd: (() -> Unit)? = null,
-    label: String? = null,
-    contentDescription: String? = null,
-    modifier: Modifier = Modifier
-) {
-    val backgroundColor = when {
-        // Shift key highlighting
-        keyData.keyType == KeyType.MODIFIER && keyData.primary == "⇧" && isCapsLock -> {
-            Color(0xFF0A84FF) // Blue for caps lock (same as action keys)
-        }
-        keyData.keyType == KeyType.MODIFIER && keyData.primary == "⇧" && isShifted -> {
-            Color(0xFF5A5A5A) // Lighter gray for shift active
-        }
-        // Default colors for other keys
-        keyData.keyType == KeyType.CHARACTER -> Color(0xFF3A3A3A)
-        keyData.keyType == KeyType.ACTION -> Color(0xFF0A84FF) // iOS-style blue for action keys
-        keyData.keyType == KeyType.MODIFIER -> Color(0xFF3A3A3A)
-        keyData.keyType == KeyType.FUNCTION -> Color(0xFF2C2C2C)
-        keyData.keyType == KeyType.SPACER -> Color.Transparent
-        else -> Color(0xFF3A3A3A)
-    }
-
-    val textColor = when (keyData.keyType) {
-        KeyType.ACTION -> Color.White
-        else -> Color(0xFFE5E5E5)
-    }
+    val view = LocalView.current
+    var pressed by remember { mutableStateOf(false) }
+    val tap by rememberUpdatedState(onTap)
+    val longPress by rememberUpdatedState(onLongPress)
+    val repeatStart by rememberUpdatedState(onRepeatStart)
+    val repeatEnd by rememberUpdatedState(onRepeatEnd)
+    val repeating = onRepeatStart != null
+    val hasLongPress = onLongPress != null
 
     Box(
         modifier = modifier
-            .then(
-                if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription }
-                else Modifier
-            )
-            .height(48.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(backgroundColor)
-            .then(
-                if (keyData.keyType != KeyType.SPACER && onLongPressStart != null && onLongPressEnd != null) {
-                    // Use pointerInput for backspace to handle long-press
-                    Modifier.pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                onClick()
-                                val pressed = tryAwaitRelease()
-                                if (pressed) {
-                                    onLongPressEnd()
-                                }
-                            },
-                            onLongPress = {
-                                onLongPressStart()
-                            }
-                        )
+            .height(height)
+            .then(if (visual.description != null) Modifier.semantics { contentDescription = visual.description } else Modifier)
+            .pointerInput(key.primary, repeating, hasLongPress) {
+                detectTapGestures(
+                    onPress = {
+                        pressed = true
+                        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        if (repeating) tap()
+                        tryAwaitRelease()
+                        pressed = false
+                        // Stop repeating on release or when the gesture is cancelled
+                        if (repeating) repeatEnd?.invoke()
+                    },
+                    onTap = { if (!repeating) tap() },
+                    onLongPress = when {
+                        repeating -> { _ -> repeatStart?.invoke() }
+                        hasLongPress -> { _ -> longPress?.invoke() }
+                        else -> null
                     }
-                } else if (keyData.keyType != KeyType.SPACER) {
-                    // Regular clickable for other keys
-                    Modifier.clickable { onClick() }
-                } else {
-                    Modifier
-                }
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        if (keyData.keyType != KeyType.SPACER) {
-            val displayText = when {
-                label != null -> label
-                keyData.keyType == KeyType.MODIFIER && isShifted -> keyData.primary
-                keyData.keyType == KeyType.CHARACTER && isShifted && keyData.shift != null -> keyData.shift
-                else -> keyData.primary
+                )
             }
-
-            Text(
-                text = displayText,
-                color = textColor,
-                fontSize = when {
-                    label != null && label.length > 2 -> 13.sp
-                    else -> when (keyData.keyType) {
-                    KeyType.CHARACTER -> 20.sp
-                    KeyType.FUNCTION -> 16.sp
-                    else -> 18.sp
-                    }
-                },
-                maxLines = 1,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .shadow(if (colors.keyShadow == Color.Transparent) 0.dp else 0.5.dp, KeyShape)
+                .clip(KeyShape)
+                .background(if (pressed && !visual.showsPreview) colors.functionKey else visual.background),
+            contentAlignment = Alignment.Center
+        ) {
+            KeyContent(visual)
+            visual.hint?.let {
+                Text(
+                    text = it,
+                    color = colors.hint,
+                    fontSize = 10.sp,
+                    lineHeight = 10.sp,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 2.dp, end = 4.dp)
+                )
+            }
+        }
+        if (pressed && visual.showsPreview) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = -PreviewHeight - 4.dp)
+                    .requiredSize(PreviewWidth, PreviewHeight)
+                    .shadow(6.dp, PreviewShape)
+                    .clip(PreviewShape)
+                    .background(colors.preview),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = visual.text.orEmpty(), color = colors.keyText, fontSize = 28.sp, maxLines = 1)
+            }
         }
     }
 }
 
+@Composable
+private fun KeyContent(visual: KeyVisual) {
+    if (visual.icon != null) {
+        Icon(
+            painter = painterResource(visual.icon),
+            contentDescription = null,
+            tint = visual.content,
+            modifier = Modifier.size(22.dp)
+        )
+    } else {
+        Text(
+            text = visual.text.orEmpty(),
+            color = visual.content,
+            fontSize = visual.fontSize,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 2.dp)
+        )
+    }
+}
 
-/** What the Enter key shows for the focused field, plus its spoken label. */
-data class EnterKeyLabel(val text: String, val description: String)
+/** What the Enter key shows for the focused field (icon, or the app's own label), plus its spoken label. */
+data class EnterKeyLabel(val text: String?, @param:DrawableRes val icon: Int?, val description: String)
 
 @Composable
 fun enterKeyLabel(field: FieldInfo): EnterKeyLabel = when (field.enterAction) {
-    EnterAction.NEWLINE -> EnterKeyLabel("↵", stringResource(R.string.key_enter_newline))
-    EnterAction.DONE -> EnterKeyLabel("✓", stringResource(R.string.key_enter_done))
-    EnterAction.GO -> EnterKeyLabel("→", stringResource(R.string.key_enter_go))
-    EnterAction.SEARCH -> EnterKeyLabel("⌕", stringResource(R.string.key_enter_search))
-    EnterAction.SEND -> EnterKeyLabel("➤", stringResource(R.string.key_enter_send))
-    EnterAction.NEXT -> EnterKeyLabel("⇥", stringResource(R.string.key_enter_next))
-    EnterAction.PREVIOUS -> EnterKeyLabel("⇤", stringResource(R.string.key_enter_previous))
+    EnterAction.NEWLINE -> EnterKeyLabel(null, R.drawable.ic_ui_keyboard_return, stringResource(R.string.key_enter_newline))
+    EnterAction.DONE -> EnterKeyLabel(null, R.drawable.ic_ui_check, stringResource(R.string.key_enter_done))
+    EnterAction.GO -> EnterKeyLabel(null, R.drawable.ic_ui_arrow_forward, stringResource(R.string.key_enter_go))
+    EnterAction.SEARCH -> EnterKeyLabel(null, R.drawable.ic_ui_search, stringResource(R.string.key_enter_search))
+    EnterAction.SEND -> EnterKeyLabel(null, R.drawable.ic_ui_send, stringResource(R.string.key_enter_send))
+    EnterAction.NEXT -> EnterKeyLabel(null, R.drawable.ic_ui_keyboard_tab, stringResource(R.string.key_enter_next))
+    EnterAction.PREVIOUS -> EnterKeyLabel(null, R.drawable.ic_ui_keyboard_tab_rtl, stringResource(R.string.key_enter_previous))
     EnterAction.CUSTOM -> {
         val label = field.actionLabel.orEmpty()
-        EnterKeyLabel(label, label)
+        EnterKeyLabel(label, null, label)
     }
 }

@@ -2,8 +2,10 @@ package io.github.thegbguy.nepalikeyboard.service
 
 import android.content.Context
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -73,6 +75,15 @@ class NepaliIMEService : InputMethodService(),
 
         // Configure window to not overlap with system navigation bar
         window?.window?.let { window ->
+            // Draw the keyboard behind the navigation bar so its background fills that strip;
+            // KeyboardView pads its keys by the navigation-bar inset.
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            @Suppress("DEPRECATION")
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // No grey scrim behind 3-button navigation
+                window.isNavigationBarContrastEnforced = false
+            }
             window.decorView.let { decorView ->
                 decorView.setViewTreeLifecycleOwner(this)
                 decorView.setViewTreeViewModelStoreOwner(this)
@@ -90,6 +101,18 @@ class NepaliIMEService : InputMethodService(),
         super.onStartInputView(info, restarting)
         keyboardViewModel.inputConnectionProvider = { currentInputConnection }
         keyboardViewModel.onInputStarted(FieldInfo.from(info), restarting)
+    }
+
+    override fun onUpdateSelection(
+        oldSelStart: Int,
+        oldSelEnd: Int,
+        newSelStart: Int,
+        newSelEnd: Int,
+        candidatesStart: Int,
+        candidatesEnd: Int
+    ) {
+        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        keyboardViewModel.onSelectionChanged(newSelStart, newSelEnd, candidatesStart, candidatesEnd)
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {

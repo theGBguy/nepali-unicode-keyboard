@@ -29,4 +29,16 @@
     <string name="key_enter_send">Send</string>
     <string name="key_enter_next">Next</string>
     <string name="key_enter_previous">Previous</string>
+
+    <!-- Keyboard keys, read by TalkBack; the space bar shows the mode -->
+    <string name="space_romanized">नेपाली · Romanized</string>
+    <string name="key_space">Space</string>
+    <string name="key_delete">Delete</string>
+    <string name="key_shift">Shift</string>
+    <string name="key_caps_lock">Caps lock</string>
+    <string name="key_language">Switch language</string>
+    <string name="key_numbers">Numbers and symbols</string>
+    <string name="key_letters">Letters</string>
+    <string name="voice_start">Voice typing</string>
+    <string name="voice_stop">Stop listening</string>
 </resources>

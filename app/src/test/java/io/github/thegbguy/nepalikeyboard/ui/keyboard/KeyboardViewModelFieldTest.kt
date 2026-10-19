@@ -128,6 +128,41 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
+    fun `app clearing the box drops the Romanized word so new letters start fresh`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        vm.onSelectionChanged(selStart = 3, selEnd = 3, composingStart = 0, composingEnd = 3)
+        assertEquals("ram", vm.state.value.transliterationBuffer.romanizedText) // our own update: kept
+
+        vm.onSelectionChanged(selStart = 0, selEnd = 0, composingStart = -1, composingEnd = -1)
+        assertTrue(vm.state.value.transliterationBuffer.isEmpty())
+        vm.onKeyClick(KeyData("n"))
+        verify { ic.setComposingText("n", 1) }
+    }
+
+    @Test
+    fun `moving the cursor away finishes the word where it is`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        vm.onSelectionChanged(selStart = 0, selEnd = 0, composingStart = 5, composingEnd = 8)
+        verify { ic.finishComposingText() }
+        assertTrue(vm.state.value.transliterationBuffer.isEmpty())
+    }
+
+    @Test
+    fun `long-press types the alternate and keep-Latin commits the typed letters`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        vm.onKeepLatin()
+        verify { ic.commitText("ram ", 1) }
+        vm.onKeyLongPress("@")
+        verify { ic.commitText("@", 1) }
+    }
+
+    @Test
     fun `leaving a field mid-word commits it as Devanagari`() {
         vm.onInputStarted(textField)
         switchToRomanized()

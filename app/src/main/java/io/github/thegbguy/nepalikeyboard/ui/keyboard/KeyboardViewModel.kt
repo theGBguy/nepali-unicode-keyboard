@@ -265,6 +265,32 @@ class KeyboardViewModel : ViewModel() {
     }
 
     /**
+     * Long-press on a key: type its alternate character (the Nepali shift character or a symbol)
+     * directly. A pending Romanized word is committed first.
+     */
+    fun onKeyLongPress(alternate: String) {
+        commitTransliterationBuffer()
+        inputConnection?.commitText(alternate, 1)
+        if (_state.value.isShifted && !_state.value.isCapsLock) {
+            _state.update { it.copy(isShifted = false) }
+        }
+    }
+
+    /** Keep the Romanized word as typed (Latin), instead of converting it. */
+    fun onKeepLatin() {
+        val buffer = _state.value.transliterationBuffer
+        if (buffer.isEmpty()) return
+        inputConnection?.commitText(buffer.romanizedText + " ", 1)
+        _state.update {
+            it.copy(
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
+    }
+
+    /**
      * Enter: run the field's action (Send, Search, Go, Next...) or insert a new line.
      * Any pending Romanized word is committed first so it isn't lost.
      */
@@ -490,6 +516,27 @@ class KeyboardViewModel : ViewModel() {
             )
         }
         updateLayout()
+    }
+
+    /**
+     * Called by the IME service when the cursor or composing region changes. If the app or the
+     * user moved the cursor away from the Romanized word, or the app removed it (e.g. cleared the
+     * box after Send), drop the buffer so new letters don't get glued onto stale text.
+     *
+     * @param composingStart start of the composing region, or -1 if there is none
+     */
+    fun onSelectionChanged(selStart: Int, selEnd: Int, composingStart: Int, composingEnd: Int) {
+        if (_state.value.transliterationBuffer.isEmpty()) return
+        val stillComposing = composingStart >= 0 && selStart == selEnd && selEnd == composingEnd
+        if (stillComposing) return
+        if (composingStart >= 0) inputConnection?.finishComposingText()
+        _state.update {
+            it.copy(
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
     }
 
     /** Called by the IME service when the field loses focus. */

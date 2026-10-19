@@ -24,4 +24,16 @@
     <string name="key_enter_send">पठाउनुहोस्</string>
     <string name="key_enter_next">अर्को</string>
     <string name="key_enter_previous">अघिल्लो</string>
+
+    <!-- Keyboard keys, read by TalkBack; the space bar shows the mode -->
+    <string name="space_romanized">नेपाली · रोमनाइज्ड</string>
+    <string name="key_space">स्पेस</string>
+    <string name="key_delete">मेटाउनुहोस्</string>
+    <string name="key_shift">सिफ्ट</string>
+    <string name="key_caps_lock">क्याप्स लक</string>
+    <string name="key_language">भाषा बदल्नुहोस्</string>
+    <string name="key_numbers">अंक र चिन्ह</string>
+    <string name="key_letters">अक्षर</string>
+    <string name="voice_start">बोलेर टाइप गर्नुहोस्</string>
+    <string name="voice_stop">सुन्न रोक्नुहोस्</string>
 </resources>
