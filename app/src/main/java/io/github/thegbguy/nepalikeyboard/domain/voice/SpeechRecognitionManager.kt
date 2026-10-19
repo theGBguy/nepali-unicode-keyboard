@@ -164,11 +164,6 @@ class SpeechRecognitionManager(private val context: Context) {
                 isListening = false
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    Log.d(TAG, "=== Final Speech Recognition Results ===")
-                    matches.forEachIndexed { index, result ->
-                        Log.d(TAG, "Result [$index]: $result")
-                    }
-                    Log.d(TAG, "Selected (best match): ${matches.first()}")
                     listener?.onResults(matches)
                 } else {
                     Log.d(TAG, "No speech results detected")
@@ -179,7 +174,6 @@ class SpeechRecognitionManager(private val context: Context) {
             override fun onPartialResults(partialResults: Bundle?) {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    Log.d(TAG, "Partial result: ${matches.first()}")
                     listener?.onPartialResults(matches)
                 }
             }
