@@ -31,7 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
+import io.github.thegbguy.nepalikeyboard.R
 
 /**
  * Voice input bar component that shows suggestions and a microphone button.
@@ -52,7 +55,7 @@ fun VoiceInputBar(
     primarySuggestion: String,
     isListening: Boolean,
     partialResult: String?,
-    errorMessage: String?,
+    @StringRes errorMessage: Int?,
     onSuggestionClick: (String) -> Unit,
     onMicClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -86,7 +89,7 @@ fun VoiceInputBar(
                     errorMessage != null -> {
                         // Show error message
                         Text(
-                            text = errorMessage,
+                            text = stringResource(errorMessage),
                             color = Color(0xFFFF6B6B),
                             fontSize = 14.sp,
                             maxLines = 1,
@@ -209,7 +212,7 @@ private fun ListeningIndicator(
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = partialResult ?: "Listening...",
+            text = partialResult ?: stringResource(R.string.voice_listening),
             color = Color.White,
             fontSize = 14.sp,
             maxLines = 1,

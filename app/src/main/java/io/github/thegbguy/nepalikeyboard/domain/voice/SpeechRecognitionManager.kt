@@ -1,6 +1,8 @@
 package io.github.thegbguy.nepalikeyboard.domain.voice
 
 import android.content.Context
+import androidx.annotation.StringRes
+import io.github.thegbguy.nepalikeyboard.R
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognitionListener
@@ -30,7 +32,7 @@ class SpeechRecognitionManager(private val context: Context) {
         fun onBeginningOfSpeech()
         fun onEndOfSpeech()
         fun onResults(results: List<String>)
-        fun onError(errorMessage: String)
+        fun onError(@StringRes messageRes: Int)
         fun onPartialResults(partialResults: List<String>)
     }
 
@@ -56,7 +58,7 @@ class SpeechRecognitionManager(private val context: Context) {
         if (isListening) return
 
         if (!isRecognitionAvailable()) {
-            listener?.onError("Speech recognition not available")
+            listener?.onError(R.string.voice_error_unavailable)
             return
         }
 
@@ -80,7 +82,7 @@ class SpeechRecognitionManager(private val context: Context) {
             isListening = true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start speech recognition", e)
-            listener?.onError("Failed to start speech recognition")
+            listener?.onError(R.string.voice_error_start_failed)
             isListening = false
         }
     }
@@ -154,9 +156,8 @@ class SpeechRecognitionManager(private val context: Context) {
 
             override fun onError(error: Int) {
                 isListening = false
-                val errorMessage = getErrorMessage(error)
-                Log.e(TAG, "Speech recognition error: $errorMessage (code: $error)")
-                listener?.onError(errorMessage)
+                Log.e(TAG, "Speech recognition error code: $error")
+                listener?.onError(errorMessageRes(error))
             }
 
             override fun onResults(results: Bundle?) {
@@ -171,7 +172,7 @@ class SpeechRecognitionManager(private val context: Context) {
                     listener?.onResults(matches)
                 } else {
                     Log.d(TAG, "No speech results detected")
-                    listener?.onError("No speech detected")
+                    listener?.onError(R.string.voice_error_no_speech)
                 }
             }
 
@@ -189,18 +190,20 @@ class SpeechRecognitionManager(private val context: Context) {
         }
     }
 
-    private fun getErrorMessage(errorCode: Int): String {
+    @StringRes
+    private fun errorMessageRes(errorCode: Int): Int {
         return when (errorCode) {
-            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-            SpeechRecognizer.ERROR_CLIENT -> "Client error"
-            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission required"
-            SpeechRecognizer.ERROR_NETWORK -> "Network error"
-            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
-            SpeechRecognizer.ERROR_NO_MATCH -> "No speech detected"
-            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Recognition service busy"
-            SpeechRecognizer.ERROR_SERVER -> "Server error"
-            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
-            else -> "Recognition error"
+            SpeechRecognizer.ERROR_AUDIO -> R.string.voice_error_audio
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> R.string.voice_error_mic_permission
+            SpeechRecognizer.ERROR_NETWORK,
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.voice_error_network
+            SpeechRecognizer.ERROR_NO_MATCH,
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.voice_error_no_speech
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> R.string.voice_error_busy
+            SpeechRecognizer.ERROR_SERVER -> R.string.voice_error_server
+            SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED,
+            SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE -> R.string.voice_error_language
+            else -> R.string.voice_error_generic
         }
     }
 }

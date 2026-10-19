@@ -12,6 +12,8 @@ import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliTransliter
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationEngine
 import android.Manifest
 import android.content.Context
+import androidx.annotation.StringRes
+import io.github.thegbguy.nepalikeyboard.R
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
@@ -475,11 +477,11 @@ class KeyboardViewModel : ViewModel() {
                 }
             }
 
-            override fun onError(errorMessage: String) {
+            override fun onError(messageRes: Int) {
                 _state.update {
                     it.copy(
                         isVoiceListening = false,
-                        voiceError = errorMessage,
+                        voiceError = messageRes,
                         partialVoiceResult = null
                     )
                 }
@@ -527,7 +529,7 @@ class KeyboardViewModel : ViewModel() {
         // Check microphone permission first
         if (!hasMicrophonePermission()) {
             _state.update {
-                it.copy(voiceError = "Microphone permission required. Open app to grant.")
+                it.copy(voiceError = R.string.voice_error_mic_permission)
             }
             // Clear error after 4 seconds
             voiceErrorClearJob?.cancel()
@@ -607,6 +609,6 @@ data class KeyboardState(
     val showSuggestionBar: Boolean = false,
     // Voice typing state
     val isVoiceListening: Boolean = false,
-    val voiceError: String? = null,
+    @StringRes val voiceError: Int? = null,
     val partialVoiceResult: String? = null
 )

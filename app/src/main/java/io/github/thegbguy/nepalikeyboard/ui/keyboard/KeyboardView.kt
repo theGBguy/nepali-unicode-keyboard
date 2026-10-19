@@ -19,6 +19,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.WindowInsets
@@ -50,7 +51,7 @@ fun KeyboardView(
         ) {
             // Language indicator bar
             LanguageIndicator(
-                currentLanguage = state.currentLanguage.displayName(),
+                currentLanguage = stringResource(state.currentLanguage.labelRes()),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 4.dp)

@@ -35,6 +35,17 @@ android {
     buildFeatures {
         compose = true
     }
+    androidResources {
+        // Only the app's own languages; drops library translations for languages we don't support.
+        localeFilters += listOf("en", "ne")
+    }
+    bundle {
+        // Ship every language in every install: the in-app language setting can pick Nepali
+        // on a phone set to English, and the strings are tiny.
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 dependencies {

@@ -1,5 +1,7 @@
 package io.github.thegbguy.nepalikeyboard.service
 
+import android.content.Context
+import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import androidx.lifecycle.Lifecycle
@@ -48,6 +50,10 @@ class NepaliIMEService : InputMethodService(),
 
     private fun handleLifecycleEvent(event: Lifecycle.Event) =
         lifecycleRegistry.handleLifecycleEvent(event)
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
 
     override fun onCreate() {
         super.onCreate()

@@ -1,5 +1,8 @@
 package io.github.thegbguy.nepalikeyboard.domain.model
 
+import androidx.annotation.StringRes
+import io.github.thegbguy.nepalikeyboard.R
+
 /**
  * Represents the different language modes supported by the keyboard.
  */
@@ -24,12 +27,13 @@ enum class LanguageMode {
     TRANSLITERATION;
 
     /**
-     * Returns the display name for this language mode.
+     * String resource for this mode's label.
      */
-    fun displayName(): String = when (this) {
-        NEPALI -> "नेपाली"
-        ENGLISH -> "English"
-        TRANSLITERATION -> "Transliteration"
+    @StringRes
+    fun labelRes(): Int = when (this) {
+        NEPALI -> R.string.mode_nepali
+        ENGLISH -> R.string.mode_english
+        TRANSLITERATION -> R.string.mode_romanized
     }
 
     /**

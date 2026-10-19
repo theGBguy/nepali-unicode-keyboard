@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">नेपाली किबोर्ड</string>
+    <string name="ime_name">नेपाली युनिकोड किबोर्ड</string>
+
+    <string name="mode_romanized">रोमनाइज्ड</string>
+
+    <string name="voice_listening">सुन्दै छ…</string>
+    <string name="voice_error_mic_permission">माइक्रोफोनको अनुमति चाहिन्छ। अनुमति दिन एप खोल्नुहोस्।</string>
+    <string name="voice_error_unavailable">यो फोनमा बोलेर टाइप उपलब्ध छैन</string>
+    <string name="voice_error_language">यो फोनमा नेपाली बोलेर टाइप अझै उपलब्ध छैन</string>
+    <string name="voice_error_start_failed">बोलेर टाइप सुरु गर्न सकिएन</string>
+    <string name="voice_error_no_speech">केही सुनिएन। फेरि प्रयास गर्नुहोस्।</string>
+    <string name="voice_error_audio">आवाज रेकर्ड गर्न सकिएन</string>
+    <string name="voice_error_network">बोलेर टाइप गर्न इन्टरनेट चाहिन्छ</string>
+    <string name="voice_error_busy">बोलेर टाइप अहिले व्यस्त छ। फेरि प्रयास गर्नुहोस्।</string>
+    <string name="voice_error_server">Google को आवाज सेवामा समस्या आयो। फेरि प्रयास गर्नुहोस्।</string>
+    <string name="voice_error_generic">बोलेर टाइप रोकियो। फेरि प्रयास गर्नुहोस्।</string>
+</resources>

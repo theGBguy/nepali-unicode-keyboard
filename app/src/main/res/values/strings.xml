@@ -1,28 +1,23 @@
 <resources>
     <string name="app_name">Nepali Keyboard</string>
+    <!-- Name in Android's keyboard list and picker; matches the Play title -->
+    <string name="ime_name">Nepali Unicode Keyboard</string>
 
-    <!-- IME Configuration -->
-    <string name="ime_name">Nepali Keyboard - नेपाली</string>
-    <string name="settings_name">Nepali Keyboard Settings</string>
+    <!-- Keyboard mode labels. Language names are shown in their own script in every locale. -->
+    <string name="mode_nepali" translatable="false">नेपाली</string>
+    <string name="mode_english" translatable="false">English</string>
+    <string name="mode_romanized">Romanized</string>
 
-    <!-- Language modes -->
-    <string name="mode_nepali">नेपाली</string>
-    <string name="mode_english">English</string>
-    <string name="mode_transliteration">Transliteration</string>
-
-    <!-- Key labels -->
-    <string name="key_space">Space</string>
-    <string name="key_enter">Enter</string>
-    <string name="key_delete">Delete</string>
-    <string name="key_shift">Shift</string>
-    <string name="key_language_switch">Language</string>
-
-    <!-- Instructions -->
-    <string name="enable_keyboard_instruction">To use Nepali Keyboard:\n\n1. Go to Settings → System → Languages &amp; input → Virtual keyboard\n2. Enable \"Nepali Keyboard\"\n3. Open any app with text input\n4. Tap the keyboard icon or long-press space bar\n5. Select \"Nepali Keyboard\"</string>
-
-    <!-- Settings (for Phase 3) -->
-    <string name="settings_haptic_feedback">Haptic feedback</string>
-    <string name="settings_sound_feedback">Sound on keypress</string>
-    <string name="settings_auto_capitalization">Auto-capitalization</string>
-    <string name="settings_theme">Keyboard theme</string>
+    <!-- Voice typing -->
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_error_mic_permission">Microphone permission needed. Open the app to allow it.</string>
+    <string name="voice_error_unavailable">Voice typing isn’t available on this phone</string>
+    <string name="voice_error_language">Nepali voice typing isn’t available on this phone yet</string>
+    <string name="voice_error_start_failed">Couldn’t start voice typing</string>
+    <string name="voice_error_no_speech">Didn’t hear anything. Try again.</string>
+    <string name="voice_error_audio">Couldn’t record audio</string>
+    <string name="voice_error_network">Voice typing needs an internet connection</string>
+    <string name="voice_error_busy">Voice typing is busy. Try again.</string>
+    <string name="voice_error_server">Google’s speech service had a problem. Try again.</string>
+    <string name="voice_error_generic">Voice typing stopped. Try again.</string>
 </resources>
