@@ -19,6 +19,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
+import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliWordList
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
@@ -65,6 +66,9 @@ class NepaliIMEService : InputMethodService(),
         super.onCreate()
         savedStateRegistryController.performRestore(null)
         handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+
+        // Load the Romanized-typing word list in the background
+        NepaliWordList.loadAsync(this)
 
         // Initialize speech recognition manager
         speechRecognitionManager = SpeechRecognitionManager(this)
