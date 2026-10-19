@@ -50,11 +50,11 @@ class KeyboardViewModel : ViewModel() {
     /** Stored settings (Nepali style). The IME service replaces this with the on-device store. */
     var prefs: KeyboardPrefs = InMemoryKeyboardPrefs()
 
+    /** Asks for the microphone permission (opens a small activity). Set by the IME service. */
+    var onRequestMicPermission: (() -> Unit)? = null
+
     /** Opens Android's keyboard picker. Set by the IME service. */
     var onSwitchKeyboard: () -> Unit = {}
-
-    /** Whether the user last chose Nepali with the language key; restored on the next normal field. */
-    private var prefersNepali = false
 
     // Job for handling backspace long-press repeating deletion
     private var backspaceJob: Job? = null
@@ -141,9 +141,6 @@ class KeyboardViewModel : ViewModel() {
         backspaceJob = null
     }
 
-    /**
-     * Switches to the next language mode.
-     */
     /** The language key: English ⇄ Nepali in the user's style. */
     fun switchLanguage() {
         val toNepali = _state.value.currentLanguage == LanguageMode.ENGLISH
@@ -166,6 +163,20 @@ class KeyboardViewModel : ViewModel() {
         setLanguage(nepaliMode(_state.value.field))
     }
 
+    /**
+     * Settings changed outside the keyboard (the app's style choice): bring the open keyboard in
+     * line. Does nothing when it already matches, so the keyboard's own writes don't loop.
+     */
+    fun onPrefsChanged() {
+        val field = _state.value.field
+        val target = when {
+            field.prefersEnglish -> return
+            prefs.typeNepali -> nepaliMode(field)
+            else -> LanguageMode.ENGLISH
+        }
+        if (target != _state.value.currentLanguage) setLanguage(target)
+    }
+
     /** Menu choice: Android's keyboard picker. */
     fun switchKeyboard() {
         dismissLanguageMenu()
@@ -182,7 +193,7 @@ class KeyboardViewModel : ViewModel() {
         commitTransliterationBuffer()
         val field = _state.value.field
         // A choice made in an email/URL/password field applies to that field only
-        if (!field.prefersEnglish) prefersNepali = mode != LanguageMode.ENGLISH
+        if (!field.prefersEnglish) prefs.typeNepali = mode != LanguageMode.ENGLISH
         _state.update {
             it.copy(
                 currentLanguage = mode,
@@ -539,7 +550,7 @@ class KeyboardViewModel : ViewModel() {
 
         val language = when {
             field.prefersEnglish -> LanguageMode.ENGLISH
-            prefersNepali -> nepaliMode(field)
+            prefs.typeNepali -> nepaliMode(field)
             else -> LanguageMode.ENGLISH
         }
 
@@ -692,6 +703,10 @@ class KeyboardViewModel : ViewModel() {
 
         // Check microphone permission first
         if (!hasMicrophonePermission()) {
+            onRequestMicPermission?.let { request ->
+                request()
+                return
+            }
             _state.update {
                 it.copy(voiceError = R.string.voice_error_mic_permission)
             }

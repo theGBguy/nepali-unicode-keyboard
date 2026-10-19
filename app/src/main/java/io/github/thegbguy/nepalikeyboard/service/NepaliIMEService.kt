@@ -26,6 +26,7 @@ import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardViewModel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.SharedKeyboardPrefs
+import io.github.thegbguy.nepalikeyboard.ui.setup.MicPermissionActivity
 
 /**
  * Core InputMethodService for Nepali Keyboard.
@@ -72,7 +73,9 @@ class NepaliIMEService : InputMethodService(),
         // Load the Romanized-typing word list in the background
         NepaliWordList.loadAsync(this)
 
-        keyboardViewModel.prefs = SharedKeyboardPrefs(this)
+        keyboardViewModel.prefs = keyboardPrefs
+        keyboardPrefs.observe { keyboardViewModel.onPrefsChanged() }
+        keyboardViewModel.onRequestMicPermission = { MicPermissionActivity.start(this) }
         keyboardViewModel.onSwitchKeyboard = {
             getSystemService(InputMethodManager::class.java)?.showInputMethodPicker()
         }
@@ -105,6 +108,8 @@ class NepaliIMEService : InputMethodService(),
         return view
     }
 
+    private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
+
     private val keyboardViewModel: KeyboardViewModel
         get() = ViewModelProvider(this)[KeyboardViewModel::class.java]
 
@@ -133,6 +138,7 @@ class NepaliIMEService : InputMethodService(),
 
     override fun onDestroy() {
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        keyboardPrefs.stopObserving()
         speechRecognitionManager?.destroy()
         speechRecognitionManager = null
         super.onDestroy()

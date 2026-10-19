@@ -210,6 +210,35 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
+    fun `the last language is remembered across keyboard restarts`() {
+        val stored = InMemoryKeyboardPrefs(typeNepali = true)
+        vm.prefs = stored
+        vm.onInputStarted(textField)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+
+        vm.onKeyClick(globe) // to English
+        assertEquals(false, stored.typeNepali)
+
+        val next = KeyboardViewModel().apply { prefs = stored }
+        next.onInputStarted(textField)
+        assertEquals(LanguageMode.ENGLISH, next.state.value.currentLanguage)
+    }
+
+    @Test
+    fun `a style picked in the app updates the open keyboard`() {
+        val stored = InMemoryKeyboardPrefs(typeNepali = true)
+        vm.prefs = stored
+        vm.onInputStarted(textField)
+        stored.nepaliStyle = LanguageMode.NEPALI
+        vm.onPrefsChanged()
+        assertEquals(LanguageMode.NEPALI, language())
+
+        vm.onInputStarted(FieldInfo.classify(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, EditorInfo.IME_ACTION_DONE))
+        vm.onPrefsChanged()
+        assertEquals(LanguageMode.ENGLISH, language()) // email fields stay English
+    }
+
+    @Test
     fun `traditional layout joins अ and a vowel sign into one letter`() {
         vm.prefs = InMemoryKeyboardPrefs(LanguageMode.NEPALI)
         vm.onInputStarted(textField)
