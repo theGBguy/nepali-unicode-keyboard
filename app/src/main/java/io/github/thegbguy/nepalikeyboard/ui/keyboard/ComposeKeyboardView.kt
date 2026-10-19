@@ -20,9 +20,9 @@ class ComposeKeyboardView(
         // Get InputConnection from the IME service
         val imeService = context as? InputMethodService
 
-        // Update InputConnection when composition happens
+        // Read the current connection on every use; it changes with each focused field
         LaunchedEffect(imeService) {
-            viewModel.inputConnection = imeService?.currentInputConnection
+            viewModel.inputConnectionProvider = { imeService?.currentInputConnection }
         }
 
         // Set up speech recognition manager with context for permission checking

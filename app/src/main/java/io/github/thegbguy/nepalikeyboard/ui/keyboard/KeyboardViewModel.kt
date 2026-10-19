@@ -1,8 +1,17 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.thegbguy.nepalikeyboard.R
+import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
+import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyboardLayout
@@ -10,12 +19,6 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.domain.model.TransliterationBuffer
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliTransliterationEngine
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationEngine
-import android.Manifest
-import android.content.Context
-import androidx.annotation.StringRes
-import io.github.thegbguy.nepalikeyboard.R
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
@@ -36,8 +39,16 @@ class KeyboardViewModel : ViewModel() {
     private val _state = MutableStateFlow(KeyboardState())
     val state: StateFlow<KeyboardState> = _state.asStateFlow()
 
-    // Reference to InputConnection (set by IME service)
-    var inputConnection: InputConnection? = null
+    /**
+     * Supplies the focused field's InputConnection. Set by the keyboard view to read
+     * [android.inputmethodservice.InputMethodService.getCurrentInputConnection] on every use:
+     * the connection changes each time a new field gets focus, so it must never be cached.
+     */
+    var inputConnectionProvider: () -> InputConnection? = { null }
+    private val inputConnection: InputConnection? get() = inputConnectionProvider()
+
+    /** The mode the user picked with the language key; restored when a field doesn't force English. */
+    private var preferredLanguage: LanguageMode = LanguageMode.ENGLISH
 
     // Job for handling backspace long-press repeating deletion
     private var backspaceJob: Job? = null
@@ -139,7 +150,12 @@ class KeyboardViewModel : ViewModel() {
         }
 
         _state.update { currentState ->
-            val newMode = currentState.currentLanguage.next()
+            var newMode = currentState.currentLanguage.next()
+            if (newMode == LanguageMode.TRANSLITERATION && !currentState.field.allowsTransliteration) {
+                newMode = newMode.next()
+            }
+            // A choice made in an email/URL/password field applies to that field only
+            if (!currentState.field.prefersEnglish) preferredLanguage = newMode
             currentState.copy(
                 currentLanguage = newMode,
                 transliterationBuffer = TransliterationBuffer(),
@@ -244,10 +260,41 @@ class KeyboardViewModel : ViewModel() {
                     inputConnection?.commitText(" ", 1)
                 }
             }
-            "↵" -> {
-                // Enter key
-                inputConnection?.performEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_DONE)
+            "↵" -> handleEnter()
+        }
+    }
+
+    /**
+     * Enter: run the field's action (Send, Search, Go, Next...) or insert a new line.
+     * Any pending Romanized word is committed first so it isn't lost.
+     */
+    private fun handleEnter() {
+        commitTransliterationBuffer()
+        val field = _state.value.field
+        val ic = inputConnection ?: return
+        if (field.enterAction == EnterAction.NEWLINE) {
+            if (field.sendsKeyEvents) {
+                ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+            } else {
+                ic.commitText("\n", 1)
             }
+        } else {
+            ic.performEditorAction(field.imeActionId)
+        }
+    }
+
+    /** Commits the Romanized word being typed as Devanagari, if there is one. */
+    private fun commitTransliterationBuffer() {
+        val buffer = _state.value.transliterationBuffer
+        if (_state.value.currentLanguage != LanguageMode.TRANSLITERATION || buffer.isEmpty()) return
+        inputConnection?.commitText(transliterationEngine.commitBuffer(buffer), 1)
+        _state.update {
+            it.copy(
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
         }
     }
 
@@ -400,23 +447,39 @@ class KeyboardViewModel : ViewModel() {
     }
 
     /**
-     * Updates the keyboard state when input field changes.
+     * Called by the IME service each time a field gets focus.
+     *
+     * @param restarting The same field restarted input (e.g. the app replaced its text): keep the
+     *   current mode and layout.
      */
-    fun onInputStarted() {
-        // Clear any composing text from transliteration
-        inputConnection?.finishComposingText()
-
+    fun onInputStarted(field: FieldInfo, restarting: Boolean = false) {
         // Stop voice input if active
         if (_state.value.isVoiceListening) {
             stopVoiceInput()
         }
 
+        if (restarting) {
+            _state.update { it.copy(field = field) }
+            if (!field.allowsTransliteration && _state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
+                _state.update { it.copy(currentLanguage = LanguageMode.ENGLISH) }
+                updateLayout()
+            }
+            return
+        }
+
+        val language = when {
+            field.prefersEnglish -> LanguageMode.ENGLISH
+            else -> preferredLanguage
+        }
+
         // Reset state when new input field is focused
         _state.update {
             it.copy(
+                field = field,
+                currentLanguage = language,
                 isShifted = false,
                 isCapsLock = false,
-                showingNumbers = false,
+                showingNumbers = field.prefersNumbers,
                 showingSymbols = false,
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
@@ -427,6 +490,12 @@ class KeyboardViewModel : ViewModel() {
             )
         }
         updateLayout()
+    }
+
+    /** Called by the IME service when the field loses focus. */
+    fun onInputFinished() {
+        commitTransliterationBuffer()
+        if (_state.value.isVoiceListening) stopVoiceInput()
     }
 
     // ==================== Voice Typing Methods ====================
@@ -526,6 +595,8 @@ class KeyboardViewModel : ViewModel() {
      * Start voice input.
      */
     fun startVoiceInput() {
+        if (!_state.value.field.allowsVoice) return
+
         // Check microphone permission first
         if (!hasMicrophonePermission()) {
             _state.update {
@@ -598,6 +669,7 @@ class KeyboardViewModel : ViewModel() {
  * State data class for the keyboard.
  */
 data class KeyboardState(
+    val field: FieldInfo = FieldInfo(),
     val currentLanguage: LanguageMode = LanguageMode.ENGLISH,
     val currentLayout: KeyboardLayout = EnglishLayout.getLayout(),
     val isShifted: Boolean = false,

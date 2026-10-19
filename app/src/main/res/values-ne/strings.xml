@@ -15,4 +15,13 @@
     <string name="voice_error_busy">बोलेर टाइप अहिले व्यस्त छ। फेरि प्रयास गर्नुहोस्।</string>
     <string name="voice_error_server">Google को आवाज सेवामा समस्या आयो। फेरि प्रयास गर्नुहोस्।</string>
     <string name="voice_error_generic">बोलेर टाइप रोकियो। फेरि प्रयास गर्नुहोस्।</string>
+
+    <!-- Enter key, read by TalkBack -->
+    <string name="key_enter_newline">नयाँ लाइन</string>
+    <string name="key_enter_done">भयो</string>
+    <string name="key_enter_go">जानुहोस्</string>
+    <string name="key_enter_search">खोज्नुहोस्</string>
+    <string name="key_enter_send">पठाउनुहोस्</string>
+    <string name="key_enter_next">अर्को</string>
+    <string name="key_enter_previous">अघिल्लो</string>
 </resources>

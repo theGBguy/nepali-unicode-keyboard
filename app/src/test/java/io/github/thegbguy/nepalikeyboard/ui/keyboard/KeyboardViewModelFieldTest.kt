@@ -1,0 +1,139 @@
+package io.github.thegbguy.nepalikeyboard.ui.keyboard
+
+import android.text.InputType
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
+import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
+import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
+import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
+import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyOrder
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+class KeyboardViewModelFieldTest {
+
+    private lateinit var vm: KeyboardViewModel
+    private lateinit var ic: InputConnection
+
+    private val textField = FieldInfo.classify(InputType.TYPE_CLASS_TEXT, EditorInfo.IME_ACTION_DONE)
+    private val chatField = FieldInfo.classify(
+        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE,
+        EditorInfo.IME_ACTION_SEND or EditorInfo.IME_FLAG_NO_ENTER_ACTION
+    )
+    private val sendField = FieldInfo.classify(InputType.TYPE_CLASS_TEXT, EditorInfo.IME_ACTION_SEND)
+    private val passwordField = FieldInfo.classify(
+        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD, EditorInfo.IME_ACTION_GO
+    )
+
+    private val enter = KeyData("↵", keyType = KeyType.ACTION)
+    private val globe = KeyData("🌐", keyType = KeyType.FUNCTION)
+
+    @Before
+    fun setUp() {
+        vm = KeyboardViewModel()
+        ic = mockk(relaxed = true)
+        vm.inputConnectionProvider = { ic }
+    }
+
+    private fun language() = vm.state.value.currentLanguage
+
+    /** English → Nepali → Romanized on a normal field. */
+    private fun switchToRomanized() {
+        vm.onKeyClick(globe)
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+    }
+
+    @Test
+    fun `password field switches to English and skips Romanized in the cycle`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+
+        vm.onInputStarted(passwordField)
+        assertEquals(LanguageMode.ENGLISH, language())
+        assertFalse(vm.state.value.field.allowsVoice)
+
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.NEPALI, language())
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.ENGLISH, language()) // Romanized skipped
+    }
+
+    @Test
+    fun `leaving a password field restores the user's Nepali mode`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        vm.onInputStarted(passwordField)
+        vm.onKeyClick(globe) // a switch inside the password field is not remembered
+
+        vm.onInputStarted(textField)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+    }
+
+    @Test
+    fun `typing in a password field never composes text`() {
+        vm.onInputStarted(passwordField)
+        vm.onKeyClick(KeyData("a"))
+        verify { ic.commitText("a", 1) }
+        verify(exactly = 0) { ic.setComposingText(any(), any()) }
+    }
+
+    @Test
+    fun `enter inserts a new line in a multi-line chat field`() {
+        vm.onInputStarted(chatField)
+        vm.onKeyClick(enter)
+        verify { ic.commitText("\n", 1) }
+        verify(exactly = 0) { ic.performEditorAction(any()) }
+    }
+
+    @Test
+    fun `enter runs the field action and commits the Romanized word first`() {
+        vm.onInputStarted(sendField)
+        switchToRomanized()
+        "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
+
+        vm.onKeyClick(enter)
+        verifyOrder {
+            ic.setComposingText("ram", 1)
+            ic.commitText(match<CharSequence> { it.isNotEmpty() && it.first() in 'ऀ'..'ॿ' }, 1)
+            ic.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        }
+        assertTrue(vm.state.value.transliterationBuffer.isEmpty())
+    }
+
+    @Test
+    fun `number field opens on the numbers layout`() {
+        vm.onInputStarted(FieldInfo.classify(InputType.TYPE_CLASS_NUMBER, EditorInfo.IME_ACTION_DONE))
+        assertTrue(vm.state.value.showingNumbers)
+        vm.onInputStarted(textField)
+        assertFalse(vm.state.value.showingNumbers)
+    }
+
+    @Test
+    fun `each key goes to the connection of the field focused now`() {
+        val second: InputConnection = mockk(relaxed = true)
+        vm.onInputStarted(textField)
+        vm.onKeyClick(KeyData("a"))
+        vm.inputConnectionProvider = { second }
+        vm.onKeyClick(KeyData("b"))
+        verify { ic.commitText("a", 1) }
+        verify { second.commitText("b", 1) }
+        verify(exactly = 0) { ic.commitText("b", any()) }
+    }
+
+    @Test
+    fun `leaving a field mid-word commits it as Devanagari`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        vm.onInputFinished()
+        verify { ic.commitText(match<CharSequence> { it.isNotEmpty() && it.first() in 'ऀ'..'ॿ' }, 1) }
+        assertTrue(vm.state.value.transliterationBuffer.isEmpty())
+    }
+}

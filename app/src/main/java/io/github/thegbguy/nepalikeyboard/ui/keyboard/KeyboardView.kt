@@ -4,6 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,16 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+import io.github.thegbguy.nepalikeyboard.R
+import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
+import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.VoiceInputBar
@@ -65,8 +70,11 @@ fun KeyboardView(
                 partialResult = state.partialVoiceResult,
                 errorMessage = state.voiceError,
                 onSuggestionClick = { viewModel.onSuggestionClick(it) },
-                onMicClick = { viewModel.toggleVoiceInput() }
+                onMicClick = { viewModel.toggleVoiceInput() },
+                showMic = state.field.allowsVoice
             )
+
+            val enterLabel = enterKeyLabel(state.field)
 
             // Keyboard rows
             state.currentLayout.rows.forEach { row ->
@@ -77,6 +85,7 @@ fun KeyboardView(
                     onKeyClick = { key -> viewModel.onKeyClick(key) },
                     onBackspaceLongPressStart = { viewModel.onBackspaceLongPressStart() },
                     onBackspaceLongPressEnd = { viewModel.onBackspaceLongPressEnd() },
+                    enterLabel = enterLabel,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -117,6 +126,7 @@ fun KeyboardRow(
     onKeyClick: (KeyData) -> Unit,
     onBackspaceLongPressStart: () -> Unit,
     onBackspaceLongPressEnd: () -> Unit,
+    enterLabel: EnterKeyLabel,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -132,6 +142,8 @@ fun KeyboardRow(
                 onClick = { onKeyClick(key) },
                 onLongPressStart = if (key.primary == "⌫") onBackspaceLongPressStart else null,
                 onLongPressEnd = if (key.primary == "⌫") onBackspaceLongPressEnd else null,
+                label = if (key.primary == "↵") enterLabel.text else null,
+                contentDescription = if (key.primary == "↵") enterLabel.description else null,
                 modifier = Modifier.weight(key.flex)
             )
         }
@@ -149,6 +161,8 @@ fun Key(
     onClick: () -> Unit,
     onLongPressStart: (() -> Unit)? = null,
     onLongPressEnd: (() -> Unit)? = null,
+    label: String? = null,
+    contentDescription: String? = null,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = when {
@@ -175,6 +189,10 @@ fun Key(
 
     Box(
         modifier = modifier
+            .then(
+                if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription }
+                else Modifier
+            )
             .height(48.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(backgroundColor)
@@ -206,6 +224,7 @@ fun Key(
     ) {
         if (keyData.keyType != KeyType.SPACER) {
             val displayText = when {
+                label != null -> label
                 keyData.keyType == KeyType.MODIFIER && isShifted -> keyData.primary
                 keyData.keyType == KeyType.CHARACTER && isShifted && keyData.shift != null -> keyData.shift
                 else -> keyData.primary
@@ -214,14 +233,37 @@ fun Key(
             Text(
                 text = displayText,
                 color = textColor,
-                fontSize = when (keyData.keyType) {
+                fontSize = when {
+                    label != null && label.length > 2 -> 13.sp
+                    else -> when (keyData.keyType) {
                     KeyType.CHARACTER -> 20.sp
                     KeyType.FUNCTION -> 16.sp
                     else -> 18.sp
+                    }
                 },
+                maxLines = 1,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+
+/** What the Enter key shows for the focused field, plus its spoken label. */
+data class EnterKeyLabel(val text: String, val description: String)
+
+@Composable
+fun enterKeyLabel(field: FieldInfo): EnterKeyLabel = when (field.enterAction) {
+    EnterAction.NEWLINE -> EnterKeyLabel("↵", stringResource(R.string.key_enter_newline))
+    EnterAction.DONE -> EnterKeyLabel("✓", stringResource(R.string.key_enter_done))
+    EnterAction.GO -> EnterKeyLabel("→", stringResource(R.string.key_enter_go))
+    EnterAction.SEARCH -> EnterKeyLabel("⌕", stringResource(R.string.key_enter_search))
+    EnterAction.SEND -> EnterKeyLabel("➤", stringResource(R.string.key_enter_send))
+    EnterAction.NEXT -> EnterKeyLabel("⇥", stringResource(R.string.key_enter_next))
+    EnterAction.PREVIOUS -> EnterKeyLabel("⇤", stringResource(R.string.key_enter_previous))
+    EnterAction.CUSTOM -> {
+        val label = field.actionLabel.orEmpty()
+        EnterKeyLabel(label, label)
     }
 }

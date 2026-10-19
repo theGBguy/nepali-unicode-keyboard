@@ -1,12 +1,13 @@
 package io.github.thegbguy.nepalikeyboard.service
 
 import android.content.Context
-import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import android.inputmethodservice.InputMethodService
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -15,8 +16,11 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
+import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardViewModel
 
 /**
  * Core InputMethodService for Nepali Keyboard.
@@ -77,6 +81,20 @@ class NepaliIMEService : InputMethodService(),
         }
 
         return view
+    }
+
+    private val keyboardViewModel: KeyboardViewModel
+        get() = ViewModelProvider(this)[KeyboardViewModel::class.java]
+
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+        keyboardViewModel.inputConnectionProvider = { currentInputConnection }
+        keyboardViewModel.onInputStarted(FieldInfo.from(info), restarting)
+    }
+
+    override fun onFinishInputView(finishingInput: Boolean) {
+        keyboardViewModel.onInputFinished()
+        super.onFinishInputView(finishingInput)
     }
 
     override fun onDestroy() {

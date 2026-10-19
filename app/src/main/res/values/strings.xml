@@ -20,4 +20,13 @@
     <string name="voice_error_busy">Voice typing is busy. Try again.</string>
     <string name="voice_error_server">Google’s speech service had a problem. Try again.</string>
     <string name="voice_error_generic">Voice typing stopped. Try again.</string>
+
+    <!-- Enter key, read by TalkBack -->
+    <string name="key_enter_newline">New line</string>
+    <string name="key_enter_done">Done</string>
+    <string name="key_enter_go">Go</string>
+    <string name="key_enter_search">Search</string>
+    <string name="key_enter_send">Send</string>
+    <string name="key_enter_next">Next</string>
+    <string name="key_enter_previous">Previous</string>
 </resources>

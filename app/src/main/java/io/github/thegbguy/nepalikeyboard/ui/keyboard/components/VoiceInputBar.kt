@@ -58,7 +58,8 @@ fun VoiceInputBar(
     @StringRes errorMessage: Int?,
     onSuggestionClick: (String) -> Unit,
     onMicClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showMic: Boolean = true
 ) {
     Surface(
         modifier = modifier
@@ -123,13 +124,14 @@ fun VoiceInputBar(
                 }
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Microphone button
-            MicrophoneButton(
-                isListening = isListening,
-                onClick = onMicClick
-            )
+            // Microphone button (hidden in password and incognito fields)
+            if (showMic) {
+                Spacer(modifier = Modifier.width(8.dp))
+                MicrophoneButton(
+                    isListening = isListening,
+                    onClick = onMicClick
+                )
+            }
         }
     }
 }
