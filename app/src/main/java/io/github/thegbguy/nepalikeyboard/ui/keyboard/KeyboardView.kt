@@ -147,7 +147,7 @@ fun KeyboardView(
         if (state.showLanguageMenu) {
             LanguageMenu(
                 colors = colors,
-                style = state.currentLanguage.takeIf { it != LanguageMode.ENGLISH },
+                style = state.nepaliStyle,
                 romanizedAllowed = state.field.allowsTransliteration,
                 onStyle = { viewModel.setNepaliStyle(it) },
                 onSwitchKeyboard = { viewModel.switchKeyboard() },
@@ -164,7 +164,7 @@ fun KeyboardView(
 @Composable
 private fun BoxScope.LanguageMenu(
     colors: KeyboardColors,
-    style: LanguageMode?,
+    style: LanguageMode,
     romanizedAllowed: Boolean,
     onStyle: (LanguageMode) -> Unit,
     onSwitchKeyboard: () -> Unit,

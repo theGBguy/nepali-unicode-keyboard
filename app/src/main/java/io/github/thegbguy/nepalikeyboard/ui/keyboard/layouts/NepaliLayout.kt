@@ -6,93 +6,87 @@ import io.github.thegbguy.nepalikeyboard.domain.model.KeyboardLayout
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 
 /**
- * Nepali keyboard layout provider.
- * Provides a phonetic/practical Devanagari layout optimized for Nepali typing.
+ * The traditional Nepali Unicode layout, fitted to a phone.
+ *
+ * Letter rows follow the standard layout (Microsoft's Nepali driver / CLDR `ne-t-k0-windows`):
+ * the number-row letters ञ घ ङ झ छ ट ठ ड ढ ण, then ध भ च त थ ग ष य उ, ब क म ा न ज व प ि स and
+ * श ह अ ख द ल फ र. Shift gives the standard second character (the halant form, क्ष on ष, इ on य,
+ * ए on उ, ँ on ा, ी on ि...). Keys the standard puts beyond ten columns (े, ृ, ्, ु, ो) are placed
+ * at the row ends and on the bottom row; ई ऊ ऐ ओ औ ॐ are on the ?१२३ page. Typing अ then
+ * ा/ो/ौ/ै gives आ/ओ/औ/ऐ (see KeyboardViewModel).
  */
 object NepaliLayout {
 
-    /**
-     * Creates and returns the standard Nepali keyboard layout.
-     * Based on traditional Nepali Devanagari keyboard layout with Devanagari numbers on top row.
-     */
     fun getLayout(): KeyboardLayout {
         val rows = listOf(
-            // Row 1: Devanagari numbers (remain the same when shift is pressed)
+            // Nepali digits
+            "१२३४५६७८९०".map { KeyData(it.toString()) },
+
+            // Standard number-row letters
             listOf(
-                KeyData("१"),
-                KeyData("२"),
-                KeyData("३"),
-                KeyData("४"),
-                KeyData("५"),
-                KeyData("६"),
-                KeyData("७"),
-                KeyData("८"),
-                KeyData("९"),
-                KeyData("०")
+                KeyData("ञ", "ज्ञ"),
+                KeyData("घ"),
+                KeyData("ङ"),
+                KeyData("झ"),
+                KeyData("छ"),
+                KeyData("ट"),
+                KeyData("ठ"),
+                KeyData("ड"),
+                KeyData("ढ"),
+                KeyData("ण")
             ),
 
-            // Row 2: Top character row
+            // Q row, plus े (standard: the ] key)
             listOf(
-                KeyData("ज", "ज्ञ"),
-                KeyData("घ", "घ्"),
-                KeyData("ड", "ड्"),
-                KeyData("ङ", "ङ्"),
-                KeyData("छ", "छ्"),
-                KeyData("ट", "ट्"),
-                KeyData("ठ", "ठ्"),
-                KeyData("ड", "ड्"),
-                KeyData("ढ", "ढ्"),
-                KeyData("ण", "ण्")
-            ),
-
-            // Row 3: Home row
-            listOf(
-                KeyData("ध", "्"),
+                KeyData("ध", "ध्"),
                 KeyData("भ", "भ्"),
-                KeyData("च", "त्र"),
-                KeyData("त", "ऐ"),
-                KeyData("थ", "ए"),
-                KeyData("ग", "ई"),
-                KeyData("ष", "इ"),
-                KeyData("य", "उं"),
-                KeyData("उ", "ऊ")
+                KeyData("च", "च्"),
+                KeyData("त", "त्"),
+                KeyData("थ", "थ्"),
+                KeyData("ग", "ग्"),
+                KeyData("ष", "क्ष"),
+                KeyData("य", "इ"),
+                KeyData("उ", "ए"),
+                KeyData("े", "ै")
             ),
 
-            // Row 4: Third row
+            // A row, exactly as the standard
             listOf(
-                KeyData("ब", "न्ह"),
-                KeyData("क", "क्ष"),
-                KeyData("म", "ओ"),
-                KeyData("ा", "ो"),
-                KeyData("न", "म्ह"),
-                KeyData("ज", "ज्ञ"),
-                KeyData("व", "ह्म"),
-                KeyData("प", "श्र"),
+                KeyData("ब", "ब्"),
+                KeyData("क", "क्"),
+                KeyData("म", "म्"),
+                KeyData("ा", "ँ"),
+                KeyData("न", "न्"),
+                KeyData("ज", "ज्"),
+                KeyData("व", "व्"),
+                KeyData("प", "प्"),
                 KeyData("ि", "ी"),
-                KeyData("स", "अं")
+                KeyData("स", "स्")
             ),
 
-            // Row 5: Shift row
+            // Z row: standard letters, with र (the / key) and ु (the ' key) brought in
             listOf(
                 KeyData("⇧", keyType = KeyType.MODIFIER, flex = 1.3f),
-                KeyData("श", "अः"),
-                KeyData("ह", "ॐ"),
+                KeyData("श", "श्"),
+                KeyData("ह", "ह्"),
                 KeyData("अ", "ऋ"),
-                KeyData("ख", "आ"),
-                KeyData("द", "त्त"),
-                KeyData("ल", "द्ध"),
-                KeyData("फ", "ै"),
-                KeyData(",", "े"),
+                KeyData("ख", "ख्"),
+                KeyData("द", "द्"),
+                KeyData("ल", "ल्"),
+                KeyData("फ", "ः"),
+                KeyData("र", "ृ"),
                 KeyData("ु", "ू"),
                 KeyData("⌫", keyType = KeyType.FUNCTION, flex = 1.3f)
             ),
 
-            // Row 6: Bottom function row
+            // Bottom row: halant (anusvara on shift), ो (ौ), purna biram (comma)
             listOf(
                 KeyData("?123", keyType = KeyType.FUNCTION, flex = 1.2f),
-                KeyData("🌐", keyType = KeyType.FUNCTION),
-                KeyData(" ", keyType = KeyType.ACTION, flex = 4f),
-                KeyData("।", "॥"),
+                KeyData("🌐", keyType = KeyType.FUNCTION, flex = 1.1f),
+                KeyData("्", "ं"),
+                KeyData(" ", keyType = KeyType.ACTION, flex = 3f),
+                KeyData("ो", "ौ"),
+                KeyData("।", ","),
                 KeyData("↵", keyType = KeyType.ACTION, flex = 1.2f)
             )
         )
@@ -100,30 +94,15 @@ object NepaliLayout {
         return KeyboardLayout(rows, LanguageMode.NEPALI)
     }
 
-    /**
-     * Returns the numbers/symbols variant of the Nepali layout.
-     */
+    /** Numbers and symbols, plus the independent vowels the letter page has no room for. */
     fun getNumbersLayout(): KeyboardLayout {
         val rows = listOf(
-            // Row 1: Arabic numerals (common international usage)
-            listOf(
-                KeyData("1"),
-                KeyData("2"),
-                KeyData("3"),
-                KeyData("4"),
-                KeyData("5"),
-                KeyData("6"),
-                KeyData("7"),
-                KeyData("8"),
-                KeyData("9"),
-                KeyData("0")
-            ),
+            "1234567890".map { KeyData(it.toString()) },
 
-            // Row 2: Common symbols
             listOf(
                 KeyData("@"),
                 KeyData("#"),
-                KeyData("₹"),
+                KeyData("रु"),
                 KeyData("&"),
                 KeyData("*"),
                 KeyData("-"),
@@ -133,33 +112,30 @@ object NepaliLayout {
                 KeyData("/")
             ),
 
-            // Row 3: Punctuation
             listOf(
-                KeyData("।"),
+                KeyData("ई"),
+                KeyData("ऊ"),
+                KeyData("ऐ"),
+                KeyData("ओ"),
+                KeyData("औ"),
+                KeyData("ॐ"),
                 KeyData("॥"),
                 KeyData("!"),
-                KeyData("?"),
+                KeyData("?")
+            ),
+
+            listOf(
+                KeyData("⇧", keyType = KeyType.MODIFIER, flex = 1.3f),
+                KeyData("%"),
                 KeyData(":"),
                 KeyData(";"),
                 KeyData("\""),
                 KeyData("'"),
-                KeyData("=")
-            ),
-
-            // Row 4: More symbols
-            listOf(
-                KeyData("⇧", keyType = KeyType.MODIFIER, flex = 1.3f),
-                KeyData("%"),
-                KeyData("$"),
-                KeyData("€"),
-                KeyData("^"),
                 KeyData("_"),
-                KeyData("["),
-                KeyData("]"),
+                KeyData("="),
                 KeyData("⌫", keyType = KeyType.FUNCTION, flex = 1.3f)
             ),
 
-            // Row 5: Bottom row
             listOf(
                 KeyData("ABC", keyType = KeyType.FUNCTION, flex = 1.2f),
                 KeyData("🌐", keyType = KeyType.FUNCTION),

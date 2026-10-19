@@ -93,8 +93,10 @@ class KeyboardViewModelFieldTest {
     fun `long-press menu opens, switch keyboard calls the picker and closes it`() {
         var pickerShown = false
         vm.onSwitchKeyboard = { pickerShown = true }
+        vm.prefs = InMemoryKeyboardPrefs(LanguageMode.NEPALI)
         vm.onLanguageLongPress()
         assertTrue(vm.state.value.showLanguageMenu)
+        assertEquals(LanguageMode.NEPALI, vm.state.value.nepaliStyle) // checked even while in English
         vm.switchKeyboard()
         assertTrue(pickerShown)
         assertFalse(vm.state.value.showLanguageMenu)
@@ -205,6 +207,21 @@ class KeyboardViewModelFieldTest {
         verify { ic.commitText("ram ", 1) }
         vm.onKeyLongPress("@")
         verify { ic.commitText("@", 1) }
+    }
+
+    @Test
+    fun `traditional layout joins अ and a vowel sign into one letter`() {
+        vm.prefs = InMemoryKeyboardPrefs(LanguageMode.NEPALI)
+        vm.onInputStarted(textField)
+        vm.onKeyClick(globe)
+        io.mockk.every { ic.getTextBeforeCursor(1, 0) } returns "अ"
+        vm.onKeyClick(KeyData("ा", "ँ"))
+        verify { ic.deleteSurroundingText(1, 0) }
+        verify { ic.commitText("आ", 1) }
+
+        io.mockk.every { ic.getTextBeforeCursor(1, 0) } returns "क"
+        vm.onKeyClick(KeyData("ो", "ौ"))
+        verify { ic.commitText("ो", 1) }
     }
 
     @Test

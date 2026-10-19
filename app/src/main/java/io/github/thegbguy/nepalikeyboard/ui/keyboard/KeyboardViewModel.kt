@@ -152,7 +152,7 @@ class KeyboardViewModel : ViewModel() {
 
     /** Long-press on the language key. */
     fun onLanguageLongPress() {
-        _state.update { it.copy(showLanguageMenu = true) }
+        _state.update { it.copy(showLanguageMenu = true, nepaliStyle = prefs.nepaliStyle) }
     }
 
     fun dismissLanguageMenu() {
@@ -249,9 +249,8 @@ class KeyboardViewModel : ViewModel() {
             inputConnection?.setComposingText(newBuffer.romanizedText, 1)
 
         } else {
-            // Direct input mode (existing behavior for English and Nepali)
-            val output = key.getOutput(_state.value.isShifted)
-            inputConnection?.commitText(output, 1)
+            // Direct input mode (English and traditional Nepali)
+            commitDirect(key.getOutput(_state.value.isShifted))
         }
 
         // Reset shift after character input (unless caps lock)
@@ -298,9 +297,26 @@ class KeyboardViewModel : ViewModel() {
      */
     fun onKeyLongPress(alternate: String) {
         commitTransliterationBuffer()
-        inputConnection?.commitText(alternate, 1)
+        commitDirect(alternate)
         if (_state.value.isShifted && !_state.value.isCapsLock) {
             _state.update { it.copy(isShifted = false) }
+        }
+    }
+
+    /**
+     * Types [text] directly. A vowel sign typed right after अ becomes the single vowel letter
+     * (अ + ा → आ, not अा), which is how Nepali is written and what search and spell-check expect.
+     */
+    private fun commitDirect(text: String) {
+        val ic = inputConnection ?: return
+        val combined = INDEPENDENT_VOWELS[text]
+        if (combined != null && ic.getTextBeforeCursor(1, 0)?.toString() == "अ") {
+            ic.beginBatchEdit()
+            ic.deleteSurroundingText(1, 0)
+            ic.commitText(combined, 1)
+            ic.endBatchEdit()
+        } else {
+            ic.commitText(text, 1)
         }
     }
 
@@ -735,6 +751,11 @@ class KeyboardViewModel : ViewModel() {
      * Clean up voice resources.
      * Called when the ViewModel is cleared.
      */
+    private companion object {
+        /** Vowel sign → the vowel letter it forms after अ. */
+        val INDEPENDENT_VOWELS = mapOf("ा" to "आ", "ो" to "ओ", "ौ" to "औ", "ै" to "ऐ")
+    }
+
     override fun onCleared() {
         super.onCleared()
         voiceErrorClearJob?.cancel()
@@ -748,6 +769,8 @@ class KeyboardViewModel : ViewModel() {
 data class KeyboardState(
     val field: FieldInfo = FieldInfo(),
     val showLanguageMenu: Boolean = false,
+    /** The saved Nepali style, shown checked in the language menu. */
+    val nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
     val currentLanguage: LanguageMode = LanguageMode.ENGLISH,
     val currentLayout: KeyboardLayout = EnglishLayout.getLayout(),
     val isShifted: Boolean = false,
