@@ -47,8 +47,14 @@ class KeyboardViewModel : ViewModel() {
     var inputConnectionProvider: () -> InputConnection? = { null }
     private val inputConnection: InputConnection? get() = inputConnectionProvider()
 
-    /** The mode the user picked with the language key; restored when a field doesn't force English. */
-    private var preferredLanguage: LanguageMode = LanguageMode.ENGLISH
+    /** Stored settings (Nepali style). The IME service replaces this with the on-device store. */
+    var prefs: KeyboardPrefs = InMemoryKeyboardPrefs()
+
+    /** Opens Android's keyboard picker. Set by the IME service. */
+    var onSwitchKeyboard: () -> Unit = {}
+
+    /** Whether the user last chose Nepali with the language key; restored on the next normal field. */
+    private var prefersNepali = false
 
     // Job for handling backspace long-press repeating deletion
     private var backspaceJob: Job? = null
@@ -138,26 +144,48 @@ class KeyboardViewModel : ViewModel() {
     /**
      * Switches to the next language mode.
      */
+    /** The language key: English ⇄ Nepali in the user's style. */
     fun switchLanguage() {
-        // If switching away from transliteration with uncommitted text, auto-commit
-        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
-            && _state.value.transliterationBuffer.isNotEmpty()
-        ) {
-            val buffer = _state.value.transliterationBuffer
-            val output = transliterationEngine.commitBuffer(buffer)
-            // commitText replaces composing text
-            inputConnection?.commitText(output, 1)
-        }
+        val toNepali = _state.value.currentLanguage == LanguageMode.ENGLISH
+        setLanguage(if (toNepali) nepaliMode(_state.value.field) else LanguageMode.ENGLISH)
+    }
 
-        _state.update { currentState ->
-            var newMode = currentState.currentLanguage.next()
-            if (newMode == LanguageMode.TRANSLITERATION && !currentState.field.allowsTransliteration) {
-                newMode = newMode.next()
-            }
-            // A choice made in an email/URL/password field applies to that field only
-            if (!currentState.field.prefersEnglish) preferredLanguage = newMode
-            currentState.copy(
-                currentLanguage = newMode,
+    /** Long-press on the language key. */
+    fun onLanguageLongPress() {
+        _state.update { it.copy(showLanguageMenu = true) }
+    }
+
+    fun dismissLanguageMenu() {
+        _state.update { it.copy(showLanguageMenu = false) }
+    }
+
+    /** Menu choice: type Nepali Romanized ([LanguageMode.TRANSLITERATION]) or with the traditional layout ([LanguageMode.NEPALI]). */
+    fun setNepaliStyle(style: LanguageMode) {
+        prefs.nepaliStyle = style
+        dismissLanguageMenu()
+        setLanguage(nepaliMode(_state.value.field))
+    }
+
+    /** Menu choice: Android's keyboard picker. */
+    fun switchKeyboard() {
+        dismissLanguageMenu()
+        onSwitchKeyboard()
+    }
+
+    /** The Nepali mode for this field: the user's style, or traditional where Romanized isn't allowed. */
+    private fun nepaliMode(field: FieldInfo): LanguageMode {
+        val style = prefs.nepaliStyle
+        return if (style == LanguageMode.TRANSLITERATION && !field.allowsTransliteration) LanguageMode.NEPALI else style
+    }
+
+    private fun setLanguage(mode: LanguageMode) {
+        commitTransliterationBuffer()
+        val field = _state.value.field
+        // A choice made in an email/URL/password field applies to that field only
+        if (!field.prefersEnglish) prefersNepali = mode != LanguageMode.ENGLISH
+        _state.update {
+            it.copy(
+                currentLanguage = mode,
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
                 showSuggestionBar = false
@@ -495,13 +523,15 @@ class KeyboardViewModel : ViewModel() {
 
         val language = when {
             field.prefersEnglish -> LanguageMode.ENGLISH
-            else -> preferredLanguage
+            prefersNepali -> nepaliMode(field)
+            else -> LanguageMode.ENGLISH
         }
 
         // Reset state when new input field is focused
         _state.update {
             it.copy(
                 field = field,
+                showLanguageMenu = false,
                 currentLanguage = language,
                 isShifted = false,
                 isCapsLock = false,
@@ -717,6 +747,7 @@ class KeyboardViewModel : ViewModel() {
  */
 data class KeyboardState(
     val field: FieldInfo = FieldInfo(),
+    val showLanguageMenu: Boolean = false,
     val currentLanguage: LanguageMode = LanguageMode.ENGLISH,
     val currentLayout: KeyboardLayout = EnglishLayout.getLayout(),
     val isShifted: Boolean = false,

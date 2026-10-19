@@ -43,15 +43,14 @@ class KeyboardViewModelFieldTest {
 
     private fun language() = vm.state.value.currentLanguage
 
-    /** English → Nepali → Romanized on a normal field. */
+    /** English → Nepali, which is Romanized by default. */
     private fun switchToRomanized() {
-        vm.onKeyClick(globe)
         vm.onKeyClick(globe)
         assertEquals(LanguageMode.TRANSLITERATION, language())
     }
 
     @Test
-    fun `password field switches to English and skips Romanized in the cycle`() {
+    fun `password field opens in English and its language key gives traditional Nepali`() {
         vm.onInputStarted(textField)
         switchToRomanized()
 
@@ -60,9 +59,55 @@ class KeyboardViewModelFieldTest {
         assertFalse(vm.state.value.field.allowsVoice)
 
         vm.onKeyClick(globe)
-        assertEquals(LanguageMode.NEPALI, language())
+        assertEquals(LanguageMode.NEPALI, language()) // Romanized isn't allowed here
         vm.onKeyClick(globe)
-        assertEquals(LanguageMode.ENGLISH, language()) // Romanized skipped
+        assertEquals(LanguageMode.ENGLISH, language())
+    }
+
+    @Test
+    fun `language key toggles only between English and the chosen Nepali style`() {
+        vm.onInputStarted(textField)
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.ENGLISH, language())
+
+        vm.setNepaliStyle(LanguageMode.NEPALI)
+        assertEquals(LanguageMode.NEPALI, language())
+        assertEquals(LanguageMode.NEPALI, vm.prefs.nepaliStyle)
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.ENGLISH, language())
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.NEPALI, language())
+    }
+
+    @Test
+    fun `stored style is used when the keyboard starts`() {
+        vm.prefs = InMemoryKeyboardPrefs(LanguageMode.NEPALI)
+        vm.onInputStarted(textField)
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.NEPALI, language())
+    }
+
+    @Test
+    fun `long-press menu opens, switch keyboard calls the picker and closes it`() {
+        var pickerShown = false
+        vm.onSwitchKeyboard = { pickerShown = true }
+        vm.onLanguageLongPress()
+        assertTrue(vm.state.value.showLanguageMenu)
+        vm.switchKeyboard()
+        assertTrue(pickerShown)
+        assertFalse(vm.state.value.showLanguageMenu)
+    }
+
+    @Test
+    fun `switching language commits the Romanized word first`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        vm.onKeyClick(globe)
+        verify { ic.commitText(match<CharSequence> { it.isNotEmpty() && it.first() in 'ऀ'..'ॿ' }, 1) }
+        assertEquals(LanguageMode.ENGLISH, language())
     }
 
     @Test

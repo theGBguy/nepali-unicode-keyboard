@@ -4,7 +4,6 @@
     <string name="ime_name">Nepali Unicode Keyboard</string>
 
     <!-- Keyboard mode labels. Language names are shown in their own script in every locale. -->
-    <string name="mode_nepali" translatable="false">नेपाली</string>
     <string name="mode_english" translatable="false">English</string>
     <string name="mode_romanized">Romanized</string>
 
@@ -36,9 +35,14 @@
     <string name="key_delete">Delete</string>
     <string name="key_shift">Shift</string>
     <string name="key_caps_lock">Caps lock</string>
-    <string name="key_language">Switch language</string>
+    <string name="key_language">Nepali or English. Long-press for options.</string>
     <string name="key_numbers">Numbers and symbols</string>
     <string name="key_letters">Letters</string>
     <string name="voice_start">Voice typing</string>
     <string name="voice_stop">Stop listening</string>
+
+    <!-- Language key: long-press menu -->
+    <string name="space_traditional">नेपाली · Traditional</string>
+    <string name="menu_traditional">Traditional layout</string>
+    <string name="menu_switch_keyboard">Switch keyboard</string>
 </resources>

@@ -5,6 +5,7 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -24,6 +25,7 @@ import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardViewModel
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.SharedKeyboardPrefs
 
 /**
  * Core InputMethodService for Nepali Keyboard.
@@ -69,6 +71,11 @@ class NepaliIMEService : InputMethodService(),
 
         // Load the Romanized-typing word list in the background
         NepaliWordList.loadAsync(this)
+
+        keyboardViewModel.prefs = SharedKeyboardPrefs(this)
+        keyboardViewModel.onSwitchKeyboard = {
+            getSystemService(InputMethodManager::class.java)?.showInputMethodPicker()
+        }
 
         // Initialize speech recognition manager
         speechRecognitionManager = SpeechRecognitionManager(this)

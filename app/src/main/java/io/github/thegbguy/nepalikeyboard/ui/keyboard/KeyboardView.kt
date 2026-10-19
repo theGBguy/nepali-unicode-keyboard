@@ -3,11 +3,14 @@ package io.github.thegbguy.nepalikeyboard.ui.keyboard
 import android.view.HapticFeedbackConstants
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -76,16 +80,16 @@ fun KeyboardView(
     val enterLabel = enterKeyLabel(state.field)
     val spaceLabel = stringResource(
         when (state.currentLanguage) {
-            LanguageMode.NEPALI -> R.string.mode_nepali
+            LanguageMode.NEPALI -> R.string.space_traditional
             LanguageMode.TRANSLITERATION -> R.string.space_romanized
             LanguageMode.ENGLISH -> R.string.mode_english
         }
     )
 
+    Box(modifier = Modifier.fillMaxWidth().background(colors.background)) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.background)
             .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(start = 3.dp, end = 3.dp, bottom = 4.dp)
     ) {
@@ -119,13 +123,18 @@ fun KeyboardView(
                 row.forEach { key ->
                     val alternate = keyAlternate(key, state.isShifted)
                     val isBackspace = key.primary == "⌫"
+                    val isLanguageKey = key.primary == "🌐"
                     Key(
                         key = key,
                         visual = keyVisual(key, state, enterLabel, spaceLabel, colors),
                         colors = colors,
                         height = if (isNumberRow) NumberRowKeyHeight else KeyHeight,
                         onTap = { viewModel.onKeyClick(key) },
-                        onLongPress = alternate?.let { alt -> { viewModel.onKeyLongPress(alt) } },
+                        onLongPress = when {
+                            isLanguageKey -> ({ viewModel.onLanguageLongPress() })
+                            alternate != null -> ({ viewModel.onKeyLongPress(alternate) })
+                            else -> null
+                        },
                         onRepeatStart = if (isBackspace) ({ viewModel.onBackspaceLongPressStart() }) else null,
                         onRepeatEnd = if (isBackspace) ({ viewModel.onBackspaceLongPressEnd() }) else null,
                         modifier = Modifier.weight(key.flex)
@@ -134,6 +143,95 @@ fun KeyboardView(
                 if (indent > 0f) Box(Modifier.weight(indent))
             }
         }
+    }
+        if (state.showLanguageMenu) {
+            LanguageMenu(
+                colors = colors,
+                style = state.currentLanguage.takeIf { it != LanguageMode.ENGLISH },
+                romanizedAllowed = state.field.allowsTransliteration,
+                onStyle = { viewModel.setNepaliStyle(it) },
+                onSwitchKeyboard = { viewModel.switchKeyboard() },
+                onDismiss = { viewModel.dismissLanguageMenu() }
+            )
+        }
+    }
+}
+
+/**
+ * Long-press menu on the language key, drawn inside the keyboard above the bottom row: choose
+ * how to type Nepali, or open Android's keyboard picker. Tapping anywhere else closes it.
+ */
+@Composable
+private fun BoxScope.LanguageMenu(
+    colors: KeyboardColors,
+    style: LanguageMode?,
+    romanizedAllowed: Boolean,
+    onStyle: (LanguageMode) -> Unit,
+    onSwitchKeyboard: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Box(
+        Modifier
+            .matchParentSize()
+            .pointerInput(Unit) { detectTapGestures { onDismiss() } }
+    )
+    Column(
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(start = 8.dp, bottom = KeyHeight + RowGap + 8.dp)
+            .width(232.dp)
+            .shadow(8.dp, PreviewShape)
+            .clip(PreviewShape)
+            .background(colors.preview)
+            .padding(vertical = 6.dp)
+    ) {
+        MenuRow(colors, stringResource(R.string.mode_romanized), checked = style == LanguageMode.TRANSLITERATION, enabled = romanizedAllowed) {
+            onStyle(LanguageMode.TRANSLITERATION)
+        }
+        MenuRow(colors, stringResource(R.string.menu_traditional), checked = style == LanguageMode.NEPALI) {
+            onStyle(LanguageMode.NEPALI)
+        }
+        Box(Modifier.fillMaxWidth().padding(vertical = 4.dp).height(1.dp).background(colors.divider))
+        MenuRow(colors, stringResource(R.string.menu_switch_keyboard), icon = R.drawable.ic_ui_keyboard, onClick = onSwitchKeyboard)
+    }
+}
+
+@Composable
+private fun MenuRow(
+    colors: KeyboardColors,
+    label: String,
+    checked: Boolean = false,
+    enabled: Boolean = true,
+    @DrawableRes icon: Int? = null,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+            val iconRes = icon ?: if (checked) R.drawable.ic_ui_check else null
+            if (iconRes != null) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    tint = if (checked) colors.accent else colors.keyText,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = label,
+            color = if (enabled) colors.keyText else colors.hint,
+            fontSize = 15.sp,
+            fontWeight = if (checked) FontWeight.Medium else FontWeight.Normal
+        )
     }
 }
 
@@ -185,7 +283,7 @@ private fun keyVisual(
             description = stringResource(if (state.isCapsLock) R.string.key_caps_lock else R.string.key_shift)
         )
         "🌐" -> KeyVisual(
-            icon = R.drawable.ic_ui_language, background = colors.functionKey, content = colors.keyText,
+            text = "अ/A", background = colors.functionKey, content = colors.keyText, fontSize = 15.sp,
             description = stringResource(R.string.key_language)
         )
         " " -> KeyVisual(

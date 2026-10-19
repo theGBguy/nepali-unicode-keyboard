@@ -1,48 +1,16 @@
 package io.github.thegbguy.nepalikeyboard.domain.model
 
-import androidx.annotation.StringRes
-import io.github.thegbguy.nepalikeyboard.R
-
 /**
- * Represents the different language modes supported by the keyboard.
+ * The keyboard's typing mode. The language key switches between [ENGLISH] and the user's Nepali
+ * style, which is [TRANSLITERATION] (Romanized) or [NEPALI] (traditional layout).
  */
 enum class LanguageMode {
-    /**
-     * Pure Nepali/Devanagari typing mode.
-     * Keys directly output Devanagari characters.
-     */
+    /** Traditional Nepali layout: keys type Devanagari directly. */
     NEPALI,
 
-    /**
-     * English QWERTY typing mode.
-     * Standard English keyboard layout.
-     */
+    /** English QWERTY. */
     ENGLISH,
 
-    /**
-     * Nepali transliteration mode.
-     * Romanized input is converted to Devanagari in real-time.
-     * Example: "namaste" → "नमस्ते"
-     */
-    TRANSLITERATION;
-
-    /**
-     * String resource for this mode's label.
-     */
-    @StringRes
-    fun labelRes(): Int = when (this) {
-        NEPALI -> R.string.mode_nepali
-        ENGLISH -> R.string.mode_english
-        TRANSLITERATION -> R.string.mode_romanized
-    }
-
-    /**
-     * Returns the next language mode in the cycle.
-     * Used for language switching button.
-     */
-    fun next(): LanguageMode = when (this) {
-        NEPALI -> TRANSLITERATION
-        TRANSLITERATION -> ENGLISH
-        ENGLISH -> NEPALI
-    }
+    /** Romanized Nepali: Latin letters become Devanagari, e.g. "namaste" → "नमस्ते". */
+    TRANSLITERATION
 }
