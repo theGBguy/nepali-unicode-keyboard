@@ -4,7 +4,9 @@ import androidx.compose.ui.graphics.Color
 
 // Nepal crimson; the darker shade is used under white text in light mode
 val Crimson = Color(0xFFB3122E)
-val CrimsonDark = Color(0xFFE0566B)
+// Dark mode: a fill that keeps white text readable, and a light rose for crimson text on dark
+val CrimsonDark = Color(0xFFD2364F)
+val RoseDark = Color(0xFFFF8A9B)
 val SuccessGreen = Color(0xFF1F7A4D)
 val SuccessGreenDark = Color(0xFF6CC39A)
 

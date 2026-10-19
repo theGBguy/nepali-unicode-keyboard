@@ -40,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -102,7 +103,7 @@ fun SettingsScreen(
                 icon = R.drawable.ic_ui_keyboard,
                 title = stringResource(R.string.ready_keyboard),
                 subtitle = stringResource(if (ready) R.string.ready_on else R.string.ready_off),
-                subtitleColor = if (ready) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                subtitleColor = if (ready) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 onClick = if (ready) null else ({ onLink(SettingsLink.FIX_KEYBOARD) })
             )
         }
@@ -211,7 +212,7 @@ private fun LinkRow(
     @DrawableRes icon: Int,
     title: String,
     subtitle: String?,
-    subtitleColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (() -> Unit)?
 ) {
     Row(
@@ -250,6 +251,8 @@ private fun SwitchRow(@DrawableRes icon: Int, title: String, checked: Boolean, o
             onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedTrackColor = MaterialTheme.colorScheme.primary,
+                checkedThumbColor = Color.White,
+                checkedIconColor = MaterialTheme.colorScheme.primary,
                 uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerLowest

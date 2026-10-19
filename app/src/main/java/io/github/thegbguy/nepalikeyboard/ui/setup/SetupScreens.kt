@@ -297,7 +297,7 @@ fun <T> SegmentedChoice(options: List<ChoiceOption<T>>, selected: T, onSelect: (
                     option.title,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isSelected) colors.primary else colors.onSurface
+                    color = if (isSelected) colors.onPrimaryContainer else colors.onSurface
                 )
                 option.subtitle?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
