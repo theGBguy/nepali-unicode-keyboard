@@ -3,6 +3,7 @@ package io.github.thegbguy.nepalikeyboard.ui.keyboard
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiRecents
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 
 /** Key height presets. [dp] is the letter-key height; the digit row is 6dp shorter. */
@@ -27,6 +28,9 @@ interface KeyboardPrefs {
     var vibrate: Boolean
     var sound: Boolean
 
+    /** Recently used emoji, most recent first. */
+    var emojiRecents: List<String>
+
     val feel: KeyFeel get() = KeyFeel(keyHeight, vibrate, sound)
 }
 
@@ -36,10 +40,11 @@ class InMemoryKeyboardPrefs(
     override var typeNepali: Boolean = false,
     override var keyHeight: KeyHeight = KeyHeight.NORMAL,
     override var vibrate: Boolean = true,
-    override var sound: Boolean = false
+    override var sound: Boolean = false,
+    override var emojiRecents: List<String> = emptyList()
 ) : KeyboardPrefs
 
-/** Settings stored on the device. Holds no typed text. */
+/** Settings stored on the device, plus recently used emoji. Holds no typed text. */
 class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
     private val prefs = context.applicationContext.getSharedPreferences("keyboard", Context.MODE_PRIVATE)
 
@@ -85,7 +90,12 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         get() = prefs.getBoolean(KEY_SOUND, false)
         set(value) = prefs.edit { putBoolean(KEY_SOUND, value) }
 
+    override var emojiRecents: List<String>
+        get() = EmojiRecents.decode(prefs.getString(KEY_EMOJI_RECENTS, null))
+        set(value) = prefs.edit { putString(KEY_EMOJI_RECENTS, EmojiRecents.encode(value)) }
+
     private companion object {
+        const val KEY_EMOJI_RECENTS = "emoji_recents"
         const val KEY_HEIGHT = "key_height"
         const val KEY_VIBRATE = "vibrate"
         const val KEY_SOUND = "sound"

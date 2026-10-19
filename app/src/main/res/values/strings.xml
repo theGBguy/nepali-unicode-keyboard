@@ -87,7 +87,7 @@
     <string name="privacy_password_title">Password fields are off-limits</string>
     <string name="privacy_password_body">No suggestions, no voice, nothing learned. The same goes for apps that ask for incognito typing.</string>
     <string name="privacy_device_title">Your settings stay here</string>
-    <string name="privacy_device_body">The keyboard keeps only your settings on this phone. It doesn’t save what you type.</string>
+    <string name="privacy_device_body">The keyboard keeps only your settings and recently used emoji on this phone. It doesn’t save what you type.</string>
     <string name="privacy_voice_title">Voice typing uses Google</string>
     <string name="privacy_voice_body">Only when you tap the mic, your audio goes to Google’s speech service to turn it into text.</string>
     <string name="ready_keyboard">Keyboard</string>
@@ -127,4 +127,19 @@
     <string name="licences_words_body">Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).</string>
     <string name="licences_libraries_title">Open-source libraries</string>
     <string name="licences_libraries_body">Built with Jetpack Compose, AndroidX and Kotlin, available under the Apache License 2.0.</string>
+
+    <!-- Emoji -->
+    <string name="emoji_open">Emoji</string>
+    <string name="keyboard_settings">Keyboard settings</string>
+    <string name="emoji_recent">Recent</string>
+    <string name="emoji_smileys">Smileys and people</string>
+    <string name="emoji_animals">Animals and nature</string>
+    <string name="emoji_food">Food and drink</string>
+    <string name="emoji_activities">Activities</string>
+    <string name="emoji_travel">Travel and places</string>
+    <string name="emoji_objects">Objects</string>
+    <string name="emoji_symbols">Symbols</string>
+    <string name="emoji_flags">Flags</string>
+    <string name="licences_emoji_title">Emoji list</string>
+    <string name="licences_emoji_body">Emoji list derived from Unicode emoji data, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your phone’s font.</string>
 </resources>

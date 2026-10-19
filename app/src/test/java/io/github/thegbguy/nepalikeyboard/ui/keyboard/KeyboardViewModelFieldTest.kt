@@ -251,6 +251,35 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
+    fun `emoji are typed and remembered, but not in incognito fields`() {
+        val stored = InMemoryKeyboardPrefs(emojiRecents = listOf("🙏"))
+        vm.prefs = stored
+        vm.onInputStarted(textField)
+        vm.openEmoji()
+        assertTrue(vm.state.value.showEmoji)
+        vm.onEmojiClick("😀")
+        verify { ic.commitText("😀", 1) }
+        assertEquals(listOf("😀", "🙏"), stored.emojiRecents)
+        assertEquals(listOf("🙏"), vm.state.value.emojiRecents) // shown list stays put until reopened
+
+        vm.onInputStarted(FieldInfo.classify(InputType.TYPE_CLASS_TEXT, EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING))
+        assertEquals(false, vm.state.value.showEmoji) // a new field starts on the keys
+        vm.openEmoji()
+        vm.onEmojiClick("🎉")
+        assertEquals(listOf("😀", "🙏"), stored.emojiRecents)
+    }
+
+    @Test
+    fun `backspace removes a whole emoji`() {
+        vm.prefs = InMemoryKeyboardPrefs()
+        vm.onInputStarted(textField)
+        io.mockk.every { ic.getSelectedText(0) } returns null
+        io.mockk.every { ic.getTextBeforeCursor(32, 0) } returns "hi 👍🏽"
+        vm.onKeyClick(KeyData("⌫", keyType = KeyType.FUNCTION))
+        verify { ic.deleteSurroundingText(4, 0) }
+    }
+
+    @Test
     fun `traditional layout joins अ and a vowel sign into one letter`() {
         vm.prefs = InMemoryKeyboardPrefs(LanguageMode.NEPALI)
         vm.onInputStarted(textField)

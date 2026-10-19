@@ -59,10 +59,18 @@ import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 
 private val KeyGap = 5.dp
 private val RowGap = 7.dp
+private val StripHeight = 40.dp
+
+private fun isNumberRow(row: List<KeyData>) =
+    row.all { it.keyType == KeyType.CHARACTER && it.primary.singleOrNull()?.isDigit() == true }
+
+private fun rowHeight(row: List<KeyData>, keyHeight: Dp, numberRowKeyHeight: Dp) =
+    if (isNumberRow(row)) numberRowKeyHeight else keyHeight
 private val KeyShape = RoundedCornerShape(7.dp)
 private val PreviewShape = RoundedCornerShape(10.dp)
 private val PreviewWidth = 46.dp
@@ -96,6 +104,23 @@ fun KeyboardView(
             .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(start = 3.dp, end = 3.dp, bottom = 4.dp)
     ) {
+        if (state.showEmoji) {
+            // Same height as the strip and keys it replaces
+            val rowsHeight = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, keyHeight, numberRowKeyHeight) + RowGap }
+            EmojiPanel(
+                colors = colors,
+                height = StripHeight + rowsHeight - RowGap,
+                bottomRowHeight = keyHeight,
+                feel = state.feel,
+                recents = state.emojiRecents,
+                onEmoji = { viewModel.onEmojiClick(it) },
+                onBackspace = { viewModel.onEmojiBackspace() },
+                onBackspaceRepeatStart = { viewModel.onBackspaceLongPressStart() },
+                onBackspaceRepeatEnd = { viewModel.onBackspaceLongPressEnd() },
+                onClose = { viewModel.closeEmoji() }
+            )
+            Spacer(Modifier.height(RowGap))
+        } else {
         val buffer = state.transliterationBuffer
         KeyboardStrip(
             colors = colors,
@@ -106,6 +131,9 @@ fun KeyboardView(
             partialResult = state.partialVoiceResult,
             errorMessage = state.voiceError,
             showMic = state.field.allowsVoice,
+            showEmoji = !state.field.isPrivate && !state.field.prefersNumbers,
+            onEmojiClick = { viewModel.openEmoji() },
+            onSettingsClick = { viewModel.openSettings() },
             onSuggestionClick = { viewModel.onSuggestionClick(it) },
             onKeepLatin = { viewModel.onKeepLatin() },
             onMicClick = { viewModel.toggleVoiceInput() }
@@ -113,7 +141,7 @@ fun KeyboardView(
 
         state.currentLayout.rows.forEach { row ->
             val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
-            val isNumberRow = allCharacters && row.all { it.primary.singleOrNull()?.isDigit() == true }
+            val isNumberRow = isNumberRow(row)
             // Indent short letter rows (the 9-key home row) by half a key on each side
             val indent = if (allCharacters) ((10f - row.sumOf { it.flex.toDouble() }.toFloat()) / 2f).coerceAtLeast(0f) else 0f
             Row(
@@ -146,6 +174,7 @@ fun KeyboardView(
                 }
                 if (indent > 0f) Box(Modifier.weight(indent))
             }
+        }
         }
     }
         if (state.showLanguageMenu) {

@@ -9,6 +9,8 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiRecents
+import io.github.thegbguy.nepalikeyboard.domain.Backspace
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
@@ -52,6 +54,14 @@ class KeyboardViewModel : ViewModel() {
 
     /** Asks for the microphone permission (opens a small activity). Set by the IME service. */
     var onRequestMicPermission: (() -> Unit)? = null
+
+    /** Opens the app's settings. Set by the IME service. */
+    var onOpenSettings: () -> Unit = {}
+
+    fun openSettings() {
+        commitTransliterationBuffer()
+        onOpenSettings()
+    }
 
     /** Opens Android's keyboard picker. Set by the IME service. */
     var onSwitchKeyboard: () -> Unit = {}
@@ -121,7 +131,7 @@ class KeyboardViewModel : ViewModel() {
             var delayTime = 100L
 
             while (isActive) {
-                inputConnection?.deleteSurroundingText(1, 0)
+                deleteBackward()
                 delay(delayTime)
 
                 // Speed up deletion over time (minimum 30ms delay)
@@ -140,6 +150,53 @@ class KeyboardViewModel : ViewModel() {
         backspaceJob?.cancel()
         backspaceJob = null
     }
+
+    /** Deletes one character, or a whole emoji (see [Backspace]). A selection is deleted as a whole. */
+    private fun deleteBackward() {
+        val ic = inputConnection ?: return
+        if (!ic.getSelectedText(0).isNullOrEmpty()) {
+            ic.commitText("", 1)
+            return
+        }
+        val before = ic.getTextBeforeCursor(32, 0) ?: ""
+        ic.deleteSurroundingText(Backspace.length(before), 0)
+    }
+
+    // ==================== Emoji ====================
+
+    /** Opens the emoji panel in place of the keys. */
+    fun openEmoji() {
+        commitTransliterationBuffer()
+        if (_state.value.isVoiceListening) stopVoiceInput()
+        _state.update {
+            it.copy(
+                showEmoji = true,
+                showLanguageMenu = false,
+                emojiRecents = prefs.emojiRecents,
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
+    }
+
+    fun closeEmoji() {
+        _state.update { it.copy(showEmoji = false) }
+    }
+
+    /**
+     * Types [emoji] and remembers it in recents, unless the field asks for no learning. The panel
+     * keeps showing the recents it opened with, so nothing moves under the finger.
+     */
+    fun onEmojiClick(emoji: String) {
+        inputConnection?.commitText(emoji, 1)
+        val field = _state.value.field
+        if (field.isPrivate || field.noLearning) return
+        prefs.emojiRecents = EmojiRecents.add(prefs.emojiRecents, emoji)
+    }
+
+    /** Backspace in the emoji panel. */
+    fun onEmojiBackspace() = deleteBackward()
 
     /** The language key: English ⇄ Nepali in the user's style. */
     fun switchLanguage() {
@@ -450,8 +507,7 @@ class KeyboardViewModel : ViewModel() {
                         inputConnection?.setComposingText(newBuffer.romanizedText, 1)
                     }
                 } else {
-                    // Normal backspace
-                    inputConnection?.deleteSurroundingText(1, 0)
+                    deleteBackward()
                 }
             }
             "🌐" -> {
@@ -560,6 +616,7 @@ class KeyboardViewModel : ViewModel() {
             it.copy(
                 field = field,
                 showLanguageMenu = false,
+                showEmoji = false,
                 feel = prefs.feel,
                 currentLanguage = language,
                 isShifted = false,
@@ -786,6 +843,10 @@ class KeyboardViewModel : ViewModel() {
 data class KeyboardState(
     val field: FieldInfo = FieldInfo(),
     val showLanguageMenu: Boolean = false,
+    /** The emoji panel replaces the keys. */
+    val showEmoji: Boolean = false,
+    /** Recents as they were when the panel opened. */
+    val emojiRecents: List<String> = emptyList(),
     /** The saved Nepali style, shown checked in the language menu. */
     val nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
     /** Key height, vibration and sound from Settings. */

@@ -1,6 +1,7 @@
 package io.github.thegbguy.nepalikeyboard.service
 
 import android.content.Context
+import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.View
@@ -19,6 +20,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import io.github.thegbguy.nepalikeyboard.MainActivity
+import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiData
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliWordList
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
@@ -72,10 +75,17 @@ class NepaliIMEService : InputMethodService(),
 
         // Load the Romanized-typing word list in the background
         NepaliWordList.loadAsync(this)
+        EmojiData.loadAsync(this)
 
         keyboardViewModel.prefs = keyboardPrefs
         keyboardPrefs.observe { keyboardViewModel.onPrefsChanged() }
         keyboardViewModel.onRequestMicPermission = { MicPermissionActivity.start(this) }
+        keyboardViewModel.onOpenSettings = {
+            startActivity(
+                Intent(this, MainActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            )
+        }
         keyboardViewModel.onSwitchKeyboard = {
             getSystemService(InputMethodManager::class.java)?.showInputMethodPicker()
         }

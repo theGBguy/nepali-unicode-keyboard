@@ -83,7 +83,7 @@
     <string name="privacy_password_title">पासवर्ड फिल्डमा केही हुँदैन</string>
     <string name="privacy_password_body">सुझाव, बोलेर टाइप र शब्द सिकाइ बन्द हुन्छ। इन्कग्निटो टाइपिङ माग्ने एपमा पनि यस्तै हुन्छ।</string>
     <string name="privacy_device_title">तपाईंका सेटिङ यहीँ रहन्छन्</string>
-    <string name="privacy_device_body">किबोर्डले यो फोनमा तपाईंका सेटिङ मात्र राख्छ। तपाईंले टाइप गरेको सेभ गर्दैन।</string>
+    <string name="privacy_device_body">किबोर्डले यो फोनमा तपाईंका सेटिङ र हालै प्रयोग गरिएका इमोजी मात्र राख्छ। तपाईंले टाइप गरेको सेभ गर्दैन।</string>
     <string name="privacy_voice_title">बोलेर टाइप Google को सेवाबाट हुन्छ</string>
     <string name="privacy_voice_body">माइक थिच्दा मात्र तपाईंको आवाज पाठमा बदल्न Google को आवाज सेवामा जान्छ।</string>
     <string name="ready_keyboard">किबोर्ड</string>
@@ -123,4 +123,19 @@
     <string name="licences_words_body">यसमा नेपाली विकिपिडिया (ne.wikipedia.org) बाट निकालिएको शब्द आवृत्ति समावेश छ, जुन Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) लाइसेन्सअन्तर्गत उपलब्ध छ।</string>
     <string name="licences_libraries_title">खुला स्रोत लाइब्रेरी</string>
     <string name="licences_libraries_body">Jetpack Compose, AndroidX र Kotlin प्रयोग गरी बनाइएको, जुन Apache License 2.0 अन्तर्गत उपलब्ध छन्।</string>
+
+    <!-- Emoji -->
+    <string name="emoji_open">इमोजी</string>
+    <string name="keyboard_settings">किबोर्ड सेटिङ</string>
+    <string name="emoji_recent">हालै प्रयोग गरिएका</string>
+    <string name="emoji_smileys">अनुहार र मानिस</string>
+    <string name="emoji_animals">जनावर र प्रकृति</string>
+    <string name="emoji_food">खाना र पेय</string>
+    <string name="emoji_activities">गतिविधि</string>
+    <string name="emoji_travel">यात्रा र ठाउँ</string>
+    <string name="emoji_objects">वस्तु</string>
+    <string name="emoji_symbols">चिह्न</string>
+    <string name="emoji_flags">झन्डा</string>
+    <string name="licences_emoji_title">इमोजी सूची</string>
+    <string name="licences_emoji_body">इमोजी सूची Unicode इमोजी डेटाबाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको फोनको फन्टले देखाउँछ।</string>
 </resources>

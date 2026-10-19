@@ -314,6 +314,7 @@ fun LicencesScreen(onBack: () -> Unit) {
         ) {
             listOf(
                 R.string.licences_words_title to R.string.licences_words_body,
+                R.string.licences_emoji_title to R.string.licences_emoji_body,
                 R.string.licences_libraries_title to R.string.licences_libraries_body
             ).forEachIndexed { i, (title, body) ->
                 if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outline)

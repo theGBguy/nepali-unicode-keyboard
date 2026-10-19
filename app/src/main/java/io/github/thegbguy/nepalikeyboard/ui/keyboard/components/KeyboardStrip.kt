@@ -39,7 +39,7 @@ import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardColors
 /**
  * The 40dp row above the keys. Shows, in order of priority: the listening state, a voice error,
  * Romanized suggestions (best guess in bold, other guesses, then the Latin text as typed), or
- * nothing. The mic sits on the right when the field allows voice. It keeps its height when empty
+ * the emoji button, with settings on the right. The mic sits on the right when the field allows voice. It keeps its height when empty
  * so the keyboard never jumps.
  */
 @Composable
@@ -52,6 +52,9 @@ fun KeyboardStrip(
     partialResult: String?,
     @StringRes errorMessage: Int?,
     showMic: Boolean,
+    showEmoji: Boolean,
+    onEmojiClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onSuggestionClick: (String) -> Unit,
     onKeepLatin: () -> Unit,
     onMicClick: () -> Unit,
@@ -85,7 +88,13 @@ fun KeyboardStrip(
                     onSuggestionClick = onSuggestionClick,
                     onKeepLatin = onKeepLatin
                 )
+                else -> Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (showEmoji) StripIcon(colors, R.drawable.ic_ui_mood, R.string.emoji_open, onEmojiClick)
+                }
             }
+        }
+        if (!isListening && latinText.isEmpty()) {
+            StripIcon(colors, R.drawable.ic_ui_settings, R.string.keyboard_settings, onSettingsClick)
         }
         if (showMic) {
             MicButton(colors = colors, isListening = isListening, onClick = onMicClick)
@@ -168,6 +177,24 @@ private fun Listening(colors: KeyboardColors, partialResult: String?) {
             fontSize = 15.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun StripIcon(colors: KeyboardColors, icon: Int, @StringRes description: Int, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = stringResource(description),
+            tint = colors.hint,
+            modifier = Modifier.size(20.dp)
         )
     }
 }
