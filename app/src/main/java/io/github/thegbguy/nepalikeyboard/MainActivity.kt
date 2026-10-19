@@ -1,10 +1,13 @@
 package io.github.thegbguy.nepalikeyboard
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -13,12 +16,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.SharedKeyboardPrefs
+import io.github.thegbguy.nepalikeyboard.ui.settings.LanguageDialog
+import io.github.thegbguy.nepalikeyboard.ui.settings.LicencesScreen
+import io.github.thegbguy.nepalikeyboard.ui.settings.SettingsLink
+import io.github.thegbguy.nepalikeyboard.ui.settings.SettingsScreen
 import io.github.thegbguy.nepalikeyboard.ui.setup.KeyboardStatus
 import io.github.thegbguy.nepalikeyboard.ui.setup.PrivacyScreen
-import io.github.thegbguy.nepalikeyboard.ui.setup.ReadyScreen
 import io.github.thegbguy.nepalikeyboard.ui.setup.SetupPrefs
 import io.github.thegbguy.nepalikeyboard.ui.setup.SetupScreen
 import io.github.thegbguy.nepalikeyboard.ui.setup.WarningSheet
@@ -29,6 +37,8 @@ class MainActivity : ComponentActivity() {
     private var status by mutableStateOf(KeyboardStatus(enabled = false, selected = false))
     private var setupDone by mutableStateOf(false)
     private var nepaliStyle by mutableStateOf(LanguageMode.TRANSLITERATION)
+    private var feel by mutableStateOf(KeyFeel())
+    private var appLanguage by mutableStateOf(AppLanguage.SYSTEM)
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
 
     override fun attachBaseContext(newBase: Context) {
@@ -39,14 +49,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupDone = SetupPrefs.isDone(this)
-        nepaliStyle = keyboardPrefs.nepaliStyle
+        readPrefs()
         setContent {
             NepaliKeyboardTheme {
                 var screen by rememberSaveable { mutableStateOf(Screen.MAIN) }
                 var showWarning by rememberSaveable { mutableStateOf(false) }
+                var showLanguages by rememberSaveable { mutableStateOf(false) }
                 var tryText by rememberSaveable { mutableStateOf("") }
 
-                BackHandler(enabled = screen == Screen.PRIVACY) { screen = Screen.MAIN }
+                BackHandler(enabled = screen != Screen.MAIN) { screen = Screen.MAIN }
 
                 val onStyleChange = { style: LanguageMode ->
                     keyboardPrefs.nepaliStyle = style
@@ -55,14 +66,31 @@ class MainActivity : ComponentActivity() {
                 }
                 when {
                     screen == Screen.PRIVACY -> PrivacyScreen(onBack = { screen = Screen.MAIN })
-                    setupDone -> ReadyScreen(
+                    screen == Screen.LICENCES -> LicencesScreen(onBack = { screen = Screen.MAIN })
+                    setupDone -> SettingsScreen(
                         status = status,
                         nepaliStyle = nepaliStyle,
+                        feel = feel,
+                        appLanguage = appLanguage,
+                        versionName = versionName(),
                         tryText = tryText,
                         onTryTextChange = { tryText = it },
                         onStyleChange = onStyleChange,
-                        onFix = { if (status.enabled) showKeyboardPicker() else showWarning = true },
-                        onPrivacy = { screen = Screen.PRIVACY }
+                        onHeightChange = { keyboardPrefs.keyHeight = it; feel = keyboardPrefs.feel },
+                        onVibrateChange = { keyboardPrefs.vibrate = it; feel = keyboardPrefs.feel },
+                        onSoundChange = { keyboardPrefs.sound = it; feel = keyboardPrefs.feel },
+                        onPickLanguage = { showLanguages = true },
+                        onLink = { link ->
+                            when (link) {
+                                SettingsLink.FIX_KEYBOARD -> if (status.enabled) showKeyboardPicker() else showWarning = true
+                                SettingsLink.PRIVACY -> screen = Screen.PRIVACY
+                                SettingsLink.LICENCES -> screen = Screen.LICENCES
+                                SettingsLink.FEEDBACK -> sendFeedback()
+                                SettingsLink.RATE -> openPlayStore()
+                                SettingsLink.PRIVACY_POLICY -> open(PRIVACY_POLICY_URL)
+                                SettingsLink.TERMS -> open(TERMS_URL)
+                            }
+                        }
                     )
                     else -> SetupScreen(
                         status = status,
@@ -88,6 +116,21 @@ class MainActivity : ComponentActivity() {
                         onDismiss = { showWarning = false }
                     )
                 }
+                if (showLanguages) {
+                    LanguageDialog(
+                        current = appLanguage,
+                        onPick = { tag ->
+                            showLanguages = false
+                            if (tag != appLanguage) {
+                                AppLanguage.set(this, tag)
+                                appLanguage = tag
+                                // Android 13+ recreates the activity itself
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) recreate()
+                            }
+                        },
+                        onDismiss = { showLanguages = false }
+                    )
+                }
             }
         }
     }
@@ -105,12 +148,56 @@ class MainActivity : ComponentActivity() {
 
     private fun refreshStatus() {
         status = KeyboardStatus.read(this)
+        readPrefs()
+    }
+
+    private fun readPrefs() {
         nepaliStyle = keyboardPrefs.nepaliStyle
+        feel = keyboardPrefs.feel
+        appLanguage = AppLanguage.current(this)
     }
 
     private fun showKeyboardPicker() {
         getSystemService(InputMethodManager::class.java).showInputMethodPicker()
     }
 
-    private enum class Screen { MAIN, PRIVACY }
+    private fun versionName(): String =
+        packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
+
+    /** Opens the mail app with the version and device filled in, to help with bug reports. */
+    private fun sendFeedback() {
+        val body = "\n\n—\n${getString(R.string.settings_version, versionName())} · Android ${Build.VERSION.RELEASE} · ${Build.MANUFACTURER} ${Build.MODEL}"
+        val intent = Intent(Intent.ACTION_SENDTO, "mailto:".toUri())
+            .putExtra(Intent.EXTRA_EMAIL, arrayOf(SUPPORT_EMAIL))
+            .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_subject))
+            .putExtra(Intent.EXTRA_TEXT, body)
+        start(intent)
+    }
+
+    private fun openPlayStore() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()))
+        } catch (_: ActivityNotFoundException) {
+            open("https://play.google.com/store/apps/details?id=$packageName")
+        }
+    }
+
+    private fun open(url: String) = start(Intent(Intent.ACTION_VIEW, url.toUri()))
+
+    private fun start(intent: Intent) {
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.no_app_to_open, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private enum class Screen { MAIN, PRIVACY, LICENCES }
+
+    private companion object {
+        const val SUPPORT_EMAIL = "nepali.indie.dev@gmail.com"
+        // Published from the site repo; must exist before release (Play requires a privacy policy).
+        const val PRIVACY_POLICY_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/privacy/"
+        const val TERMS_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/terms/"
+    }
 }

@@ -6,6 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -248,37 +253,55 @@ private fun TryItStep(
     )
 }
 
-/** Two-option choice: Romanized (with an example) or the traditional layout. */
+/** Romanized (with an example) or the traditional layout. */
 @Composable
 fun StyleChoice(style: LanguageMode, onStyleChange: (LanguageMode) -> Unit) {
+    SegmentedChoice(
+        options = listOf(
+            ChoiceOption(LanguageMode.TRANSLITERATION, stringResource(R.string.mode_romanized), stringResource(R.string.style_romanized_example)),
+            ChoiceOption(LanguageMode.NEPALI, stringResource(R.string.style_traditional), stringResource(R.string.style_traditional_example))
+        ),
+        selected = style,
+        onSelect = onStyleChange
+    )
+}
+
+data class ChoiceOption<T>(val value: T, val title: String, val subtitle: String? = null)
+
+/** A row of equal options in one outlined box; the selected one is tinted. */
+@Composable
+fun <T> SegmentedChoice(options: List<ChoiceOption<T>>, selected: T, onSelect: (T) -> Unit) {
     val colors = MaterialTheme.colorScheme
     Row(
         Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, colors.outline, RoundedCornerShape(12.dp))
             .background(colors.surfaceContainerLowest)
+            .selectableGroup()
     ) {
-        listOf(
-            Triple(LanguageMode.TRANSLITERATION, R.string.mode_romanized, R.string.style_romanized_example),
-            Triple(LanguageMode.NEPALI, R.string.style_traditional, R.string.style_traditional_example)
-        ).forEachIndexed { i, (mode, title, example) ->
-            if (i > 0) Box(Modifier.width(1.dp).height(58.dp).background(colors.outline))
-            val selected = style == mode
+        options.forEachIndexed { i, option ->
+            if (i > 0) Box(Modifier.width(1.dp).fillMaxHeight().background(colors.outline))
+            val isSelected = option.value == selected
             Column(
                 Modifier
                     .weight(1f)
-                    .background(if (selected) colors.primaryContainer else Color.Transparent)
-                    .clickable { onStyleChange(mode) }
-                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                    .fillMaxHeight()
+                    .background(if (isSelected) colors.primaryContainer else Color.Transparent)
+                    .selectable(selected = isSelected, role = Role.RadioButton) { onSelect(option.value) }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    stringResource(title),
+                    option.title,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (selected) colors.primary else colors.onSurface
+                    color = if (isSelected) colors.primary else colors.onSurface
                 )
-                Text(stringResource(example), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                option.subtitle?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                }
             }
         }
     }
@@ -375,75 +398,6 @@ fun PrivacyScreen(onBack: () -> Unit) {
                 }
             }
             Spacer(Modifier.height(24.dp))
-        }
-    }
-}
-
-/**
- * Home after setup, until the Settings screen exists: keyboard status, the style choice, a field
- * to type in, and the privacy page.
- */
-@Composable
-fun ReadyScreen(
-    status: KeyboardStatus,
-    nepaliStyle: LanguageMode,
-    tryText: String,
-    onTryTextChange: (String) -> Unit,
-    onStyleChange: (LanguageMode) -> Unit,
-    onFix: () -> Unit,
-    onPrivacy: () -> Unit
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = ScreenPadding)
-    ) {
-        AppNameRow(Modifier.padding(top = 14.dp, bottom = 22.dp))
-        val ready = status.step == 2
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                .clickable(enabled = !ready, onClick = onFix)
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(painterResource(R.drawable.ic_ui_keyboard), null, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.ready_keyboard), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                Text(
-                    stringResource(if (ready) R.string.ready_on else R.string.ready_off),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (ready) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                )
-            }
-            if (!ready) Icon(painterResource(R.drawable.ic_ui_chevron_right), null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(Modifier.height(22.dp))
-        Text(stringResource(R.string.setup_try_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.height(12.dp))
-        StyleChoice(nepaliStyle, onStyleChange)
-        Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            value = tryText,
-            onValueChange = onTryTextChange,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
-            placeholder = {
-                Text(stringResource(if (nepaliStyle == LanguageMode.NEPALI) R.string.setup_try_hint_traditional else R.string.setup_try_hint_romanized))
-            },
-            shape = RoundedCornerShape(14.dp)
-        )
-        Spacer(Modifier.height(8.dp))
-        TextButton(onClick = onPrivacy) {
-            Text(stringResource(R.string.setup_privacy_link), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

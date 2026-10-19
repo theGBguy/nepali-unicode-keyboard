@@ -93,4 +93,38 @@
     <string name="ready_keyboard">Keyboard</string>
     <string name="ready_on">On and selected</string>
     <string name="ready_off">Not selected. Tap to fix.</string>
+
+    <!-- Settings -->
+    <string name="settings_section_typing">Typing</string>
+    <string name="settings_section_app">App</string>
+    <string name="settings_section_help">Help</string>
+    <string name="settings_section_legal">Legal</string>
+    <string name="settings_nepali_typing">Nepali typing</string>
+    <string name="settings_key_height">Key height</string>
+    <string name="settings_height_short">Short</string>
+    <string name="settings_height_normal">Normal</string>
+    <string name="settings_height_tall">Tall</string>
+    <string name="settings_vibrate">Vibrate on key press</string>
+    <string name="settings_sound">Sound on key press</string>
+    <string name="settings_try_hint">Try your settings here</string>
+    <string name="settings_app_language">App language</string>
+    <string name="language_system">Phone language</string>
+    <string name="language_english">English</string>
+    <string name="language_nepali">नेपाली</string>
+    <string name="settings_privacy_sub">What the keyboard can and can’t do</string>
+    <string name="settings_feedback">Send feedback</string>
+    <string name="settings_feedback_sub">Report a wrong word or a bug</string>
+    <string name="settings_rate">Rate on Google Play</string>
+    <string name="settings_rate_sub">Helps other Nepali speakers find it</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_terms">Terms of use</string>
+    <string name="settings_licences">Licences and credits</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="feedback_subject">Nepali Keyboard feedback</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_app_to_open">No app found to open this</string>
+    <string name="licences_words_title">Nepali word list</string>
+    <string name="licences_words_body">Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).</string>
+    <string name="licences_libraries_title">Open-source libraries</string>
+    <string name="licences_libraries_body">Built with Jetpack Compose, AndroidX and Kotlin, available under the Apache License 2.0.</string>
 </resources>

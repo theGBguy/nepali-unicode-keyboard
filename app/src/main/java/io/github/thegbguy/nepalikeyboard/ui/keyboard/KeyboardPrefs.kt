@@ -5,6 +5,16 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 
+/** Key height presets. [dp] is the letter-key height; the digit row is 6dp shorter. */
+enum class KeyHeight(val dp: Int) { SHORT(36), NORMAL(42), TALL(48) }
+
+/** How the keyboard looks and feels; read by the keyboard view. */
+data class KeyFeel(
+    val height: KeyHeight = KeyHeight.NORMAL,
+    val vibrate: Boolean = true,
+    val sound: Boolean = false
+)
+
 /** Keyboard settings the view model reads and writes. */
 interface KeyboardPrefs {
     /** How the user types Nepali: [LanguageMode.TRANSLITERATION] (Romanized) or [LanguageMode.NEPALI] (traditional layout). */
@@ -12,12 +22,21 @@ interface KeyboardPrefs {
 
     /** Whether the user last chose Nepali with the language key; restored on the next normal field. */
     var typeNepali: Boolean
+
+    var keyHeight: KeyHeight
+    var vibrate: Boolean
+    var sound: Boolean
+
+    val feel: KeyFeel get() = KeyFeel(keyHeight, vibrate, sound)
 }
 
 /** Used by tests and until the IME service supplies the stored settings. */
 class InMemoryKeyboardPrefs(
     override var nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
-    override var typeNepali: Boolean = false
+    override var typeNepali: Boolean = false,
+    override var keyHeight: KeyHeight = KeyHeight.NORMAL,
+    override var vibrate: Boolean = true,
+    override var sound: Boolean = false
 ) : KeyboardPrefs
 
 /** Settings stored on the device. Holds no typed text. */
@@ -52,7 +71,24 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         get() = prefs.getBoolean(KEY_TYPE_NEPALI, true)
         set(value) = prefs.edit { putBoolean(KEY_TYPE_NEPALI, value) }
 
+    override var keyHeight: KeyHeight
+        get() = KeyHeight.entries.firstOrNull { it.name == prefs.getString(KEY_HEIGHT, null) } ?: KeyHeight.NORMAL
+        set(value) = prefs.edit { putString(KEY_HEIGHT, value.name) }
+
+    /** Light tick on each key, on by default. Android's own touch-feedback setting still applies. */
+    override var vibrate: Boolean
+        get() = prefs.getBoolean(KEY_VIBRATE, true)
+        set(value) = prefs.edit { putBoolean(KEY_VIBRATE, value) }
+
+    /** Key click sound, off by default. Plays at the phone's touch-sound volume. */
+    override var sound: Boolean
+        get() = prefs.getBoolean(KEY_SOUND, false)
+        set(value) = prefs.edit { putBoolean(KEY_SOUND, value) }
+
     private companion object {
+        const val KEY_HEIGHT = "key_height"
+        const val KEY_VIBRATE = "vibrate"
+        const val KEY_SOUND = "sound"
         const val KEY_TYPE_NEPALI = "type_nepali"
         const val KEY_STYLE = "nepali_style"
         const val STYLE_ROMANIZED = "romanized"

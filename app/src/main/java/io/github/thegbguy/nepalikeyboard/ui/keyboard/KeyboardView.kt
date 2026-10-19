@@ -1,5 +1,7 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import android.content.Context
+import android.media.AudioManager
 import android.view.HapticFeedbackConstants
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -59,8 +61,6 @@ import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 
-private val KeyHeight = 42.dp
-private val NumberRowKeyHeight = 36.dp
 private val KeyGap = 5.dp
 private val RowGap = 7.dp
 private val KeyShape = RoundedCornerShape(7.dp)
@@ -85,6 +85,9 @@ fun KeyboardView(
             LanguageMode.ENGLISH -> R.string.mode_english
         }
     )
+
+    val keyHeight = state.feel.height.dp.dp
+    val numberRowKeyHeight = keyHeight - 6.dp
 
     Box(modifier = Modifier.fillMaxWidth().background(colors.background)) {
     Column(
@@ -128,7 +131,8 @@ fun KeyboardView(
                         key = key,
                         visual = keyVisual(key, state, enterLabel, spaceLabel, colors),
                         colors = colors,
-                        height = if (isNumberRow) NumberRowKeyHeight else KeyHeight,
+                        height = if (isNumberRow) numberRowKeyHeight else keyHeight,
+                        feel = state.feel,
                         onTap = { viewModel.onKeyClick(key) },
                         onLongPress = when {
                             isLanguageKey -> ({ viewModel.onLanguageLongPress() })
@@ -147,6 +151,7 @@ fun KeyboardView(
         if (state.showLanguageMenu) {
             LanguageMenu(
                 colors = colors,
+                bottomOffset = keyHeight + RowGap + 8.dp,
                 style = state.nepaliStyle,
                 romanizedAllowed = state.field.allowsTransliteration,
                 onStyle = { viewModel.setNepaliStyle(it) },
@@ -164,6 +169,7 @@ fun KeyboardView(
 @Composable
 private fun BoxScope.LanguageMenu(
     colors: KeyboardColors,
+    bottomOffset: Dp,
     style: LanguageMode,
     romanizedAllowed: Boolean,
     onStyle: (LanguageMode) -> Unit,
@@ -179,7 +185,7 @@ private fun BoxScope.LanguageMenu(
         modifier = Modifier
             .align(Alignment.BottomStart)
             .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(start = 8.dp, bottom = KeyHeight + RowGap + 8.dp)
+            .padding(start = 8.dp, bottom = bottomOffset)
             .width(232.dp)
             .shadow(8.dp, PreviewShape)
             .clip(PreviewShape)
@@ -322,6 +328,7 @@ private fun Key(
     visual: KeyVisual,
     colors: KeyboardColors,
     height: Dp,
+    feel: KeyFeel,
     onTap: () -> Unit,
     onLongPress: (() -> Unit)?,
     onRepeatStart: (() -> Unit)?,
@@ -345,7 +352,8 @@ private fun Key(
                 detectTapGestures(
                     onPress = {
                         pressed = true
-                        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        if (feel.vibrate) view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        if (feel.sound) playKeySound(view.context, key)
                         if (repeating) tap()
                         tryAwaitRelease()
                         pressed = false
@@ -397,6 +405,17 @@ private fun Key(
             }
         }
     }
+}
+
+/** Android's own key-click sounds, at the touch-sound volume. */
+private fun playKeySound(context: Context, key: KeyData) {
+    val effect = when (key.primary) {
+        "⌫" -> AudioManager.FX_KEYPRESS_DELETE
+        " " -> AudioManager.FX_KEYPRESS_SPACEBAR
+        "↵" -> AudioManager.FX_KEYPRESS_RETURN
+        else -> AudioManager.FX_KEYPRESS_STANDARD
+    }
+    context.getSystemService(AudioManager::class.java)?.playSoundEffect(effect, -1f)
 }
 
 @Composable

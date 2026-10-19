@@ -89,4 +89,38 @@
     <string name="ready_keyboard">किबोर्ड</string>
     <string name="ready_on">अन छ र छानिएको छ</string>
     <string name="ready_off">छानिएको छैन। मिलाउन थिच्नुहोस्।</string>
+
+    <!-- सेटिङ -->
+    <string name="settings_section_typing">टाइपिङ</string>
+    <string name="settings_section_app">एप</string>
+    <string name="settings_section_help">सहायता</string>
+    <string name="settings_section_legal">कानुनी</string>
+    <string name="settings_nepali_typing">नेपाली टाइपिङ</string>
+    <string name="settings_key_height">कीको उचाइ</string>
+    <string name="settings_height_short">होचो</string>
+    <string name="settings_height_normal">सामान्य</string>
+    <string name="settings_height_tall">अग्लो</string>
+    <string name="settings_vibrate">की थिच्दा कम्पन</string>
+    <string name="settings_sound">की थिच्दा आवाज</string>
+    <string name="settings_try_hint">आफ्ना सेटिङ यहाँ चलाएर हेर्नुहोस्</string>
+    <string name="settings_app_language">एपको भाषा</string>
+    <string name="language_system">फोनको भाषा</string>
+    <string name="language_english">English</string>
+    <string name="language_nepali">नेपाली</string>
+    <string name="settings_privacy_sub">किबोर्डले के गर्छ र के गर्दैन</string>
+    <string name="settings_feedback">प्रतिक्रिया पठाउनुहोस्</string>
+    <string name="settings_feedback_sub">गलत शब्द वा समस्या रिपोर्ट गर्नुहोस्</string>
+    <string name="settings_rate">Google Play मा रेटिङ दिनुहोस्</string>
+    <string name="settings_rate_sub">अरू नेपालीभाषीलाई यो भेट्टाउन मद्दत गर्छ</string>
+    <string name="settings_privacy_policy">गोपनीयता नीति</string>
+    <string name="settings_terms">प्रयोगका सर्तहरू</string>
+    <string name="settings_licences">लाइसेन्स र श्रेय</string>
+    <string name="settings_version">संस्करण %1$s</string>
+    <string name="feedback_subject">नेपाली किबोर्ड प्रतिक्रिया</string>
+    <string name="cancel">रद्द गर्नुहोस्</string>
+    <string name="no_app_to_open">यो खोल्ने एप भेटिएन</string>
+    <string name="licences_words_title">नेपाली शब्द सूची</string>
+    <string name="licences_words_body">यसमा नेपाली विकिपिडिया (ne.wikipedia.org) बाट निकालिएको शब्द आवृत्ति समावेश छ, जुन Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) लाइसेन्सअन्तर्गत उपलब्ध छ।</string>
+    <string name="licences_libraries_title">खुला स्रोत लाइब्रेरी</string>
+    <string name="licences_libraries_body">Jetpack Compose, AndroidX र Kotlin प्रयोग गरी बनाइएको, जुन Apache License 2.0 अन्तर्गत उपलब्ध छन्।</string>
 </resources>

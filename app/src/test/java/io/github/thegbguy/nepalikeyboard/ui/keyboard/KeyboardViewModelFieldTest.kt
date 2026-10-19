@@ -239,6 +239,18 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
+    fun `height, vibration and sound settings reach the keyboard`() {
+        val stored = InMemoryKeyboardPrefs(keyHeight = KeyHeight.TALL, vibrate = false)
+        vm.prefs = stored
+        vm.onInputStarted(textField)
+        assertEquals(KeyFeel(KeyHeight.TALL, vibrate = false, sound = false), vm.state.value.feel)
+
+        stored.sound = true
+        vm.onPrefsChanged()
+        assertEquals(true, vm.state.value.feel.sound)
+    }
+
+    @Test
     fun `traditional layout joins अ and a vowel sign into one letter`() {
         vm.prefs = InMemoryKeyboardPrefs(LanguageMode.NEPALI)
         vm.onInputStarted(textField)

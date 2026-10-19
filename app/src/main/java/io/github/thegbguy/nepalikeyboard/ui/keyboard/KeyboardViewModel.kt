@@ -168,6 +168,7 @@ class KeyboardViewModel : ViewModel() {
      * line. Does nothing when it already matches, so the keyboard's own writes don't loop.
      */
     fun onPrefsChanged() {
+        _state.update { it.copy(feel = prefs.feel) }
         val field = _state.value.field
         val target = when {
             field.prefersEnglish -> return
@@ -559,6 +560,7 @@ class KeyboardViewModel : ViewModel() {
             it.copy(
                 field = field,
                 showLanguageMenu = false,
+                feel = prefs.feel,
                 currentLanguage = language,
                 isShifted = false,
                 isCapsLock = false,
@@ -786,6 +788,8 @@ data class KeyboardState(
     val showLanguageMenu: Boolean = false,
     /** The saved Nepali style, shown checked in the language menu. */
     val nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
+    /** Key height, vibration and sound from Settings. */
+    val feel: KeyFeel = KeyFeel(),
     val currentLanguage: LanguageMode = LanguageMode.ENGLISH,
     val currentLayout: KeyboardLayout = EnglishLayout.getLayout(),
     val isShifted: Boolean = false,
