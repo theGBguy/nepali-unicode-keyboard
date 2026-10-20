@@ -20,3 +20,5 @@ keystore.properties
 *.jks
 *.keystore
 /keys/
+# Staging copy of design/screenshots for gpc images sync
+/fastlane/screenshots/
