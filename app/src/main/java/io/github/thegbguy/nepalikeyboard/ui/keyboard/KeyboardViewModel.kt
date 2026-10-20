@@ -298,9 +298,13 @@ class KeyboardViewModel : ViewModel() {
     }
 
     private fun handleCharacterKey(key: KeyData) {
-        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
+        val output = key.getOutput(_state.value.isShifted)
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION && endsRomanizedWord(output)) {
+            // Punctuation ends the word: "huncha," must commit हुन्छ, not look up "huncha,".
+            commitTransliterationBuffer()
+            inputConnection?.commitText(if (output == ".") "।" else output, 1)
+        } else if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
             // Transliteration mode - buffer input and show romanized text
-            val output = key.getOutput(_state.value.isShifted)
             val currentBuffer = _state.value.transliterationBuffer
 
             val newBuffer = transliterationEngine.processInput(currentBuffer, output)
@@ -319,7 +323,7 @@ class KeyboardViewModel : ViewModel() {
 
         } else {
             // Direct input mode (English and traditional Nepali)
-            commitDirect(key.getOutput(_state.value.isShifted))
+            commitDirect(output)
         }
 
         // Reset shift after character input (unless caps lock)
@@ -422,6 +426,13 @@ class KeyboardViewModel : ViewModel() {
             ic.performEditorAction(field.imeActionId)
         }
     }
+
+    /**
+     * A single punctuation mark (not a letter, digit, or the ~ ^ chandrabindu marks typed inside
+     * words) ends the Romanized word instead of joining its spelling.
+     */
+    private fun endsRomanizedWord(output: String): Boolean =
+        output.length == 1 && !output[0].isLetterOrDigit() && output[0] !in "~^" && !output[0].isWhitespace()
 
     /** Commits the Romanized word being typed as Devanagari, if there is one. */
     private fun commitTransliterationBuffer() {

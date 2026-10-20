@@ -7,6 +7,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.domain.transliteration.RomanizedConverter
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
@@ -195,6 +196,23 @@ class KeyboardViewModelFieldTest {
         "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
         vm.onSelectionChanged(selStart = 0, selEnd = 0, composingStart = 5, composingEnd = 8)
         verify { ic.finishComposingText() }
+        assertTrue(vm.state.value.transliterationBuffer.isEmpty())
+    }
+
+    @Test
+    fun `punctuation after a Romanized word commits the word, then the mark`() {
+        vm.onInputStarted(textField)
+        switchToRomanized()
+        "ram,".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        "shyam.".forEach { vm.onKeyClick(KeyData(it.toString())) }
+        vm.onKeyClick(KeyData("?"))
+        verifyOrder {
+            ic.commitText(RomanizedConverter.convert("ram"), 1) // no word list in JVM tests
+            ic.commitText(",", 1)
+            ic.commitText(RomanizedConverter.convert("shyam"), 1)
+            ic.commitText("।", 1) // full stop is the danda in Nepali
+            ic.commitText("?", 1)
+        }
         assertTrue(vm.state.value.transliterationBuffer.isEmpty())
     }
 
