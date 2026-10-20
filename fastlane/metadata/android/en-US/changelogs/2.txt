@@ -1,3 +1,7 @@
-• अ/A now cycles English, Romanized and traditional Nepali
-• Symbol pages rearranged: two pages, flip with 1/2 and 2/2
-• Keys no longer sit under the system keyboard buttons with gesture navigation
+First release of Nepali Unicode Keyboard.
+• Romanized typing: namaste becomes नमस्ते
+• Or the traditional Nepali Unicode layout
+• The अ/A key switches between English, Romanized and traditional
+• Voice typing in Nepali
+• Emoji, with your recent ones first
+• No internet access: what you type stays on your phone
