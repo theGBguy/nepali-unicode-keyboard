@@ -1,0 +1,3 @@
+• अ/A now cycles English, Romanized and traditional Nepali
+• Symbol pages rearranged: two pages, flip with 1/2 and 2/2
+• Keys no longer sit under the system keyboard buttons with gesture navigation
