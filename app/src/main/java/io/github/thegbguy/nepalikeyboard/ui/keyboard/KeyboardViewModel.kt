@@ -24,6 +24,7 @@ import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationE
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.SymbolLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -289,9 +290,7 @@ class KeyboardViewModel : ViewModel() {
         updateLayout()
     }
 
-    /**
-     * Toggles between numbers and symbols layout (for English).
-     */
+    /** Flips between symbol pages 1/2 and 2/2. */
     fun toggleSymbolsLayout() {
         _state.update { it.copy(showingSymbols = !it.showingSymbols) }
         updateLayout()
@@ -544,24 +543,17 @@ class KeyboardViewModel : ViewModel() {
                     toggleNumbersLayout()
                 }
             }
-            "=+/" -> {
-                // Switch to symbols layout
-                toggleSymbolsLayout()
-            }
         }
     }
 
     private fun updateLayout() {
         val currentState = _state.value
         val newLayout = when {
-            currentState.showingSymbols && currentState.currentLanguage == LanguageMode.ENGLISH -> {
-                EnglishLayout.getSymbolsLayout()
-            }
             currentState.showingNumbers -> {
-                when (currentState.currentLanguage) {
-                    LanguageMode.NEPALI -> NepaliLayout.getNumbersLayout()
-                    LanguageMode.TRANSLITERATION, LanguageMode.ENGLISH -> EnglishLayout.getNumbersLayout()
-                }
+                SymbolLayout.getLayout(
+                    page = if (currentState.showingSymbols) 2 else 1,
+                    mode = currentState.currentLanguage
+                )
             }
             else -> {
                 when (currentState.currentLanguage) {

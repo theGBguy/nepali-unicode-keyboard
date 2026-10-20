@@ -12,7 +12,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
  * the number-row letters ञ घ ङ झ छ ट ठ ड ढ ण, then ध भ च त थ ग ष य उ, ब क म ा न ज व प ि स and
  * श ह अ ख द ल फ र. Shift gives the standard second character (the halant form, क्ष on ष, इ on य,
  * ए on उ, ँ on ा, ी on ि...). Keys the standard puts beyond ten columns (े, ृ, ्, ु, ो) are placed
- * at the row ends and on the bottom row; ई ऊ ऐ ओ औ ॐ are on the ?१२३ page. Typing अ then
+ * at the row ends and on the bottom row; ई ऊ ऐ ओ औ ॐ are on symbol page 2/2 (SymbolLayout). Typing अ then
  * ा/ो/ौ/ै gives आ/ओ/औ/ऐ (see KeyboardViewModel).
  */
 object NepaliLayout {
@@ -87,60 +87,6 @@ object NepaliLayout {
                 KeyData(" ", keyType = KeyType.ACTION, flex = 3f),
                 KeyData("ो", "ौ"),
                 KeyData("।", ","),
-                KeyData("↵", keyType = KeyType.ACTION, flex = 1.2f)
-            )
-        )
-
-        return KeyboardLayout(rows, LanguageMode.NEPALI)
-    }
-
-    /** Numbers and symbols, plus the independent vowels the letter page has no room for. */
-    fun getNumbersLayout(): KeyboardLayout {
-        val rows = listOf(
-            "1234567890".map { KeyData(it.toString()) },
-
-            listOf(
-                KeyData("@"),
-                KeyData("#"),
-                KeyData("रु"),
-                KeyData("&"),
-                KeyData("*"),
-                KeyData("-"),
-                KeyData("+"),
-                KeyData("("),
-                KeyData(")"),
-                KeyData("/")
-            ),
-
-            listOf(
-                KeyData("ई"),
-                KeyData("ऊ"),
-                KeyData("ऐ"),
-                KeyData("ओ"),
-                KeyData("औ"),
-                KeyData("ॐ"),
-                KeyData("॥"),
-                KeyData("!"),
-                KeyData("?")
-            ),
-
-            listOf(
-                KeyData("⇧", keyType = KeyType.MODIFIER, flex = 1.3f),
-                KeyData("%"),
-                KeyData(":"),
-                KeyData(";"),
-                KeyData("\""),
-                KeyData("'"),
-                KeyData("_"),
-                KeyData("="),
-                KeyData("⌫", keyType = KeyType.FUNCTION, flex = 1.3f)
-            ),
-
-            listOf(
-                KeyData("ABC", keyType = KeyType.FUNCTION, flex = 1.2f),
-                KeyData("🌐", keyType = KeyType.FUNCTION),
-                KeyData(" ", keyType = KeyType.ACTION, flex = 4f),
-                KeyData(".", ","),
                 KeyData("↵", keyType = KeyType.ACTION, flex = 1.2f)
             )
         )

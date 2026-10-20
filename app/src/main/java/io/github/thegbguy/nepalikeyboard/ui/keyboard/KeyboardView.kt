@@ -61,6 +61,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.SymbolLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 
@@ -327,7 +328,7 @@ private fun keyVisual(
             text = spaceLabel, background = colors.key, content = colors.hint, fontSize = 12.sp,
             description = stringResource(R.string.key_space)
         )
-        "?123", "123", "=+/" -> KeyVisual(
+        "?123", SymbolLayout.PAGE_ONE, SymbolLayout.PAGE_TWO -> KeyVisual(
             text = if (key.primary == "?123" && nepaliKeys) "?१२३" else key.primary,
             background = colors.functionKey, content = colors.keyText, fontSize = 14.sp,
             description = stringResource(R.string.key_numbers)

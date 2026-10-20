@@ -1,6 +1,7 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts
 
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
+import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -46,8 +47,23 @@ class NepaliLayoutTest {
     }
 
     @Test
-    fun `numbers layout has the independent vowels the letter layout lacks`() {
-        val symbols = NepaliLayout.getNumbersLayout().rows.flatten().map { it.primary }
-        listOf("ई", "ऊ", "ऐ", "ओ", "औ", "ॐ", "॥").forEach { assertTrue(it, it in symbols) }
+    fun `symbol pages have the independent vowels the letter layout lacks`() {
+        val symbols = (1..2).flatMap { page ->
+            SymbolLayout.getLayout(page, LanguageMode.NEPALI).rows.flatten().map { it.primary }
+        }
+        listOf("ई", "ऊ", "ऐ", "ओ", "औ", "ॐ", "॥", "रु").forEach { assertTrue(it, it in symbols) }
+    }
+
+    @Test
+    fun `symbol pages follow the Samsung arrangement`() {
+        fun row(page: Int, mode: LanguageMode, i: Int) =
+            SymbolLayout.getLayout(page, mode).rows[i].joinToString(" ") { it.primary }
+        assertEquals("+ × ÷ = / _ < > [ ]", row(1, LanguageMode.ENGLISH, 1))
+        assertEquals("! @ # £ % ^ & * ( )", row(1, LanguageMode.ENGLISH, 2))
+        assertEquals("1/2 - ' \" : ; , ? ⌫", row(1, LanguageMode.ENGLISH, 3))
+        assertEquals("` ~ \\ | { } € $ ¥ ₹", row(2, LanguageMode.ENGLISH, 1))
+        assertEquals("2/2 ☆ ▪ ¤ 《 》 ¡ ¿ ⌫", row(2, LanguageMode.ENGLISH, 3))
+        assertEquals("ABC ,   . ↵", row(1, LanguageMode.TRANSLITERATION, 4))
+        assertEquals("! @ # रु % ^ & * ( )", row(1, LanguageMode.NEPALI, 2))
     }
 }

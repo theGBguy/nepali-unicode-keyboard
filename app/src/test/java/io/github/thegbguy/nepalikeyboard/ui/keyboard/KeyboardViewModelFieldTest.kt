@@ -164,6 +164,24 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
+    fun `symbol keys flip between pages and ABC returns to letters`() {
+        vm.onInputStarted(textField)
+        fun pageKey() = vm.state.value.currentLayout.rows[3].first().primary
+        vm.onKeyClick(KeyData("?123", keyType = KeyType.FUNCTION))
+        assertEquals("1/2", pageKey())
+        vm.onKeyClick(KeyData("1/2", keyType = KeyType.FUNCTION))
+        assertEquals("2/2", pageKey())
+        vm.onKeyClick(KeyData("2/2", keyType = KeyType.FUNCTION))
+        assertEquals("1/2", pageKey())
+        vm.onKeyClick(KeyData("1/2", keyType = KeyType.FUNCTION))
+        vm.onKeyClick(KeyData("ABC", keyType = KeyType.FUNCTION))
+        assertFalse(vm.state.value.showingNumbers)
+        assertFalse(vm.state.value.showingSymbols)
+        vm.onKeyClick(KeyData("?123", keyType = KeyType.FUNCTION))
+        assertEquals("1/2", pageKey())
+    }
+
+    @Test
     fun `each key goes to the connection of the field focused now`() {
         val second: InputConnection = mockk(relaxed = true)
         vm.onInputStarted(textField)
