@@ -197,7 +197,7 @@ class MainActivity : ComponentActivity() {
     private companion object {
         const val SUPPORT_EMAIL = "nepali.indie.dev@gmail.com"
         // Published from the site repo; must exist before release (Play requires a privacy policy).
-        const val PRIVACY_POLICY_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/privacy/"
-        const val TERMS_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/terms/"
+        const val PRIVACY_POLICY_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html"
+        const val TERMS_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/terms-of-service.html"
     }
 }
