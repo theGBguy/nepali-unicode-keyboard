@@ -1,0 +1,26 @@
+Nepali Unicode Keyboard lets you type Nepali in any app, the way you already type.
+
+ROMANIZED TYPING
+Type Nepali with English letters and get Unicode Devanagari. "namaste" becomes नमस्ते, "dherai ramro" becomes धेरै राम्रो. Suggestions above the keys come from a built-in Nepali word list, so common words come out right even when you spell them loosely. Tap the Latin word in the bar to keep it in English.
+
+TRADITIONAL LAYOUT
+Prefer the traditional Nepali Unicode layout? Switch to it once and it stays. Shift characters show as small hints on each key, and a long press types them. Vowel signs join correctly, so अ + ा gives आ, not अा.
+
+VOICE TYPING IN NEPALI
+Tap the mic and speak Nepali. Your phone's speech service turns it into text.
+
+ALSO INCLUDED
+• Nepali and English on one keyboard: the अ/A key switches between them
+• Devanagari numbers (०–९), the danda । and ॥
+• Emoji panel with your recently used emoji first
+• Three key heights: Short, Normal and Tall
+• Light and dark themes that follow your phone
+• Optional key vibration and key sound
+• App in English or Nepali
+
+PRIVATE BY DESIGN
+Android warns that any keyboard "may be able to collect all the text you type". This one has no internet permission, so it cannot send what you type anywhere, and it doesn't save your typing. Password fields get the plain English layout with no suggestions and no voice. Voice typing is the only feature that uses a service outside the app: your audio goes to your phone's speech recognition (usually Google) only when you tap the mic.
+
+No ads. No pop-ups. No rating prompts while you type.
+
+Questions or a word the keyboard gets wrong? Use "Send feedback" in the app's settings.
