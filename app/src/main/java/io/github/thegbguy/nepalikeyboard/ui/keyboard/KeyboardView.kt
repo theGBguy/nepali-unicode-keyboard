@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.captionBar
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -101,7 +103,7 @@ fun KeyboardView(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.navigationBars)
+            .windowInsetsPadding(keyboardBottomInsets)
             .padding(start = 3.dp, end = 3.dp, bottom = 4.dp)
     ) {
         if (state.showEmoji) {
@@ -213,7 +215,7 @@ private fun BoxScope.LanguageMenu(
     Column(
         modifier = Modifier
             .align(Alignment.BottomStart)
-            .windowInsetsPadding(WindowInsets.navigationBars)
+            .windowInsetsPadding(keyboardBottomInsets)
             .padding(start = 8.dp, bottom = bottomOffset)
             .width(232.dp)
             .shadow(8.dp, PreviewShape)
@@ -487,3 +489,12 @@ fun enterKeyLabel(field: FieldInfo): EnterKeyLabel = when (field.enterAction) {
         EnterKeyLabel(label, null, label)
     }
 }
+
+/**
+ * Space to keep clear at the bottom: the navigation bar, and with gesture navigation the system's
+ * keyboard bar (hide and switch-keyboard buttons). Android draws that bar inside the keyboard's own
+ * window and reports it as a caption-bar inset; the navigation-bar inset alone only covers the
+ * gesture handle, so the bottom row would sit under those buttons.
+ */
+private val keyboardBottomInsets: WindowInsets
+    @Composable get() = WindowInsets.navigationBars.union(WindowInsets.captionBar)
