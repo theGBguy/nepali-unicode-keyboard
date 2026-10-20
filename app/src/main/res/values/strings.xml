@@ -35,7 +35,7 @@
     <string name="key_delete">Delete</string>
     <string name="key_shift">Shift</string>
     <string name="key_caps_lock">Caps lock</string>
-    <string name="key_language">Nepali or English. Long-press for options.</string>
+    <string name="key_language">English, Romanized Nepali or traditional Nepali. Long-press for options.</string>
     <string name="key_numbers">Numbers and symbols</string>
     <string name="key_letters">Letters</string>
     <string name="voice_start">Voice typing</string>

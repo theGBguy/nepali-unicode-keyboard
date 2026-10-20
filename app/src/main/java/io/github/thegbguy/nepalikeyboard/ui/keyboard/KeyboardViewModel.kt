@@ -199,10 +199,22 @@ class KeyboardViewModel : ViewModel() {
     /** Backspace in the emoji panel. */
     fun onEmojiBackspace() = deleteBackward()
 
-    /** The language key: English ⇄ Nepali in the user's style. */
+    /**
+     * The language key cycles English → the user's Nepali style → the other Nepali style → English.
+     * The saved style (settings, long-press menu) only sets which Nepali mode comes first; cycling
+     * doesn't change it. Where Romanized isn't allowed it's English ⇄ traditional.
+     */
     fun switchLanguage() {
-        val toNepali = _state.value.currentLanguage == LanguageMode.ENGLISH
-        setLanguage(if (toNepali) nepaliMode(_state.value.field) else LanguageMode.ENGLISH)
+        val field = _state.value.field
+        val preferred = nepaliMode(field)
+        val other = if (preferred == LanguageMode.NEPALI) LanguageMode.TRANSLITERATION else LanguageMode.NEPALI
+        val otherAllowed = other != LanguageMode.TRANSLITERATION || field.allowsTransliteration
+        val next = when (_state.value.currentLanguage) {
+            LanguageMode.ENGLISH -> preferred
+            preferred -> if (otherAllowed) other else LanguageMode.ENGLISH
+            else -> LanguageMode.ENGLISH
+        }
+        setLanguage(next)
     }
 
     /** Long-press on the language key. */
@@ -525,14 +537,13 @@ class KeyboardViewModel : ViewModel() {
                 switchLanguage()
             }
             "?123" -> {
-                // Switch to numbers layout from main layout
+                // Letters to symbol page 1
+                _state.update { it.copy(showingSymbols = false) }
                 toggleNumbersLayout()
             }
-            "123" -> {
-                // Switch back to numbers from symbols layout
-                if (_state.value.showingSymbols) {
-                    toggleSymbolsLayout()
-                }
+            SymbolLayout.PAGE_ONE, SymbolLayout.PAGE_TWO -> {
+                // Flip between the two symbol pages
+                toggleSymbolsLayout()
             }
             "ABC" -> {
                 // Switch back to main layout

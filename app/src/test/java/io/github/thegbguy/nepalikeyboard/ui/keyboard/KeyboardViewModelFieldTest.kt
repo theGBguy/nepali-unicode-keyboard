@@ -66,16 +66,25 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
-    fun `language key toggles only between English and the chosen Nepali style`() {
+    fun `language key cycles English, Romanized, traditional`() {
         vm.onInputStarted(textField)
         vm.onKeyClick(globe)
         assertEquals(LanguageMode.TRANSLITERATION, language())
         vm.onKeyClick(globe)
+        assertEquals(LanguageMode.NEPALI, language())
+        assertEquals(LanguageMode.TRANSLITERATION, vm.prefs.nepaliStyle) // cycling keeps the saved style
+        vm.onKeyClick(globe)
         assertEquals(LanguageMode.ENGLISH, language())
+    }
 
+    @Test
+    fun `the saved style comes first in the cycle`() {
+        vm.onInputStarted(textField)
         vm.setNepaliStyle(LanguageMode.NEPALI)
         assertEquals(LanguageMode.NEPALI, language())
         assertEquals(LanguageMode.NEPALI, vm.prefs.nepaliStyle)
+        vm.onKeyClick(globe)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
         vm.onKeyClick(globe)
         assertEquals(LanguageMode.ENGLISH, language())
         vm.onKeyClick(globe)
@@ -110,7 +119,7 @@ class KeyboardViewModelFieldTest {
         "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
         vm.onKeyClick(globe)
         verify { ic.commitText(match<CharSequence> { it.isNotEmpty() && it.first() in 'ऀ'..'ॿ' }, 1) }
-        assertEquals(LanguageMode.ENGLISH, language())
+        assertEquals(LanguageMode.NEPALI, language())
     }
 
     @Test
@@ -252,6 +261,7 @@ class KeyboardViewModelFieldTest {
         vm.onInputStarted(textField)
         assertEquals(LanguageMode.TRANSLITERATION, language())
 
+        vm.onKeyClick(globe) // to traditional
         vm.onKeyClick(globe) // to English
         assertEquals(false, stored.typeNepali)
 

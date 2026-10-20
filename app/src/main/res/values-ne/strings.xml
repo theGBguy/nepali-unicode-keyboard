@@ -31,7 +31,7 @@
     <string name="key_delete">मेटाउनुहोस्</string>
     <string name="key_shift">सिफ्ट</string>
     <string name="key_caps_lock">क्याप्स लक</string>
-    <string name="key_language">नेपाली वा अंग्रेजी। थप विकल्पका लागि थिचिराख्नुहोस्।</string>
+    <string name="key_language">अंग्रेजी, रोमन नेपाली वा परम्परागत नेपाली। थप विकल्पका लागि थिचिराख्नुहोस्।</string>
     <string name="key_numbers">अंक र चिन्ह</string>
     <string name="key_letters">अक्षर</string>
     <string name="voice_start">बोलेर टाइप गर्नुहोस्</string>
