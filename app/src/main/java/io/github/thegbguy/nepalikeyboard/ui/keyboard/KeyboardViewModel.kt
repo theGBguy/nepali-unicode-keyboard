@@ -10,6 +10,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiRecents
+import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipItem
+import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardHistory
+import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardSource
+import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardStorage
+import io.github.thegbguy.nepalikeyboard.domain.clipboard.CopiedText
+import io.github.thegbguy.nepalikeyboard.domain.clipboard.InMemoryClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.Backspace
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
@@ -53,6 +59,18 @@ class KeyboardViewModel : ViewModel() {
     /** Stored settings (Nepali style). The IME service replaces this with the on-device store. */
     var prefs: KeyboardPrefs = InMemoryKeyboardPrefs()
 
+    /** The system clipboard. Set by the IME service; null in tests that don't need it. */
+    var clipboardSource: ClipboardSource? = null
+
+    /** Saved clipboard items. The IME service replaces this with the on-device file. */
+    var clipboardStorage: ClipboardStorage = InMemoryClipboardStorage()
+
+    /** Wall-clock time for clipboard items; replaced in tests. */
+    var clock: () -> Long = System::currentTimeMillis
+
+    /** The copy last pasted from the strip's Paste suggestion, so it isn't offered again. */
+    private var usedCopyId: Long? = null
+
     /** Asks for the microphone permission (opens a small activity). Set by the IME service. */
     var onRequestMicPermission: (() -> Unit)? = null
 
@@ -95,6 +113,7 @@ class KeyboardViewModel : ViewModel() {
      * Handles key click events.
      */
     fun onKeyClick(key: KeyData) {
+        if (_state.value.pasteSuggestion != null) _state.update { it.copy(pasteSuggestion = null) }
         when (key.keyType) {
             KeyType.CHARACTER -> handleCharacterKey(key)
             KeyType.ACTION -> handleActionKey(key)
@@ -172,6 +191,8 @@ class KeyboardViewModel : ViewModel() {
         _state.update {
             it.copy(
                 showEmoji = true,
+                showClipboard = false,
+                pasteSuggestion = null,
                 showLanguageMenu = false,
                 emojiRecents = prefs.emojiRecents,
                 transliterationBuffer = TransliterationBuffer(),
@@ -198,6 +219,121 @@ class KeyboardViewModel : ViewModel() {
 
     /** Backspace in the emoji panel. */
     fun onEmojiBackspace() = deleteBackward()
+
+    /**
+     * Saving is allowed when clipboard history is on and the field isn't a password or incognito
+     * field. Reading saved items is always fine.
+     */
+    private fun mayRecordClipboard(): Boolean {
+        val field = _state.value.field
+        return prefs.clipboardHistory && !field.isPrivate && !field.noLearning
+    }
+
+    /**
+     * Something was copied somewhere on the phone: save it (unless it's marked sensitive or
+     * history is off), offer it as Paste in the strip, and refresh the panel if it's open.
+     */
+    fun onSystemCopy() {
+        val source = clipboardSource ?: return
+        val copied = source.read() ?: return
+        var items = clipboardStorage.load()
+        if (!copied.sensitive && mayRecordClipboard()) {
+            items = ClipboardHistory.add(items, copied.text, clock())
+            clipboardStorage.save(items)
+        }
+        val offer = !_state.value.field.isPrivate
+        _state.update {
+            it.copy(
+                pasteSuggestion = if (offer) copied else null,
+                copied = if (it.showClipboard) copied else it.copied,
+                clipItems = items
+            )
+        }
+    }
+
+    /**
+     * Opens the clipboard panel in place of the keys. The current copy is read again (it may
+     * predate the keyboard starting) and added to the history unless it's marked sensitive.
+     */
+    fun openClipboard() {
+        commitTransliterationBuffer()
+        if (_state.value.isVoiceListening) stopVoiceInput()
+        val copied = clipboardSource?.read()
+        var items = clipboardStorage.load()
+        if (copied != null && !copied.sensitive && mayRecordClipboard()) {
+            items = ClipboardHistory.add(items, copied.text, clock())
+            clipboardStorage.save(items)
+        }
+        _state.update {
+            it.copy(
+                showClipboard = true,
+                showEmoji = false,
+                showLanguageMenu = false,
+                pasteSuggestion = null,
+                copied = copied,
+                clipItems = items,
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
+    }
+
+    fun closeClipboard() {
+        _state.update { it.copy(showClipboard = false, copied = null) }
+    }
+
+    /** Pastes [text] from the panel, moves it to the top of the history, and goes back to the keys. */
+    fun onClipPaste(text: String) {
+        inputConnection?.commitText(text, 1)
+        val sensitiveCopy = _state.value.copied?.let { it.sensitive && it.text == text } == true
+        if (!sensitiveCopy && mayRecordClipboard()) {
+            clipboardStorage.save(ClipboardHistory.add(clipboardStorage.load(), text, clock()))
+        }
+        closeClipboard()
+    }
+
+    fun onClipPin(text: String, pinned: Boolean) =
+        updateClipItems { ClipboardHistory.setPinned(it, text, pinned) }
+
+    /** Deletes [text] from the history. If it's the phone's current copy, that's cleared too. */
+    fun onClipDelete(text: String) {
+        if (_state.value.copied?.text == text) {
+            clipboardSource?.clear()
+            _state.update { it.copy(copied = null) }
+        }
+        updateClipItems { ClipboardHistory.delete(it, text) }
+    }
+
+    /** The panel's "Clear all": pinned items stay. */
+    fun onClipClearAll() = updateClipItems(ClipboardHistory::clearUnpinned)
+
+    private fun updateClipItems(change: (List<ClipItem>) -> List<ClipItem>) {
+        val items = change(clipboardStorage.load())
+        clipboardStorage.save(items)
+        _state.update { it.copy(clipItems = items) }
+    }
+
+    /** The strip's Paste suggestion, offered when something was copied in the last two minutes. */
+    fun onPasteSuggestion() {
+        val copied = _state.value.pasteSuggestion ?: return
+        usedCopyId = clipboardSource?.recentCopyId(PASTE_SUGGESTION_WINDOW_MS)
+        _state.update { it.copy(pasteSuggestion = null) }
+        commitTransliterationBuffer()
+        inputConnection?.commitText(copied.text, 1)
+        if (!copied.sensitive && mayRecordClipboard()) {
+            clipboardStorage.save(ClipboardHistory.add(clipboardStorage.load(), copied.text, clock()))
+        }
+    }
+
+    /** The copy to offer as Paste when a field opens: made in the last two minutes and not yet pasted from the strip. */
+    private fun recentCopyToOffer(field: FieldInfo): CopiedText? {
+        if (field.isPrivate) return null
+        val source = clipboardSource ?: return null
+        val id = source.recentCopyId(PASTE_SUGGESTION_WINDOW_MS) ?: return null
+        if (id == usedCopyId) return null
+        return source.read()
+    }
 
     /**
      * The language key cycles English → the user's Nepali style → the other Nepali style → English.
@@ -631,6 +767,9 @@ class KeyboardViewModel : ViewModel() {
                 field = field,
                 showLanguageMenu = false,
                 showEmoji = false,
+                showClipboard = false,
+                copied = null,
+                pasteSuggestion = recentCopyToOffer(field),
                 feel = prefs.feel,
                 currentLanguage = language,
                 isShifted = false,
@@ -842,6 +981,9 @@ class KeyboardViewModel : ViewModel() {
     private companion object {
         /** Vowel sign → the vowel letter it forms after अ. */
         val INDEPENDENT_VOWELS = mapOf("ा" to "आ", "ो" to "ओ", "ौ" to "औ", "ै" to "ऐ")
+
+        /** How long after a copy the strip offers Paste. */
+        const val PASTE_SUGGESTION_WINDOW_MS = 2 * 60 * 1000L
     }
 
     override fun onCleared() {
@@ -861,6 +1003,14 @@ data class KeyboardState(
     val showEmoji: Boolean = false,
     /** Recents as they were when the panel opened. */
     val emojiRecents: List<String> = emptyList(),
+    /** The clipboard panel replaces the keys. */
+    val showClipboard: Boolean = false,
+    /** The phone's current copy, read when the clipboard panel opened. */
+    val copied: CopiedText? = null,
+    /** Saved clipboard items, most recent first. */
+    val clipItems: List<ClipItem> = emptyList(),
+    /** The idle strip offers this recent copy as Paste (copied in the last two minutes). */
+    val pasteSuggestion: CopiedText? = null,
     /** The saved Nepali style, shown checked in the language menu. */
     val nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
     /** Key height, vibration and sound from Settings. */

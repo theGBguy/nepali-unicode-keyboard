@@ -62,6 +62,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.SymbolLayout
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.ClipboardPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 
@@ -123,6 +124,25 @@ fun KeyboardView(
                 onClose = { viewModel.closeEmoji() }
             )
             Spacer(Modifier.height(RowGap))
+        } else if (state.showClipboard) {
+            val rowsHeight = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, keyHeight, numberRowKeyHeight) + RowGap }
+            ClipboardPanel(
+                colors = colors,
+                height = StripHeight + rowsHeight - RowGap,
+                bottomRowHeight = keyHeight,
+                feel = state.feel,
+                copied = state.copied,
+                items = state.clipItems,
+                onPaste = { viewModel.onClipPaste(it) },
+                onPin = { text, pinned -> viewModel.onClipPin(text, pinned) },
+                onDelete = { viewModel.onClipDelete(it) },
+                onClearAll = { viewModel.onClipClearAll() },
+                onBackspace = { viewModel.onEmojiBackspace() },
+                onBackspaceRepeatStart = { viewModel.onBackspaceLongPressStart() },
+                onBackspaceRepeatEnd = { viewModel.onBackspaceLongPressEnd() },
+                onClose = { viewModel.closeClipboard() }
+            )
+            Spacer(Modifier.height(RowGap))
         } else {
         val buffer = state.transliterationBuffer
         KeyboardStrip(
@@ -135,7 +155,11 @@ fun KeyboardView(
             errorMessage = state.voiceError,
             showMic = state.field.allowsVoice,
             showEmoji = !state.field.isPrivate && !state.field.prefersNumbers,
+            showClipboard = !state.field.isPrivate,
+            pasteSuggestion = state.pasteSuggestion?.let { if (it.sensitive) "" else it.text },
             onEmojiClick = { viewModel.openEmoji() },
+            onClipboardClick = { viewModel.openClipboard() },
+            onPasteClick = { viewModel.onPasteSuggestion() },
             onSettingsClick = { viewModel.openSettings() },
             onSuggestionClick = { viewModel.onSuggestionClick(it) },
             onKeepLatin = { viewModel.onKeepLatin() },

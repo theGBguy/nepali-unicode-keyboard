@@ -181,7 +181,7 @@ fun EmojiPanel(
 
 /** Deletes on press and repeats while held, like the keyboard's own backspace. */
 @Composable
-private fun BackspaceKey(
+internal fun BackspaceKey(
     colors: KeyboardColors,
     feel: KeyFeel,
     onTap: () -> Unit,

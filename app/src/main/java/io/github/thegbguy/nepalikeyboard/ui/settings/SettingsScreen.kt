@@ -36,6 +36,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,9 +86,13 @@ fun SettingsScreen(
     onHeightChange: (KeyHeight) -> Unit,
     onVibrateChange: (Boolean) -> Unit,
     onSoundChange: (Boolean) -> Unit,
+    clipboardHistory: Boolean,
+    onClipboardHistoryChange: (Boolean) -> Unit,
+    onClearClipboard: () -> Unit,
     onPickLanguage: () -> Unit,
     onLink: (SettingsLink) -> Unit
 ) {
+    var confirmClearClipboard by rememberSaveable { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxSize()
@@ -132,6 +140,25 @@ fun SettingsScreen(
             SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onVibrateChange)
             RowDivider()
             SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onSoundChange)
+            RowDivider()
+            SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onClipboardHistoryChange)
+            RowDivider()
+            LinkRow(R.drawable.ic_ui_delete, stringResource(R.string.settings_clipboard_clear), null) { confirmClearClipboard = true }
+        }
+        if (confirmClearClipboard) {
+            AlertDialog(
+                onDismissRequest = { confirmClearClipboard = false },
+                title = { Text(stringResource(R.string.settings_clipboard_clear_title)) },
+                text = { Text(stringResource(R.string.settings_clipboard_clear_body)) },
+                confirmButton = {
+                    TextButton(onClick = { confirmClearClipboard = false; onClearClipboard() }) {
+                        Text(stringResource(R.string.settings_clipboard_clear_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearClipboard = false }) { Text(stringResource(R.string.cancel)) }
+                }
+            )
         }
 
         Spacer(Modifier.height(12.dp))

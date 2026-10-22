@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -39,7 +40,7 @@ import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardColors
 /**
  * The 40dp row above the keys. Shows, in order of priority: the listening state, a voice error,
  * Romanized suggestions (best guess in bold, other guesses, then the Latin text as typed), or
- * the emoji button, with settings on the right. The mic sits on the right when the field allows voice. It keeps its height when empty
+ * the emoji and clipboard buttons (plus Paste right after a copy), with settings on the right. The mic sits on the right when the field allows voice. It keeps its height when empty
  * so the keyboard never jumps.
  */
 @Composable
@@ -53,7 +54,12 @@ fun KeyboardStrip(
     @StringRes errorMessage: Int?,
     showMic: Boolean,
     showEmoji: Boolean,
+    showClipboard: Boolean,
+    /** A recent copy to offer: its text, "" for a sensitive copy (no preview), or null. */
+    pasteSuggestion: String?,
     onEmojiClick: () -> Unit,
+    onClipboardClick: () -> Unit,
+    onPasteClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSuggestionClick: (String) -> Unit,
     onKeepLatin: () -> Unit,
@@ -90,6 +96,8 @@ fun KeyboardStrip(
                 )
                 else -> Row(verticalAlignment = Alignment.CenterVertically) {
                     if (showEmoji) StripIcon(colors, R.drawable.ic_ui_mood, R.string.emoji_open, onEmojiClick)
+                    if (showClipboard) StripIcon(colors, R.drawable.ic_ui_content_paste, R.string.clipboard_open, onClipboardClick)
+                    if (pasteSuggestion != null) PasteSuggestion(colors, pasteSuggestion, onPasteClick)
                 }
             }
         }
@@ -150,6 +158,38 @@ private fun androidx.compose.foundation.layout.RowScope.Slot(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 6.dp)
+        )
+    }
+}
+
+/** A fresh copy offered for pasting: a paste icon and the start of the text on one line. */
+@Composable
+private fun PasteSuggestion(colors: KeyboardColors, preview: String, onClick: () -> Unit) {
+    val label = preview.replace('\n', ' ').trim().ifEmpty { stringResource(R.string.clipboard_paste) }
+    val description = stringResource(R.string.clipboard_paste)
+    Row(
+        modifier = Modifier
+            .padding(start = 4.dp, end = 8.dp)
+            .fillMaxHeight()
+            .clip(CircleShape)
+            .clickable(onClickLabel = description, onClick = onClick)
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_ui_content_paste),
+            contentDescription = null,
+            tint = colors.hint,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            color = colors.keyText,
+            fontSize = 15.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.widthIn(max = 200.dp)
         )
     }
 }

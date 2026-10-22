@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
+import io.github.thegbguy.nepalikeyboard.data.clipboard.FileClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
     private var setupDone by mutableStateOf(false)
     private var nepaliStyle by mutableStateOf(LanguageMode.TRANSLITERATION)
     private var feel by mutableStateOf(KeyFeel())
+    private var clipboardHistory by mutableStateOf(true)
     private var appLanguage by mutableStateOf(AppLanguage.SYSTEM)
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
 
@@ -79,6 +81,13 @@ class MainActivity : ComponentActivity() {
                         onHeightChange = { keyboardPrefs.keyHeight = it; feel = keyboardPrefs.feel },
                         onVibrateChange = { keyboardPrefs.vibrate = it; feel = keyboardPrefs.feel },
                         onSoundChange = { keyboardPrefs.sound = it; feel = keyboardPrefs.feel },
+                        clipboardHistory = clipboardHistory,
+                        onClipboardHistoryChange = { on ->
+                            keyboardPrefs.clipboardHistory = on
+                            clipboardHistory = on
+                            if (!on) FileClipboardStorage.shared(this).clear()
+                        },
+                        onClearClipboard = { FileClipboardStorage.shared(this).clear() },
                         onPickLanguage = { showLanguages = true },
                         onLink = { link ->
                             when (link) {
@@ -154,6 +163,7 @@ class MainActivity : ComponentActivity() {
     private fun readPrefs() {
         nepaliStyle = keyboardPrefs.nepaliStyle
         feel = keyboardPrefs.feel
+        clipboardHistory = keyboardPrefs.clipboardHistory
         appLanguage = AppLanguage.current(this)
     }
 

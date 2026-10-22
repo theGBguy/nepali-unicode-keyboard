@@ -21,6 +21,8 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import io.github.thegbguy.nepalikeyboard.MainActivity
+import io.github.thegbguy.nepalikeyboard.data.clipboard.FileClipboardStorage
+import io.github.thegbguy.nepalikeyboard.data.clipboard.SystemClipboardSource
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiData
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliWordList
@@ -78,6 +80,11 @@ class NepaliIMEService : InputMethodService(),
         EmojiData.loadAsync(this)
 
         keyboardViewModel.prefs = keyboardPrefs
+        keyboardViewModel.clipboardSource = SystemClipboardSource(this).also { source ->
+            // Android only tells the default keyboard (or the focused app) about copies
+            source.observe { keyboardViewModel.onSystemCopy() }
+        }
+        keyboardViewModel.clipboardStorage = FileClipboardStorage.shared(this)
         keyboardPrefs.observe { keyboardViewModel.onPrefsChanged() }
         keyboardViewModel.onRequestMicPermission = { MicPermissionActivity.start(this) }
         keyboardViewModel.onOpenSettings = {
@@ -149,6 +156,7 @@ class NepaliIMEService : InputMethodService(),
     override fun onDestroy() {
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         keyboardPrefs.stopObserving()
+        keyboardViewModel.clipboardSource?.observe(null)
         speechRecognitionManager?.destroy()
         speechRecognitionManager = null
         super.onDestroy()

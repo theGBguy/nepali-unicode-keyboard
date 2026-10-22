@@ -87,7 +87,7 @@
     <string name="privacy_password_title">Password fields are off-limits</string>
     <string name="privacy_password_body">No suggestions, no voice, nothing learned. The same goes for apps that ask for incognito typing.</string>
     <string name="privacy_device_title">Your settings stay here</string>
-    <string name="privacy_device_body">The keyboard keeps only your settings and recently used emoji on this phone. It doesn’t save what you type.</string>
+    <string name="privacy_device_body">The keyboard keeps your settings, recently used emoji and your clipboard history on this phone. It doesn’t save what you type. Clipboard history only holds text you copied or pasted, never from password fields, and you can turn it off in Settings.</string>
     <string name="privacy_voice_title">Voice typing uses Google</string>
     <string name="privacy_voice_body">Only when you tap the mic, your audio goes to Google’s speech service to turn it into text.</string>
     <string name="ready_keyboard">Keyboard</string>
@@ -106,6 +106,11 @@
     <string name="settings_height_tall">Tall</string>
     <string name="settings_vibrate">Vibrate on key press</string>
     <string name="settings_sound">Sound on key press</string>
+    <string name="settings_clipboard">Clipboard history</string>
+    <string name="settings_clipboard_clear">Clear clipboard history</string>
+    <string name="settings_clipboard_clear_title">Clear clipboard history?</string>
+    <string name="settings_clipboard_clear_body">This removes every saved item, including pinned ones.</string>
+    <string name="settings_clipboard_clear_confirm">Clear</string>
     <string name="settings_try_hint">Try your settings here</string>
     <string name="settings_app_language">App language</string>
     <string name="language_system">Phone language</string>
@@ -130,6 +135,17 @@
 
     <!-- Emoji -->
     <string name="emoji_open">Emoji</string>
+    <string name="clipboard_open">Clipboard</string>
+    <string name="clipboard_title">Clipboard</string>
+    <string name="clipboard_pinned">Pinned</string>
+    <string name="clipboard_empty">Copy text in any app and it shows here.</string>
+    <string name="clipboard_hidden">Hidden: marked private by the app it came from</string>
+    <string name="clipboard_clear_all">Clear all</string>
+    <string name="clipboard_clear_confirm">Tap again to clear</string>
+    <string name="clipboard_pin">Pin</string>
+    <string name="clipboard_unpin">Unpin</string>
+    <string name="clipboard_delete">Delete</string>
+    <string name="clipboard_paste">Paste</string>
     <string name="keyboard_settings">Keyboard settings</string>
     <string name="emoji_recent">Recent</string>
     <string name="emoji_smileys">Smileys and people</string>

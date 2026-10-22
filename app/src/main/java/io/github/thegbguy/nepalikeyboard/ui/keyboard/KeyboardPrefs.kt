@@ -31,6 +31,9 @@ interface KeyboardPrefs {
     /** Recently used emoji, most recent first. */
     var emojiRecents: List<String>
 
+    /** Whether the clipboard panel keeps copied and pasted text on the phone. */
+    var clipboardHistory: Boolean
+
     val feel: KeyFeel get() = KeyFeel(keyHeight, vibrate, sound)
 }
 
@@ -41,10 +44,11 @@ class InMemoryKeyboardPrefs(
     override var keyHeight: KeyHeight = KeyHeight.NORMAL,
     override var vibrate: Boolean = true,
     override var sound: Boolean = false,
-    override var emojiRecents: List<String> = emptyList()
+    override var emojiRecents: List<String> = emptyList(),
+    override var clipboardHistory: Boolean = true
 ) : KeyboardPrefs
 
-/** Settings stored on the device, plus recently used emoji. Holds no typed text. */
+/** Settings stored on the device, plus recently used emoji. Holds no typed text (clipboard items live in their own file). */
 class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
     private val prefs = context.applicationContext.getSharedPreferences("keyboard", Context.MODE_PRIVATE)
 
@@ -94,7 +98,13 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         get() = EmojiRecents.decode(prefs.getString(KEY_EMOJI_RECENTS, null))
         set(value) = prefs.edit { putString(KEY_EMOJI_RECENTS, EmojiRecents.encode(value)) }
 
+    /** On by default. Turning it off in Settings also deletes the saved items. */
+    override var clipboardHistory: Boolean
+        get() = prefs.getBoolean(KEY_CLIPBOARD_HISTORY, true)
+        set(value) = prefs.edit { putBoolean(KEY_CLIPBOARD_HISTORY, value) }
+
     private companion object {
+        const val KEY_CLIPBOARD_HISTORY = "clipboard_history"
         const val KEY_EMOJI_RECENTS = "emoji_recents"
         const val KEY_HEIGHT = "key_height"
         const val KEY_VIBRATE = "vibrate"

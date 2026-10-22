@@ -83,7 +83,7 @@
     <string name="privacy_password_title">पासवर्ड फिल्डमा केही हुँदैन</string>
     <string name="privacy_password_body">सुझाव, बोलेर टाइप र शब्द सिकाइ बन्द हुन्छ। इन्कग्निटो टाइपिङ माग्ने एपमा पनि यस्तै हुन्छ।</string>
     <string name="privacy_device_title">तपाईंका सेटिङ यहीँ रहन्छन्</string>
-    <string name="privacy_device_body">किबोर्डले यो फोनमा तपाईंका सेटिङ र हालै प्रयोग गरिएका इमोजी मात्र राख्छ। तपाईंले टाइप गरेको सेभ गर्दैन।</string>
+    <string name="privacy_device_body">किबोर्डले यो फोनमा तपाईंका सेटिङ, हालै प्रयोग गरिएका इमोजी र क्लिपबोर्ड इतिहास राख्छ। तपाईंले टाइप गरेको सेभ गर्दैन। क्लिपबोर्ड इतिहासमा तपाईंले कपी वा पेस्ट गरेको टेक्स्ट मात्र हुन्छ, पासवर्ड फिल्डको कहिल्यै होइन, र सेटिङमा गएर यसलाई बन्द गर्न सकिन्छ।</string>
     <string name="privacy_voice_title">बोलेर टाइप Google को सेवाबाट हुन्छ</string>
     <string name="privacy_voice_body">माइक थिच्दा मात्र तपाईंको आवाज पाठमा बदल्न Google को आवाज सेवामा जान्छ।</string>
     <string name="ready_keyboard">किबोर्ड</string>
@@ -102,6 +102,11 @@
     <string name="settings_height_tall">अग्लो</string>
     <string name="settings_vibrate">की थिच्दा कम्पन</string>
     <string name="settings_sound">की थिच्दा आवाज</string>
+    <string name="settings_clipboard">क्लिपबोर्ड इतिहास</string>
+    <string name="settings_clipboard_clear">क्लिपबोर्ड इतिहास मेटाउनुहोस्</string>
+    <string name="settings_clipboard_clear_title">क्लिपबोर्ड इतिहास मेटाउने?</string>
+    <string name="settings_clipboard_clear_body">पिन गरिएका सहित सबै सेभ गरिएका कुरा हट्छन्।</string>
+    <string name="settings_clipboard_clear_confirm">मेटाउनुहोस्</string>
     <string name="settings_try_hint">आफ्ना सेटिङ यहाँ चलाएर हेर्नुहोस्</string>
     <string name="settings_app_language">एपको भाषा</string>
     <string name="language_system">फोनको भाषा</string>
@@ -126,6 +131,17 @@
 
     <!-- Emoji -->
     <string name="emoji_open">इमोजी</string>
+    <string name="clipboard_open">क्लिपबोर्ड</string>
+    <string name="clipboard_title">क्लिपबोर्ड</string>
+    <string name="clipboard_pinned">पिन गरिएका</string>
+    <string name="clipboard_empty">कुनै पनि एपमा टेक्स्ट कपी गर्नुहोस्, यहाँ देखिन्छ।</string>
+    <string name="clipboard_hidden">लुकाइएको: पठाउने एपले निजी भनेको</string>
+    <string name="clipboard_clear_all">सबै हटाउनुहोस्</string>
+    <string name="clipboard_clear_confirm">हटाउन फेरि थिच्नुहोस्</string>
+    <string name="clipboard_pin">पिन गर्नुहोस्</string>
+    <string name="clipboard_unpin">पिन हटाउनुहोस्</string>
+    <string name="clipboard_delete">मेटाउनुहोस्</string>
+    <string name="clipboard_paste">पेस्ट</string>
     <string name="keyboard_settings">किबोर्ड सेटिङ</string>
     <string name="emoji_recent">हालै प्रयोग गरिएका</string>
     <string name="emoji_smileys">अनुहार र मानिस</string>
