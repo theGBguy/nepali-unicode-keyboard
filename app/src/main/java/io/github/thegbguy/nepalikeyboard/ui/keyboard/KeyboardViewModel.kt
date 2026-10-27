@@ -84,6 +84,9 @@ class KeyboardViewModel : ViewModel() {
     /** Asks for the microphone permission (opens a small activity). Set by the IME service. */
     var onRequestMicPermission: (() -> Unit)? = null
 
+    /** Asks Android to show the keyboard again for the focused field. Set by the IME service. */
+    var onRequestShowKeyboard: () -> Unit = {}
+
     /** Opens the app's settings. Set by the IME service. */
     var onOpenSettings: () -> Unit = {}
 
@@ -924,6 +927,7 @@ class KeyboardViewModel : ViewModel() {
      *   current mode and layout.
      */
     fun onInputStarted(field: FieldInfo, restarting: Boolean = false) {
+        inputShown = true
         // Stop voice input if active
         if (_state.value.isVoiceListening) {
             stopVoiceInput()
@@ -935,6 +939,7 @@ class KeyboardViewModel : ViewModel() {
                 _state.update { it.copy(currentLanguage = LanguageMode.ENGLISH) }
                 updateLayout()
             }
+            startPendingVoice()
             return
         }
 
@@ -973,6 +978,7 @@ class KeyboardViewModel : ViewModel() {
             )
         }
         updateLayout()
+        startPendingVoice()
     }
 
     /**
@@ -1048,6 +1054,7 @@ class KeyboardViewModel : ViewModel() {
 
     /** Called by the IME service when the field loses focus. */
     fun onInputFinished() {
+        inputShown = false
         commitTransliterationBuffer()
         if (_state.value.handwriting == HandwritingPhase.READY) commitInk()
         if (_state.value.isVoiceListening) stopVoiceInput()
@@ -1146,6 +1153,40 @@ class KeyboardViewModel : ViewModel() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    /** The mic was allowed from the keyboard's first tap: start listening once the field is back. */
+    private var startVoiceWhenBack = false
+    private var micGrantedAt = 0L
+
+    /** Whether the keyboard is on screen (between onInputStarted and onInputFinished). Voice only starts then. */
+    private var inputShown = false
+
+    /**
+     * The permission screen closed. If the mic was allowed, start listening without a second tap:
+     * when the field gets focus back (onInputStarted), or shortly after if the keyboard stayed up.
+     */
+    fun onMicPermissionResult(granted: Boolean) {
+        startVoiceWhenBack = granted
+        micGrantedAt = clock()
+        if (!granted) return
+        viewModelScope.launch {
+            delay(MIC_RESUME_DELAY_MS)
+            // Many apps don't bring the keyboard back after another activity was on top: ask for it.
+            if (inputShown) startPendingVoice() else onRequestShowKeyboard()
+        }
+    }
+
+    /**
+     * Never listens with the keyboard hidden: if the app didn't bring the keyboard back after the
+     * permission screen, the pending start waits for it, but only for a few seconds, so reopening the
+     * keyboard later doesn't start recording by surprise.
+     */
+    private fun startPendingVoice() {
+        if (!startVoiceWhenBack || !inputShown) return
+        startVoiceWhenBack = false
+        if (clock() - micGrantedAt > MIC_PENDING_MS) return
+        if (_state.value.field.allowsVoice && !_state.value.isVoiceListening) startVoiceInput()
+    }
+
     /**
      * Start voice input.
      */
@@ -1220,6 +1261,12 @@ class KeyboardViewModel : ViewModel() {
     private companion object {
         /** Vowel sign → the vowel letter it forms after अ. */
         val INDEPENDENT_VOWELS = mapOf("ा" to "आ", "ो" to "ओ", "ौ" to "औ", "ै" to "ऐ")
+
+        /** Wait after the permission screen closes, so the app's field has focus again. */
+        const val MIC_RESUME_DELAY_MS = 400L
+
+        /** How long after allowing the mic a reopened keyboard still starts listening by itself. */
+        const val MIC_PENDING_MS = 5_000L
 
         /** Text before the cursor given to handwriting recognition as context. */
         const val PRE_CONTEXT_CHARS = 20

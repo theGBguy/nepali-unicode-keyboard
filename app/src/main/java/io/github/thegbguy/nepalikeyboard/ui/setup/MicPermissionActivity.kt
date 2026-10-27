@@ -28,6 +28,7 @@ class MicPermissionActivity : ComponentActivity() {
             )
         }
         markAsked()
+        onResult?.invoke(granted)
         finish()
     }
 
@@ -52,6 +53,9 @@ class MicPermissionActivity : ComponentActivity() {
     companion object {
         private const val PREFS = "mic_permission"
         private const val KEY_ASKED = "asked"
+
+        /** Told whether the user allowed the mic, so the keyboard can start listening right away. Set by the IME service. */
+        var onResult: ((Boolean) -> Unit)? = null
 
         fun start(context: Context) {
             context.startActivity(

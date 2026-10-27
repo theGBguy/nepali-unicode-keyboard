@@ -90,6 +90,10 @@ class NepaliIMEService : InputMethodService(),
         keyboardViewModel.handwritingRecognizer = MlKitHandwriting.shared(this)
         keyboardPrefs.observe { keyboardViewModel.onPrefsChanged() }
         keyboardViewModel.onRequestMicPermission = { MicPermissionActivity.start(this) }
+        MicPermissionActivity.onResult = { granted -> keyboardViewModel.onMicPermissionResult(granted) }
+        keyboardViewModel.onRequestShowKeyboard = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) requestShowSelf(0)
+        }
         keyboardViewModel.onOpenSettings = {
             startActivity(
                 Intent(this, MainActivity::class.java)
