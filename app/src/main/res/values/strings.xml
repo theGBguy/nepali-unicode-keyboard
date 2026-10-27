@@ -96,6 +96,7 @@
 
     <!-- Settings -->
     <string name="settings_section_typing">Typing</string>
+    <string name="settings_title">Nepali Keyboard settings</string>
     <string name="settings_section_app">App</string>
     <string name="settings_section_help">Help</string>
     <string name="settings_section_legal">Legal</string>

@@ -92,6 +92,7 @@
 
     <!-- सेटिङ -->
     <string name="settings_section_typing">टाइपिङ</string>
+    <string name="settings_title">नेपाली किबोर्ड सेटिङ</string>
     <string name="settings_section_app">एप</string>
     <string name="settings_section_help">सहायता</string>
     <string name="settings_section_legal">कानुनी</string>

@@ -1,10 +1,12 @@
 package io.github.thegbguy.nepalikeyboard.ui.settings
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -45,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -56,7 +60,6 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyHeight
-import io.github.thegbguy.nepalikeyboard.ui.setup.AppNameRow
 import io.github.thegbguy.nepalikeyboard.ui.setup.ChoiceOption
 import io.github.thegbguy.nepalikeyboard.ui.setup.KeyboardStatus
 import io.github.thegbguy.nepalikeyboard.ui.setup.SegmentedChoice
@@ -98,6 +101,7 @@ fun SettingsScreen(
 ) {
     var confirmClearClipboard by rememberSaveable { mutableStateOf(false) }
     var confirmHandwriting by rememberSaveable { mutableStateOf(false) }
+    val scroll = rememberScrollState()
     Column(
         Modifier
             .fillMaxSize()
@@ -105,123 +109,169 @@ fun SettingsScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = ScreenPadding)
     ) {
-        AppNameRow(Modifier.padding(top = 14.dp, bottom = 18.dp))
+        SettingsTopBar(scrolled = scroll.value > 0)
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(scroll)
+                .padding(horizontal = ScreenPadding)
+        ) {
+            Spacer(Modifier.height(8.dp))
 
-        val ready = status.step == 2
-        SettingsCard {
-            LinkRow(
-                icon = R.drawable.ic_ui_keyboard,
-                title = stringResource(R.string.ready_keyboard),
-                subtitle = stringResource(if (ready) R.string.ready_on else R.string.ready_off),
-                subtitleColor = if (ready) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
-                onClick = if (ready) null else ({ onLink(SettingsLink.FIX_KEYBOARD) })
-            )
-        }
-
-        Section(stringResource(R.string.settings_section_typing)) {
-            Column(Modifier.padding(16.dp)) {
-                Text(stringResource(R.string.settings_nepali_typing), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                Spacer(Modifier.height(10.dp))
-                StyleChoice(nepaliStyle, onStyleChange)
-            }
-            RowDivider(inset = 16.dp)
-            Column(Modifier.padding(16.dp)) {
-                Text(stringResource(R.string.settings_key_height), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                Spacer(Modifier.height(10.dp))
-                SegmentedChoice(
-                    options = listOf(
-                        ChoiceOption(KeyHeight.SHORT, stringResource(R.string.settings_height_short)),
-                        ChoiceOption(KeyHeight.NORMAL, stringResource(R.string.settings_height_normal)),
-                        ChoiceOption(KeyHeight.TALL, stringResource(R.string.settings_height_tall))
-                    ),
-                    selected = feel.height,
-                    onSelect = onHeightChange
+            val ready = status.step == 2
+            SettingsCard {
+                LinkRow(
+                    icon = R.drawable.ic_ui_keyboard,
+                    title = stringResource(R.string.ready_keyboard),
+                    subtitle = stringResource(if (ready) R.string.ready_on else R.string.ready_off),
+                    subtitleColor = if (ready) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
+                    onClick = if (ready) null else ({ onLink(SettingsLink.FIX_KEYBOARD) })
                 )
             }
-            RowDivider(inset = 16.dp)
-            SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onVibrateChange)
-            RowDivider()
-            SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onSoundChange)
-            RowDivider()
-            SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, onSmartSuggestionsChange)
-            RowDivider()
-            // Turning it on first says what goes to Google; turning it off deletes the model.
-            SwitchRow(R.drawable.ic_ui_draw, stringResource(R.string.settings_handwriting), handwriting) { on ->
-                if (on) confirmHandwriting = true else onHandwritingChange(false)
+
+            Section(stringResource(R.string.settings_section_typing)) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(stringResource(R.string.settings_nepali_typing), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(10.dp))
+                    StyleChoice(nepaliStyle, onStyleChange)
+                }
+                RowDivider(inset = 16.dp)
+                Column(Modifier.padding(16.dp)) {
+                    Text(stringResource(R.string.settings_key_height), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(10.dp))
+                    SegmentedChoice(
+                        options = listOf(
+                            ChoiceOption(KeyHeight.SHORT, stringResource(R.string.settings_height_short)),
+                            ChoiceOption(KeyHeight.NORMAL, stringResource(R.string.settings_height_normal)),
+                            ChoiceOption(KeyHeight.TALL, stringResource(R.string.settings_height_tall))
+                        ),
+                        selected = feel.height,
+                        onSelect = onHeightChange
+                    )
+                }
+                RowDivider(inset = 16.dp)
+                SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onVibrateChange)
+                RowDivider()
+                SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onSoundChange)
+                RowDivider()
+                SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, onSmartSuggestionsChange)
+                RowDivider()
+                // Turning it on first says what goes to Google; turning it off deletes the model.
+                SwitchRow(R.drawable.ic_ui_draw, stringResource(R.string.settings_handwriting), handwriting) { on ->
+                    if (on) confirmHandwriting = true else onHandwritingChange(false)
+                }
+                RowDivider()
+                SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onClipboardHistoryChange)
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_delete, stringResource(R.string.settings_clipboard_clear), null) { confirmClearClipboard = true }
             }
-            RowDivider()
-            SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onClipboardHistoryChange)
-            RowDivider()
-            LinkRow(R.drawable.ic_ui_delete, stringResource(R.string.settings_clipboard_clear), null) { confirmClearClipboard = true }
-        }
-        if (confirmHandwriting) {
-            AlertDialog(
-                onDismissRequest = { confirmHandwriting = false },
-                title = { Text(stringResource(R.string.settings_handwriting_title)) },
-                text = { Text(stringResource(R.string.handwriting_consent)) },
-                confirmButton = {
-                    TextButton(onClick = { confirmHandwriting = false; onHandwritingChange(true) }) {
-                        Text(stringResource(R.string.settings_handwriting_on))
+            if (confirmHandwriting) {
+                AlertDialog(
+                    onDismissRequest = { confirmHandwriting = false },
+                    title = { Text(stringResource(R.string.settings_handwriting_title)) },
+                    text = { Text(stringResource(R.string.handwriting_consent)) },
+                    confirmButton = {
+                        TextButton(onClick = { confirmHandwriting = false; onHandwritingChange(true) }) {
+                            Text(stringResource(R.string.settings_handwriting_on))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { confirmHandwriting = false }) { Text(stringResource(R.string.cancel)) }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { confirmHandwriting = false }) { Text(stringResource(R.string.cancel)) }
-                }
-            )
-        }
-        if (confirmClearClipboard) {
-            AlertDialog(
-                onDismissRequest = { confirmClearClipboard = false },
-                title = { Text(stringResource(R.string.settings_clipboard_clear_title)) },
-                text = { Text(stringResource(R.string.settings_clipboard_clear_body)) },
-                confirmButton = {
-                    TextButton(onClick = { confirmClearClipboard = false; onClearClipboard() }) {
-                        Text(stringResource(R.string.settings_clipboard_clear_confirm))
+                )
+            }
+            if (confirmClearClipboard) {
+                AlertDialog(
+                    onDismissRequest = { confirmClearClipboard = false },
+                    title = { Text(stringResource(R.string.settings_clipboard_clear_title)) },
+                    text = { Text(stringResource(R.string.settings_clipboard_clear_body)) },
+                    confirmButton = {
+                        TextButton(onClick = { confirmClearClipboard = false; onClearClipboard() }) {
+                            Text(stringResource(R.string.settings_clipboard_clear_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { confirmClearClipboard = false }) { Text(stringResource(R.string.cancel)) }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { confirmClearClipboard = false }) { Text(stringResource(R.string.cancel)) }
-                }
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(
+                value = tryText,
+                onValueChange = onTryTextChange,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
+                placeholder = { Text(stringResource(R.string.settings_try_hint)) },
+                shape = RoundedCornerShape(14.dp)
+            )
+
+            Section(stringResource(R.string.settings_section_app)) {
+                LinkRow(
+                    icon = R.drawable.ic_ui_translate,
+                    title = stringResource(R.string.settings_app_language),
+                    subtitle = languageName(appLanguage),
+                    onClick = onPickLanguage
+                )
+            }
+
+            Section(stringResource(R.string.settings_section_help)) {
+                LinkRow(R.drawable.ic_ui_shield, stringResource(R.string.privacy_title), stringResource(R.string.settings_privacy_sub)) { onLink(SettingsLink.PRIVACY) }
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_mail, stringResource(R.string.settings_feedback), stringResource(R.string.settings_feedback_sub)) { onLink(SettingsLink.FEEDBACK) }
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_star, stringResource(R.string.settings_rate), stringResource(R.string.settings_rate_sub)) { onLink(SettingsLink.RATE) }
+            }
+
+            Section(stringResource(R.string.settings_section_legal)) {
+                LinkRow(R.drawable.ic_ui_policy, stringResource(R.string.settings_privacy_policy), null) { onLink(SettingsLink.PRIVACY_POLICY) }
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_gavel, stringResource(R.string.settings_terms), null) { onLink(SettingsLink.TERMS) }
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_info, stringResource(R.string.settings_licences), stringResource(R.string.settings_version, versionName)) { onLink(SettingsLink.LICENCES) }
+            }
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+/**
+ * Plain toolbar: the app icon and "Nepali Keyboard settings" centred, with a hairline under it
+ * once the page scrolls.
+ */
+@Composable
+private fun SettingsTopBar(scrolled: Boolean) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth().height(56.dp).padding(horizontal = ScreenPadding),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // The adaptive icon's layers drawn by hand: Compose can't paint <adaptive-icon>.
+            // The foreground is 108 units with the visible part in the middle 72, hence 1.5x.
+            Box(
+                Modifier
+                    .size(26.dp)
+                    .clip(RoundedCornerShape(7.dp))
+                    .background(colorResource(R.color.ic_launcher_background)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    modifier = Modifier.requiredSize(39.dp)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                stringResource(R.string.settings_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1
             )
         }
-
-        Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            value = tryText,
-            onValueChange = onTryTextChange,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
-            placeholder = { Text(stringResource(R.string.settings_try_hint)) },
-            shape = RoundedCornerShape(14.dp)
-        )
-
-        Section(stringResource(R.string.settings_section_app)) {
-            LinkRow(
-                icon = R.drawable.ic_ui_translate,
-                title = stringResource(R.string.settings_app_language),
-                subtitle = languageName(appLanguage),
-                onClick = onPickLanguage
-            )
-        }
-
-        Section(stringResource(R.string.settings_section_help)) {
-            LinkRow(R.drawable.ic_ui_shield, stringResource(R.string.privacy_title), stringResource(R.string.settings_privacy_sub)) { onLink(SettingsLink.PRIVACY) }
-            RowDivider()
-            LinkRow(R.drawable.ic_ui_mail, stringResource(R.string.settings_feedback), stringResource(R.string.settings_feedback_sub)) { onLink(SettingsLink.FEEDBACK) }
-            RowDivider()
-            LinkRow(R.drawable.ic_ui_star, stringResource(R.string.settings_rate), stringResource(R.string.settings_rate_sub)) { onLink(SettingsLink.RATE) }
-        }
-
-        Section(stringResource(R.string.settings_section_legal)) {
-            LinkRow(R.drawable.ic_ui_policy, stringResource(R.string.settings_privacy_policy), null) { onLink(SettingsLink.PRIVACY_POLICY) }
-            RowDivider()
-            LinkRow(R.drawable.ic_ui_gavel, stringResource(R.string.settings_terms), null) { onLink(SettingsLink.TERMS) }
-            RowDivider()
-            LinkRow(R.drawable.ic_ui_info, stringResource(R.string.settings_licences), stringResource(R.string.settings_version, versionName)) { onLink(SettingsLink.LICENCES) }
-        }
-        Spacer(Modifier.height(24.dp))
+        HorizontalDivider(color = if (scrolled) MaterialTheme.colorScheme.outline else Color.Transparent)
     }
 }
 
