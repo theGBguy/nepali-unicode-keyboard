@@ -32,6 +32,22 @@ class ComposeKeyboardView(
             }
         }
 
-        KeyboardView(viewModel = viewModel)
+        KeyboardView(viewModel = viewModel, onInsetsChange = ::updateInsets)
+    }
+
+    /** Window y of the drawn keyboard's top; -1 until it has been laid out. */
+    var keyboardTop = -1
+        private set
+
+    /** How far above [keyboardTop] the app should still treat as covered (mid-animation). */
+    var extraTop = 0
+        private set
+
+    private fun updateInsets(top: Int, extra: Int) {
+        if (top == keyboardTop && extra == extraTop) return
+        keyboardTop = top
+        extraTop = extra
+        // The service recomputes insets on the next traversal
+        post { requestLayout() }
     }
 }

@@ -1,5 +1,24 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import kotlin.math.roundToInt
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import android.content.Context
 import android.media.AudioManager
 import android.view.HapticFeedbackConstants
@@ -78,6 +97,8 @@ private fun rowHeight(row: List<KeyData>, keyHeight: Dp, numberRowKeyHeight: Dp)
     if (isNumberRow(row)) numberRowKeyHeight else keyHeight
 private val KeyShape = RoundedCornerShape(7.dp)
 private val PreviewShape = RoundedCornerShape(10.dp)
+private const val PressScale = 0.95f
+private const val PressTint = 0.12f
 private val PreviewWidth = 46.dp
 private val PreviewHeight = 56.dp
 
@@ -86,7 +107,8 @@ private val PreviewHeight = 56.dp
  */
 @Composable
 fun KeyboardView(
-    viewModel: KeyboardViewModel = viewModel()
+    viewModel: KeyboardViewModel = viewModel(),
+    onInsetsChange: (visibleTop: Int, extraTop: Int) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.state.collectAsState()
     val colors = keyboardColors()
@@ -99,10 +121,44 @@ fun KeyboardView(
         }
     )
 
-    val keyHeight = state.feel.height.dp.dp
+    // Height changes (key height setting, a layout with another row, a panel) animate instead of
+    // jumping: keys grow or shrink smoothly, and the keyboard's outline follows with a spring.
+    val keyHeight by animateDpAsState(state.feel.height.dp.dp, tween(220, easing = FastOutSlowInEasing), label = "keyHeight")
     val numberRowKeyHeight = keyHeight - 6.dp
 
-    Box(modifier = Modifier.fillMaxWidth().background(colors.background)) {
+    // A layout with another row (traditional Nepali has six, English five) changes the height. The
+    // window never resizes for it (that flickers): a transparent spacer reserves room for the
+    // tallest layout and the keys area eases inside it. The service reports the keyboard's top to
+    // the app as content insets: right away when it grows, once the animation ends when it shrinks,
+    // so the app resizes once and never shows a gap.
+    val targetKeyHeight = state.feel.height.dp.dp
+    val rowsTarget = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, targetKeyHeight, targetKeyHeight - 6.dp) + RowGap }
+    var settledRows by remember { mutableStateOf(rowsTarget) }
+    val rowsHeight by animateDpAsState(
+        rowsTarget,
+        tween(220, easing = FastOutSlowInEasing),
+        label = "rowsHeight",
+        finishedListener = { settledRows = it }
+    )
+    val reservedRows = remember(targetKeyHeight) {
+        listOf(EnglishLayout.getLayout(), NepaliLayout.getLayout()).maxOf { layout ->
+            layout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, targetKeyHeight, targetKeyHeight - 6.dp) + RowGap }
+        }
+    }.coerceAtLeast(rowsTarget)
+    val reportedRows = maxOf(rowsTarget, settledRows)
+    val density = LocalDensity.current
+    val extraTop = with(density) { (reportedRows - rowsHeight).coerceAtLeast(0.dp).roundToPx() }
+    var visibleTop by remember { mutableIntStateOf(-1) }
+    LaunchedEffect(visibleTop, extraTop) { if (visibleTop >= 0) onInsetsChange(visibleTop, extraTop) }
+
+    Column(Modifier.fillMaxWidth()) {
+    Spacer(Modifier.height((reservedRows - rowsHeight).coerceAtLeast(0.dp)))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.background)
+            .onGloballyPositioned { visibleTop = it.positionInWindow().y.roundToInt() }
+    ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,6 +251,9 @@ fun KeyboardView(
             onMicClick = { viewModel.toggleVoiceInput() }
         )
 
+        // The keys area eases to the new layout's height and clips while it does
+        Box(Modifier.fillMaxWidth().height(rowsHeight).clipToBounds()) {
+        Column(Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true)) {
         state.currentLayout.rows.forEach { row ->
             val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
             val isNumberRow = isNumberRow(row)
@@ -232,6 +291,8 @@ fun KeyboardView(
             }
         }
         }
+        }
+        }
     }
         if (state.showLanguageMenu) {
             LanguageMenu(
@@ -244,6 +305,7 @@ fun KeyboardView(
                 onDismiss = { viewModel.dismissLanguageMenu() }
             )
         }
+    }
     }
 }
 
@@ -426,8 +488,25 @@ private fun Key(
     val longPress by rememberUpdatedState(onLongPress)
     val repeatStart by rememberUpdatedState(onRepeatStart)
     val repeatEnd by rememberUpdatedState(onRepeatEnd)
+    // The gesture block below only restarts when its keys change, so read the settings and the
+    // key through updated state; otherwise keys that never restart (space, ⌫, ↵, digits) keep
+    // the sound/vibrate values from when they were first drawn.
+    val currentFeel by rememberUpdatedState(feel)
+    val currentKey by rememberUpdatedState(key)
     val repeating = onRepeatStart != null
     val hasLongPress = onLongPress != null
+    // Press feedback: a quick tint (in fast, out slower) and a slight shrink that springs back.
+    // The tint mixes in the text colour, so it darkens keys in light mode and lightens them in dark.
+    val background by animateColorAsState(
+        targetValue = if (pressed) lerp(visual.background, colors.keyText, PressTint) else visual.background,
+        animationSpec = tween(if (pressed) 60 else 150),
+        label = "keyBackground"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) PressScale else 1f,
+        animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessMedium),
+        label = "keyScale"
+    )
 
     Box(
         modifier = modifier
@@ -437,8 +516,8 @@ private fun Key(
                 detectTapGestures(
                     onPress = {
                         pressed = true
-                        if (feel.vibrate) view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                        if (feel.sound) playKeySound(view.context, key)
+                        if (currentFeel.vibrate) view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        if (currentFeel.sound) playKeySound(view.context, currentKey)
                         if (repeating) tap()
                         tryAwaitRelease()
                         pressed = false
@@ -457,9 +536,10 @@ private fun Key(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .graphicsLayer { scaleX = scale; scaleY = scale }
                 .shadow(if (colors.keyShadow == Color.Transparent) 0.dp else 0.5.dp, KeyShape)
                 .clip(KeyShape)
-                .background(if (pressed && !visual.showsPreview) colors.functionKey else visual.background),
+                .background(background),
             contentAlignment = Alignment.Center
         ) {
             KeyContent(visual)

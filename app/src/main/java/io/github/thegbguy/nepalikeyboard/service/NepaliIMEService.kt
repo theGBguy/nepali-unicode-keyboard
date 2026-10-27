@@ -3,6 +3,7 @@ package io.github.thegbguy.nepalikeyboard.service
 import android.content.Context
 import android.content.Intent
 import android.inputmethodservice.InputMethodService
+import android.inputmethodservice.InputMethodService.Insets
 import android.os.Build
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -110,6 +111,7 @@ class NepaliIMEService : InputMethodService(),
 
     override fun onCreateInputView(): View {
         val view = ComposeKeyboardView(this, speechRecognitionManager)
+        keyboardView = view
 
         // Configure window to not overlap with system navigation bar
         window?.window?.let { window ->
@@ -130,6 +132,25 @@ class NepaliIMEService : InputMethodService(),
         }
 
         return view
+    }
+
+    private var keyboardView: ComposeKeyboardView? = null
+
+    /**
+     * The input view keeps the height of the tallest layout (the spare room on top is transparent)
+     * so switching layouts never resizes the window. Tell the app where the keys actually start,
+     * and let touches above them through.
+     */
+    override fun onComputeInsets(outInsets: Insets) {
+        super.onComputeInsets(outInsets)
+        val view = keyboardView ?: return
+        if (isFullscreenMode || !view.isShown || view.keyboardTop < 0) return
+        val bottom = window?.window?.decorView?.height ?: return
+        val contentTop = (view.keyboardTop - view.extraTop).coerceAtLeast(0)
+        outInsets.contentTopInsets = contentTop
+        outInsets.visibleTopInsets = contentTop
+        outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
+        outInsets.touchableRegion.set(0, view.keyboardTop, view.width, bottom)
     }
 
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
