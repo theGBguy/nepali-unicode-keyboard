@@ -6,6 +6,14 @@ Type Nepali with English letters and get Unicode Devanagari. "namaste" becomes �
 TRADITIONAL LAYOUT
 Prefer the traditional Nepali Unicode layout? Switch to it once and it stays. Shift characters show as small hints on each key, and a long press types them. Vowel signs join correctly, so अ + ा gives आ, not अा.
 
+MADE FOR NEPAL
+• Dates: type "aaja", "bholi" or a date like 2026-10-21 and get the Bikram Sambat date: २०८३ कार्तिक ४, बुधबार
+• Amounts: 1500000 becomes १५,००,००० or पन्ध्र लाख, and "ru 500" becomes पाँच सय रुपैयाँ मात्र for cheques
+• Land and gold: "5 aana" shows (१,७११ वर्ग फिट); ropani, bigha, kattha, tola and grams too
+
+WRITE BY HAND
+Prefer writing? Tap the pen and write Nepali with your finger. Handwriting is off until you turn it on (see privacy below).
+
 VOICE TYPING IN NEPALI
 Tap the mic and speak Nepali. Your phone's speech service turns it into text.
 
@@ -13,13 +21,14 @@ ALSO INCLUDED
 • Nepali and English on one keyboard: the अ/A key switches between English, Romanized and traditional Nepali
 • Devanagari numbers (०–९), the danda । and ॥
 • Emoji panel with your recently used emoji first
+• Clipboard history: your recent copies and pinned items, kept on your phone
 • Three key heights: Short, Normal and Tall
 • Light and dark themes that follow your phone
 • Optional key vibration and key sound
 • App in English or Nepali
 
 PRIVATE BY DESIGN
-Android warns that any keyboard "may be able to collect all the text you type". This one has no internet permission, so it cannot send what you type anywhere, and it doesn't save your typing. Password fields get the plain English layout with no suggestions and no voice. Voice typing is the only feature that uses a service outside the app: your audio goes to your phone's speech recognition (usually Google) only when you tap the mic.
+Android warns that any keyboard "may be able to collect all the text you type". This one never sends what you type anywhere, and it doesn't save your typing. Typing, suggestions, clipboard and emoji all work offline. Password fields get the plain English layout with no suggestions and no voice. Two optional features use Google: voice typing sends your audio to your phone's speech recognition (usually Google) only when you tap the mic, and handwriting, if you turn it on, downloads Google's handwriting model and lets Google's ML Kit send usage diagnostics (not what you write).
 
 No ads. No pop-ups. No rating prompts while you type.
 
