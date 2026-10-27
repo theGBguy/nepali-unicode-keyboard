@@ -22,3 +22,4 @@ keystore.properties
 /keys/
 # Staging copy of design/screenshots for gpc images sync
 /fastlane/screenshots/
+.local-archive/
