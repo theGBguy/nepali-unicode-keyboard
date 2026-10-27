@@ -1,0 +1,5 @@
+What's new in 1.2.1
+• Fixes the keyboard and app closing right after the 1.2 update
+• Write Nepali by hand (turn it on in Settings)
+• Clipboard history with pinned items
+• Bikram Sambat dates, amounts in words and land/gold units as suggestions
