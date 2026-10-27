@@ -17,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
+import io.github.thegbguy.nepalikeyboard.data.handwriting.MlKitHandwriting
 import io.github.thegbguy.nepalikeyboard.data.clipboard.FileClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
@@ -32,6 +34,7 @@ import io.github.thegbguy.nepalikeyboard.ui.setup.SetupPrefs
 import io.github.thegbguy.nepalikeyboard.ui.setup.SetupScreen
 import io.github.thegbguy.nepalikeyboard.ui.setup.WarningSheet
 import io.github.thegbguy.nepalikeyboard.ui.theme.NepaliKeyboardTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -41,6 +44,7 @@ class MainActivity : ComponentActivity() {
     private var feel by mutableStateOf(KeyFeel())
     private var clipboardHistory by mutableStateOf(true)
     private var smartSuggestions by mutableStateOf(true)
+    private var handwriting by mutableStateOf(false)
     private var appLanguage by mutableStateOf(AppLanguage.SYSTEM)
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
 
@@ -84,6 +88,13 @@ class MainActivity : ComponentActivity() {
                         onSoundChange = { keyboardPrefs.sound = it; feel = keyboardPrefs.feel },
                         smartSuggestions = smartSuggestions,
                         onSmartSuggestionsChange = { keyboardPrefs.smartSuggestions = it; smartSuggestions = it },
+                        handwriting = handwriting,
+                        onHandwritingChange = { on ->
+                            keyboardPrefs.handwriting = on
+                            handwriting = on
+                            // The model is downloaded the next time the keyboard's handwriting opens
+                            if (!on) lifecycleScope.launch { runCatching { MlKitHandwriting.shared(this@MainActivity).deleteModel() } }
+                        },
                         clipboardHistory = clipboardHistory,
                         onClipboardHistoryChange = { on ->
                             keyboardPrefs.clipboardHistory = on
@@ -168,6 +179,7 @@ class MainActivity : ComponentActivity() {
         feel = keyboardPrefs.feel
         clipboardHistory = keyboardPrefs.clipboardHistory
         smartSuggestions = keyboardPrefs.smartSuggestions
+        handwriting = keyboardPrefs.handwriting
         appLanguage = AppLanguage.current(this)
     }
 

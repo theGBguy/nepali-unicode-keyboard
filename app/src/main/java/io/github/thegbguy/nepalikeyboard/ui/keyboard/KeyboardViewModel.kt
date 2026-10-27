@@ -17,6 +17,8 @@ import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.CopiedText
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.InMemoryClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.Backspace
+import io.github.thegbguy.nepalikeyboard.domain.handwriting.HandwritingRecognizer
+import io.github.thegbguy.nepalikeyboard.domain.handwriting.InkStroke
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
@@ -66,6 +68,9 @@ class KeyboardViewModel : ViewModel() {
 
     /** Saved clipboard items. The IME service replaces this with the on-device file. */
     var clipboardStorage: ClipboardStorage = InMemoryClipboardStorage()
+
+    /** Handwriting (ML Kit). Set by the IME service; null in tests that don't need it. */
+    var handwritingRecognizer: HandwritingRecognizer? = null
 
     /** Smart suggestions (amounts, dates, units); replaced in tests. */
     var smartSuggester = SmartSuggester()
@@ -191,6 +196,141 @@ class KeyboardViewModel : ViewModel() {
         ic.deleteSurroundingText(Backspace.length(before), 0)
     }
 
+    // ==================== Handwriting ====================
+
+    private var handwritingJob: Job? = null
+    private var recognizeJob: Job? = null
+
+    /**
+     * Opens the handwriting panel in place of the keys. Until the user has agreed, it shows what
+     * turning handwriting on means (Google model download and ML Kit diagnostics) instead.
+     */
+    fun openHandwriting() {
+        commitTransliterationBuffer()
+        if (_state.value.isVoiceListening) stopVoiceInput()
+        _state.update {
+            it.copy(
+                handwriting = if (prefs.handwriting) HandwritingPhase.CHECKING else HandwritingPhase.CONSENT,
+                inkStrokes = emptyList(),
+                inkCandidates = emptyList(),
+                showEmoji = false,
+                showClipboard = false,
+                showLanguageMenu = false,
+                pasteSuggestion = null,
+                smartActions = emptyList()
+            )
+        }
+        if (prefs.handwriting) prepareModel()
+    }
+
+    /** The user agreed on the consent card: remember it and download the model. */
+    fun onHandwritingAccept() {
+        prefs.handwriting = true
+        prepareModel()
+    }
+
+    /** Download again after a failure. */
+    fun onHandwritingRetry() = prepareModel()
+
+    private fun prepareModel() {
+        val recognizer = handwritingRecognizer ?: return
+        handwritingJob?.cancel()
+        handwritingJob = viewModelScope.launch {
+            val ready = runCatching { recognizer.isModelReady() }.getOrDefault(false)
+            if (!ready) {
+                setHandwritingPhase(HandwritingPhase.DOWNLOADING)
+                val ok = runCatching { recognizer.download() }.isSuccess
+                if (!ok) {
+                    setHandwritingPhase(HandwritingPhase.FAILED)
+                    return@launch
+                }
+            }
+            setHandwritingPhase(HandwritingPhase.READY)
+        }
+    }
+
+    private fun setHandwritingPhase(phase: HandwritingPhase) {
+        if (_state.value.handwriting != null) _state.update { it.copy(handwriting = phase) }
+    }
+
+    /** A finished stroke on the writing area ([width] × [height] pixels): recognise all strokes so far. */
+    fun onInkStroke(stroke: InkStroke, width: Float, height: Float) {
+        if (stroke.isEmpty() || _state.value.handwriting != HandwritingPhase.READY) return
+        _state.update { it.copy(inkStrokes = it.inkStrokes + listOf(stroke)) }
+        recognize(width, height)
+    }
+
+    private var inkArea = 0f to 0f
+
+    private fun recognize(width: Float = inkArea.first, height: Float = inkArea.second) {
+        inkArea = width to height
+        val recognizer = handwritingRecognizer ?: return
+        val strokes = _state.value.inkStrokes
+        recognizeJob?.cancel()
+        if (strokes.isEmpty()) {
+            _state.update { it.copy(inkCandidates = emptyList()) }
+            return
+        }
+        val preContext = inputConnection?.getTextBeforeCursor(PRE_CONTEXT_CHARS, 0)?.toString() ?: ""
+        recognizeJob = viewModelScope.launch {
+            val candidates = runCatching { recognizer.recognize(strokes, width, height, preContext) }.getOrDefault(emptyList())
+            // Ignore a late answer for strokes that have since changed
+            if (_state.value.inkStrokes == strokes) _state.update { it.copy(inkCandidates = candidates) }
+        }
+    }
+
+    /** Types [text] (a candidate) and clears the writing area. */
+    fun onInkCandidate(text: String) {
+        inputConnection?.commitText(text, 1)
+        clearInk()
+    }
+
+    /** Commits the best guess for what's written, if anything is. */
+    private fun commitInk() {
+        _state.value.inkCandidates.firstOrNull()?.let { inputConnection?.commitText(it, 1) }
+        clearInk()
+    }
+
+    private fun clearInk() {
+        recognizeJob?.cancel()
+        _state.update { it.copy(inkStrokes = emptyList(), inkCandidates = emptyList()) }
+    }
+
+    fun onInkSpace() {
+        commitInk()
+        inputConnection?.commitText(" ", 1)
+    }
+
+    fun onInkEnter() {
+        commitInk()
+        handleEnter()
+    }
+
+    /** Typed punctuation from the panel's bottom row. */
+    fun onInkText(text: String) {
+        commitInk()
+        inputConnection?.commitText(text, 1)
+    }
+
+    /** Backspace removes the last stroke while something is written, else deletes text. */
+    fun onInkBackspace() {
+        val strokes = _state.value.inkStrokes
+        if (strokes.isEmpty()) {
+            deleteBackward()
+            return
+        }
+        _state.update { it.copy(inkStrokes = strokes.dropLast(1)) }
+        recognize()
+    }
+
+    /** Closes the panel; what's written is typed first so it isn't lost. */
+    fun closeHandwriting() {
+        if (_state.value.handwriting == HandwritingPhase.READY) commitInk()
+        handwritingJob?.cancel()
+        recognizeJob?.cancel()
+        _state.update { it.copy(handwriting = null, inkStrokes = emptyList(), inkCandidates = emptyList()) }
+    }
+
     // ==================== Emoji ====================
 
     /** Opens the emoji panel in place of the keys. */
@@ -201,6 +341,7 @@ class KeyboardViewModel : ViewModel() {
             it.copy(
                 showEmoji = true,
                 showClipboard = false,
+                handwriting = null,
                 pasteSuggestion = null,
                 smartActions = emptyList(),
                 showLanguageMenu = false,
@@ -278,6 +419,7 @@ class KeyboardViewModel : ViewModel() {
             it.copy(
                 showClipboard = true,
                 showEmoji = false,
+                handwriting = null,
                 showLanguageMenu = false,
                 pasteSuggestion = null,
                 smartActions = emptyList(),
@@ -810,6 +952,9 @@ class KeyboardViewModel : ViewModel() {
                 showLanguageMenu = false,
                 showEmoji = false,
                 showClipboard = false,
+                handwriting = null,
+                inkStrokes = emptyList(),
+                inkCandidates = emptyList(),
                 copied = null,
                 pasteSuggestion = recentCopyToOffer(field),
                 smartActions = emptyList(),
@@ -861,7 +1006,7 @@ class KeyboardViewModel : ViewModel() {
      */
     private fun refreshSmartActions(hasSelection: Boolean) {
         val st = _state.value
-        val off = hasSelection || !prefs.smartSuggestions || st.showEmoji || st.showClipboard ||
+        val off = hasSelection || !prefs.smartSuggestions || st.showEmoji || st.showClipboard || st.handwriting != null ||
             !smartSuggester.allows(st.field)
         val actions = if (off) emptyList() else {
             val composing = if (st.currentLanguage == LanguageMode.TRANSLITERATION) st.transliterationBuffer.romanizedText else ""
@@ -904,6 +1049,7 @@ class KeyboardViewModel : ViewModel() {
     /** Called by the IME service when the field loses focus. */
     fun onInputFinished() {
         commitTransliterationBuffer()
+        if (_state.value.handwriting == HandwritingPhase.READY) commitInk()
         if (_state.value.isVoiceListening) stopVoiceInput()
     }
 
@@ -1075,6 +1221,9 @@ class KeyboardViewModel : ViewModel() {
         /** Vowel sign → the vowel letter it forms after अ. */
         val INDEPENDENT_VOWELS = mapOf("ा" to "आ", "ो" to "ओ", "ौ" to "औ", "ै" to "ऐ")
 
+        /** Text before the cursor given to handwriting recognition as context. */
+        const val PRE_CONTEXT_CHARS = 20
+
         /** How long after a copy the strip offers Paste. */
         const val PASTE_SUGGESTION_WINDOW_MS = 2 * 60 * 1000L
     }
@@ -1104,6 +1253,11 @@ data class KeyboardState(
     val clipItems: List<ClipItem> = emptyList(),
     /** The idle strip offers this recent copy as Paste (copied in the last two minutes). */
     val pasteSuggestion: CopiedText? = null,
+    /** The handwriting panel replaces the keys while this is set. */
+    val handwriting: HandwritingPhase? = null,
+    /** Finished strokes on the writing area, and what they're recognised as (best first). */
+    val inkStrokes: List<InkStroke> = emptyList(),
+    val inkCandidates: List<String> = emptyList(),
     /** Conversions of the text before the cursor (amounts, dates, units), at most two. */
     val smartActions: List<SmartAction> = emptyList(),
     /** The saved Nepali style, shown checked in the language menu. */
@@ -1124,3 +1278,16 @@ data class KeyboardState(
     @StringRes val voiceError: Int? = null,
     val partialVoiceResult: String? = null
 )
+
+/** What the handwriting panel shows. */
+enum class HandwritingPhase {
+    /** What turning it on means, with Download / Not now. */
+    CONSENT,
+    /** Checking whether the model is on the phone. */
+    CHECKING,
+    DOWNLOADING,
+    /** The download failed; offers Try again. */
+    FAILED,
+    /** The writing area. */
+    READY
+}

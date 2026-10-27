@@ -11,6 +11,7 @@ composeBom = "2024.09.00"
 # New dependencies for keyboard
 coroutines = "1.8.0"
 mockk = "1.13.9"
+digitalInk = "19.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +34,8 @@ androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lif
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+# Handwriting (on-device recognition; models downloaded from Google)
+mlkit-digital-ink = { group = "com.google.mlkit", name = "digital-ink-recognition", version.ref = "digitalInk" }
 # Testing
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 

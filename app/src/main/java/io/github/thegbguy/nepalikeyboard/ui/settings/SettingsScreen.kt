@@ -88,6 +88,8 @@ fun SettingsScreen(
     onSoundChange: (Boolean) -> Unit,
     smartSuggestions: Boolean,
     onSmartSuggestionsChange: (Boolean) -> Unit,
+    handwriting: Boolean,
+    onHandwritingChange: (Boolean) -> Unit,
     clipboardHistory: Boolean,
     onClipboardHistoryChange: (Boolean) -> Unit,
     onClearClipboard: () -> Unit,
@@ -95,6 +97,7 @@ fun SettingsScreen(
     onLink: (SettingsLink) -> Unit
 ) {
     var confirmClearClipboard by rememberSaveable { mutableStateOf(false) }
+    var confirmHandwriting by rememberSaveable { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxSize()
@@ -145,9 +148,29 @@ fun SettingsScreen(
             RowDivider()
             SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, onSmartSuggestionsChange)
             RowDivider()
+            // Turning it on first says what goes to Google; turning it off deletes the model.
+            SwitchRow(R.drawable.ic_ui_draw, stringResource(R.string.settings_handwriting), handwriting) { on ->
+                if (on) confirmHandwriting = true else onHandwritingChange(false)
+            }
+            RowDivider()
             SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onClipboardHistoryChange)
             RowDivider()
             LinkRow(R.drawable.ic_ui_delete, stringResource(R.string.settings_clipboard_clear), null) { confirmClearClipboard = true }
+        }
+        if (confirmHandwriting) {
+            AlertDialog(
+                onDismissRequest = { confirmHandwriting = false },
+                title = { Text(stringResource(R.string.settings_handwriting_title)) },
+                text = { Text(stringResource(R.string.handwriting_consent)) },
+                confirmButton = {
+                    TextButton(onClick = { confirmHandwriting = false; onHandwritingChange(true) }) {
+                        Text(stringResource(R.string.settings_handwriting_on))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmHandwriting = false }) { Text(stringResource(R.string.cancel)) }
+                }
+            )
         }
         if (confirmClearClipboard) {
             AlertDialog(

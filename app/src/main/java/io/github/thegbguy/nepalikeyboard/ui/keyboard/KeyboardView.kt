@@ -63,6 +63,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.SymbolLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.ClipboardPanel
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.HandwritingPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 
@@ -124,6 +125,30 @@ fun KeyboardView(
                 onClose = { viewModel.closeEmoji() }
             )
             Spacer(Modifier.height(RowGap))
+        } else if (state.handwriting != null) {
+            val rowsHeight = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, keyHeight, numberRowKeyHeight) + RowGap }
+            HandwritingPanel(
+                colors = colors,
+                height = StripHeight + rowsHeight - RowGap,
+                bottomRowHeight = keyHeight,
+                feel = state.feel,
+                enter = enterLabel,
+                phase = state.handwriting!!,
+                strokes = state.inkStrokes,
+                candidates = state.inkCandidates,
+                onAccept = { viewModel.onHandwritingAccept() },
+                onRetry = { viewModel.onHandwritingRetry() },
+                onStroke = { stroke, w, h -> viewModel.onInkStroke(stroke, w, h) },
+                onCandidate = { viewModel.onInkCandidate(it) },
+                onText = { viewModel.onInkText(it) },
+                onSpace = { viewModel.onInkSpace() },
+                onEnter = { viewModel.onInkEnter() },
+                onBackspace = { viewModel.onInkBackspace() },
+                onBackspaceRepeatStart = { viewModel.onBackspaceLongPressStart() },
+                onBackspaceRepeatEnd = { viewModel.onBackspaceLongPressEnd() },
+                onClose = { viewModel.closeHandwriting() }
+            )
+            Spacer(Modifier.height(RowGap))
         } else if (state.showClipboard) {
             val rowsHeight = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, keyHeight, numberRowKeyHeight) + RowGap }
             ClipboardPanel(
@@ -161,6 +186,8 @@ fun KeyboardView(
             onSmartActionClick = { viewModel.onSmartActionClick(it) },
             onEmojiClick = { viewModel.openEmoji() },
             onClipboardClick = { viewModel.openClipboard() },
+            showHandwriting = !state.field.isPrivate,
+            onHandwritingClick = { viewModel.openHandwriting() },
             onPasteClick = { viewModel.onPasteSuggestion() },
             onSettingsClick = { viewModel.openSettings() },
             onSuggestionClick = { viewModel.onSuggestionClick(it) },

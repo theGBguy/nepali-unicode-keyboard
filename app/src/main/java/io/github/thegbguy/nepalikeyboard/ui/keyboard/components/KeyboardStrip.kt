@@ -64,6 +64,8 @@ fun KeyboardStrip(
     onSmartActionClick: (SmartAction) -> Unit,
     onEmojiClick: () -> Unit,
     onClipboardClick: () -> Unit,
+    showHandwriting: Boolean,
+    onHandwritingClick: () -> Unit,
     onPasteClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSuggestionClick: (String) -> Unit,
@@ -126,6 +128,7 @@ fun KeyboardStrip(
                 else -> Row(verticalAlignment = Alignment.CenterVertically) {
                     if (showEmoji) StripIcon(colors, R.drawable.ic_ui_mood, R.string.emoji_open, onEmojiClick)
                     if (showClipboard) StripIcon(colors, R.drawable.ic_ui_content_paste, R.string.clipboard_open, onClipboardClick)
+                    if (showHandwriting) StripIcon(colors, R.drawable.ic_ui_draw, R.string.handwriting_open, onHandwritingClick)
                     if (pasteSuggestion != null) PasteSuggestion(colors, pasteSuggestion, onPasteClick)
                 }
             }

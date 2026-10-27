@@ -35,6 +35,8 @@ interface KeyboardPrefs {
     var clipboardHistory: Boolean
     /** Whether the strip offers conversions of what's typed (amounts, dates, units). */
     var smartSuggestions: Boolean
+    /** The user agreed to handwriting (Google model download and ML Kit diagnostics). */
+    var handwriting: Boolean
 
     val feel: KeyFeel get() = KeyFeel(keyHeight, vibrate, sound)
 }
@@ -48,7 +50,8 @@ class InMemoryKeyboardPrefs(
     override var sound: Boolean = false,
     override var emojiRecents: List<String> = emptyList(),
     override var clipboardHistory: Boolean = true,
-    override var smartSuggestions: Boolean = true
+    override var smartSuggestions: Boolean = true,
+    override var handwriting: Boolean = false
 ) : KeyboardPrefs
 
 /** Settings stored on the device, plus recently used emoji. Holds no typed text (clipboard items live in their own file). */
@@ -111,9 +114,15 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         get() = prefs.getBoolean(KEY_SMART_SUGGESTIONS, true)
         set(value) = prefs.edit { putBoolean(KEY_SMART_SUGGESTIONS, value) }
 
+    /** Off until the user agrees in the keyboard or in Settings. */
+    override var handwriting: Boolean
+        get() = prefs.getBoolean(KEY_HANDWRITING, false)
+        set(value) = prefs.edit { putBoolean(KEY_HANDWRITING, value) }
+
     private companion object {
         const val KEY_CLIPBOARD_HISTORY = "clipboard_history"
         const val KEY_SMART_SUGGESTIONS = "smart_suggestions"
+        const val KEY_HANDWRITING = "handwriting"
         const val KEY_EMOJI_RECENTS = "emoji_recents"
         const val KEY_HEIGHT = "key_height"
         const val KEY_VIBRATE = "vibrate"

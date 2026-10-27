@@ -34,6 +34,13 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+        <!-- ML Kit (handwriting) starts only when the user turns handwriting on: no start-up provider,
+             so nothing from Google runs before that. MlKitHandwriting initialises it on first use. -->
+        <provider
+            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
+            android:authorities="${applicationId}.mlkitinitprovider"
+            tools:node="remove" />
+
         <!-- Nepali Keyboard IME Service -->
         <service
             android:name=".service.NepaliIMEService"

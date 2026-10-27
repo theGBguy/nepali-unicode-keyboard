@@ -80,9 +80,23 @@ android {
     }
 }
 
-// The privacy promise ("no internet access, so typed text can't leave the phone") rests on the
-// merged manifest. Fail the build if any dependency adds the INTERNET permission.
-abstract class CheckNoInternetPermission : DefaultTask() {
+// The privacy text names exactly what the app may do. INTERNET is there for handwriting only
+// (Google ML Kit's model download and diagnostics, after the user agrees). Fail the build if a
+// dependency adds any permission not in this list, so a new one can't slip into a release unnoticed.
+val allowedPermissions = listOf(
+    "android.permission.RECORD_AUDIO", // voice typing
+    "android.permission.INTERNET", // handwriting (ML Kit)
+    "android.permission.ACCESS_NETWORK_STATE", // ML Kit model download
+    "android.permission.WAKE_LOCK", // WorkManager, used by ML Kit downloads
+    "android.permission.RECEIVE_BOOT_COMPLETED", // WorkManager
+    "android.permission.FOREGROUND_SERVICE", // WorkManager
+    "DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" // androidx.core, app-private
+)
+
+abstract class CheckPermissions : DefaultTask() {
+    @get:Input
+    abstract val allowed: ListProperty<String>
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val mergedManifest: RegularFileProperty
@@ -93,21 +107,24 @@ abstract class CheckNoInternetPermission : DefaultTask() {
     @TaskAction
     fun verify() {
         val manifest = mergedManifest.get().asFile.readText()
-        check(!manifest.contains("\"android.permission.INTERNET\"")) {
-            "The merged manifest declares android.permission.INTERNET. The keyboard's privacy claim " +
-                "depends on having no network access: find the dependency that added it (manifest-merger " +
-                "report) and remove it, or update the privacy policy, Data safety and store listing first."
+        val declared = Regex("<uses-permission[^>]*android:name=\"([^\"]+)\"").findAll(manifest).map { it.groupValues[1] }.toList()
+        val unexpected = declared.filter { name -> allowed.get().none { name == it || name.endsWith(".$it") } }
+        check(unexpected.isEmpty()) {
+            "The merged manifest declares permissions the privacy text doesn't cover: $unexpected. Find the " +
+                "dependency that added them (manifest-merger report) and remove them, or update the in-app " +
+                "Privacy page, privacy policy, Data safety and store listing, then add them to allowedPermissions."
         }
-        report.get().asFile.writeText("OK: no INTERNET permission\n")
+        report.get().asFile.writeText("OK: ${declared.joinToString()}\n")
     }
 }
 
 androidComponents {
     onVariants { variant ->
         val suffix = variant.name.replaceFirstChar(Char::uppercase)
-        val checkTask = tasks.register<CheckNoInternetPermission>("check${suffix}NoInternetPermission") {
+        val checkTask = tasks.register<CheckPermissions>("check${suffix}Permissions") {
+            allowed.set(allowedPermissions)
             mergedManifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
-            report.set(layout.buildDirectory.file("reports/no-internet/${variant.name}.txt"))
+            report.set(layout.buildDirectory.file("reports/permissions/${variant.name}.txt"))
         }
         tasks.configureEach {
             if (name == "assemble$suffix" || name == "bundle$suffix" || name == "check") {
@@ -153,6 +170,9 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // Handwriting
+    implementation(libs.mlkit.digital.ink)
 
     // Testing dependencies
     testImplementation(libs.junit)

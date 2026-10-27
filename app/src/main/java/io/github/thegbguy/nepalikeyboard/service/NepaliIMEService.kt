@@ -21,6 +21,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import io.github.thegbguy.nepalikeyboard.MainActivity
+import io.github.thegbguy.nepalikeyboard.data.handwriting.MlKitHandwriting
 import io.github.thegbguy.nepalikeyboard.data.clipboard.FileClipboardStorage
 import io.github.thegbguy.nepalikeyboard.data.clipboard.SystemClipboardSource
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiData
@@ -85,6 +86,8 @@ class NepaliIMEService : InputMethodService(),
             source.observe { keyboardViewModel.onSystemCopy() }
         }
         keyboardViewModel.clipboardStorage = FileClipboardStorage.shared(this)
+        // Nothing from ML Kit runs until the user opens handwriting and agrees
+        keyboardViewModel.handwritingRecognizer = MlKitHandwriting.shared(this)
         keyboardPrefs.observe { keyboardViewModel.onPrefsChanged() }
         keyboardViewModel.onRequestMicPermission = { MicPermissionActivity.start(this) }
         keyboardViewModel.onOpenSettings = {
