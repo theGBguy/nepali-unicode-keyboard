@@ -1,0 +1,5 @@
+What's new in 1.2
+• Write Nepali by hand (turn it on in Settings)
+• Clipboard history with pinned items
+• Bikram Sambat dates, amounts in words and land/gold units as suggestions
+• Bug fixes and UI enhancements
