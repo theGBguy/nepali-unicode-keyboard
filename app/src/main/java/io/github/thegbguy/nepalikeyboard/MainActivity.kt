@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
     private var nepaliStyle by mutableStateOf(LanguageMode.TRANSLITERATION)
     private var feel by mutableStateOf(KeyFeel())
     private var clipboardHistory by mutableStateOf(true)
+    private var smartSuggestions by mutableStateOf(true)
     private var appLanguage by mutableStateOf(AppLanguage.SYSTEM)
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
 
@@ -81,6 +82,8 @@ class MainActivity : ComponentActivity() {
                         onHeightChange = { keyboardPrefs.keyHeight = it; feel = keyboardPrefs.feel },
                         onVibrateChange = { keyboardPrefs.vibrate = it; feel = keyboardPrefs.feel },
                         onSoundChange = { keyboardPrefs.sound = it; feel = keyboardPrefs.feel },
+                        smartSuggestions = smartSuggestions,
+                        onSmartSuggestionsChange = { keyboardPrefs.smartSuggestions = it; smartSuggestions = it },
                         clipboardHistory = clipboardHistory,
                         onClipboardHistoryChange = { on ->
                             keyboardPrefs.clipboardHistory = on
@@ -164,6 +167,7 @@ class MainActivity : ComponentActivity() {
         nepaliStyle = keyboardPrefs.nepaliStyle
         feel = keyboardPrefs.feel
         clipboardHistory = keyboardPrefs.clipboardHistory
+        smartSuggestions = keyboardPrefs.smartSuggestions
         appLanguage = AppLanguage.current(this)
     }
 

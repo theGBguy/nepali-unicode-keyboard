@@ -35,13 +35,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.thegbguy.nepalikeyboard.R
+import io.github.thegbguy.nepalikeyboard.domain.smart.SmartAction
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardColors
 
 /**
  * The 40dp row above the keys. Shows, in order of priority: the listening state, a voice error,
- * Romanized suggestions (best guess in bold, other guesses, then the Latin text as typed), or
- * the emoji and clipboard buttons (plus Paste right after a copy), with settings on the right. The mic sits on the right when the field allows voice. It keeps its height when empty
- * so the keyboard never jumps.
+ * Romanized suggestions (best guess in bold, then a smart suggestion or the next guess, then the
+ * Latin text as typed), smart suggestions, or the emoji and clipboard buttons (plus Paste right
+ * after a copy). Settings sits on the right, and the mic too when the field allows voice.
+ * It keeps its height when empty so the keyboard never jumps.
  */
 @Composable
 fun KeyboardStrip(
@@ -57,6 +59,9 @@ fun KeyboardStrip(
     showClipboard: Boolean,
     /** A recent copy to offer: its text, "" for a sensitive copy (no preview), or null. */
     pasteSuggestion: String?,
+    /** Conversions of the text before the cursor (amounts, dates, units). */
+    smartActions: List<SmartAction>,
+    onSmartActionClick: (SmartAction) -> Unit,
     onEmojiClick: () -> Unit,
     onClipboardClick: () -> Unit,
     onPasteClick: () -> Unit,
@@ -88,12 +93,36 @@ fun KeyboardStrip(
                     colors = colors,
                     words = buildList {
                         if (primarySuggestion.isNotEmpty()) add(primarySuggestion)
-                        suggestions.filter { it != primarySuggestion }.take(1).forEach { add(it) }
+                        // A smart suggestion takes the second guess's slot.
+                        if (smartActions.isEmpty()) suggestions.filter { it != primarySuggestion }.take(1).forEach { add(it) }
                     },
+                    smartAction = smartActions.firstOrNull(),
                     latinText = latinText,
                     onSuggestionClick = onSuggestionClick,
+                    onSmartActionClick = onSmartActionClick,
                     onKeepLatin = onKeepLatin
                 )
+                // Smart suggestions take the emoji and clipboard buttons' room; they come back on the next key.
+                smartActions.isNotEmpty() -> androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    // Each takes its natural width; if they don't both fit, the longer one may use 60%.
+                    val longest = smartActions.maxOf { it.label.length }
+                    val total = maxWidth
+                    Row(
+                        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        smartActions.forEachIndexed { index, action ->
+                            if (index > 0) Divider(colors)
+                            val share = when {
+                                smartActions.size == 1 -> 1f
+                                action.label.length == longest && index == smartActions.indexOfFirst { it.label.length == longest } -> 0.6f
+                                else -> 0.4f
+                            }
+                            SmartSlot(colors, action, Modifier.widthIn(max = total * share)) { onSmartActionClick(action) }
+                        }
+                    }
+                }
                 else -> Row(verticalAlignment = Alignment.CenterVertically) {
                     if (showEmoji) StripIcon(colors, R.drawable.ic_ui_mood, R.string.emoji_open, onEmojiClick)
                     if (showClipboard) StripIcon(colors, R.drawable.ic_ui_content_paste, R.string.clipboard_open, onClipboardClick)
@@ -114,8 +143,10 @@ fun KeyboardStrip(
 private fun Suggestions(
     colors: KeyboardColors,
     words: List<String>,
+    smartAction: SmartAction?,
     latinText: String,
     onSuggestionClick: (String) -> Unit,
+    onSmartActionClick: (SmartAction) -> Unit,
     onKeepLatin: () -> Unit
 ) {
     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
@@ -128,6 +159,11 @@ private fun Suggestions(
                 fontSize = 17.sp,
                 onClick = { onSuggestionClick(word) }
             )
+        }
+        if (smartAction != null) {
+            if (words.isNotEmpty()) Divider(colors)
+            // Wider than a word slot (up to 2.5×) so dates and amounts in words stay readable.
+            SmartSlot(colors, smartAction, Modifier.weight((smartAction.label.length / 8f).coerceIn(1f, 2.5f))) { onSmartActionClick(smartAction) }
         }
         Divider(colors)
         Slot(text = latinText, color = colors.hint, bold = false, fontSize = 15.sp, onClick = onKeepLatin)
@@ -160,6 +196,48 @@ private fun androidx.compose.foundation.layout.RowScope.Slot(
             modifier = Modifier.padding(horizontal = 6.dp)
         )
     }
+}
+
+/**
+ * A smart suggestion: plain text like a word guess, after a small hint-coloured icon so it reads
+ * as a conversion.
+ */
+@Composable
+private fun SmartSlot(
+    colors: KeyboardColors,
+    action: SmartAction,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxHeight()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+    ) {
+        Icon(
+            painter = painterResource(smartIcon(action.kind)),
+            contentDescription = null,
+            tint = colors.hint,
+            modifier = Modifier.size(14.dp)
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            text = action.label,
+            color = colors.keyText,
+            fontSize = 16.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+private fun smartIcon(kind: SmartAction.Kind): Int = when (kind) {
+    SmartAction.Kind.AMOUNT -> R.drawable.ic_ui_123
+    SmartAction.Kind.DATE -> R.drawable.ic_ui_calendar_today
+    SmartAction.Kind.UNIT -> R.drawable.ic_ui_straighten
 }
 
 /** A fresh copy offered for pasting: a paste icon and the start of the text on one line. */

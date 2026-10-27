@@ -102,6 +102,7 @@
     <string name="settings_height_tall">अग्लो</string>
     <string name="settings_vibrate">की थिच्दा कम्पन</string>
     <string name="settings_sound">की थिच्दा आवाज</string>
+    <string name="settings_smart">स्मार्ट सुझाव (मिति, रकम, एकाइ)</string>
     <string name="settings_clipboard">क्लिपबोर्ड इतिहास</string>
     <string name="settings_clipboard_clear">क्लिपबोर्ड इतिहास मेटाउनुहोस्</string>
     <string name="settings_clipboard_clear_title">क्लिपबोर्ड इतिहास मेटाउने?</string>
@@ -154,4 +155,6 @@
     <string name="emoji_flags">झन्डा</string>
     <string name="licences_emoji_title">इमोजी सूची</string>
     <string name="licences_emoji_body">इमोजी सूची Unicode इमोजी डेटाबाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको फोनको फन्टले देखाउँछ।</string>
+    <string name="licences_calendar_title">विक्रम संवत् पात्रो</string>
+    <string name="licences_calendar_body">वि.सं. २००० देखि २०९० सम्मका महिनाका दिन l3lackcurtains को nepali-date-pro-max बाट, MIT licence अन्तर्गत।</string>
 </resources>

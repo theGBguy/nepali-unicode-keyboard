@@ -157,6 +157,8 @@ fun KeyboardView(
             showEmoji = !state.field.isPrivate && !state.field.prefersNumbers,
             showClipboard = !state.field.isPrivate,
             pasteSuggestion = state.pasteSuggestion?.let { if (it.sensitive) "" else it.text },
+            smartActions = state.smartActions,
+            onSmartActionClick = { viewModel.onSmartActionClick(it) },
             onEmojiClick = { viewModel.openEmoji() },
             onClipboardClick = { viewModel.openClipboard() },
             onPasteClick = { viewModel.onPasteSuggestion() },

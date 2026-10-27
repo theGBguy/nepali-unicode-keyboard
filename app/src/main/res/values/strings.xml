@@ -106,6 +106,7 @@
     <string name="settings_height_tall">Tall</string>
     <string name="settings_vibrate">Vibrate on key press</string>
     <string name="settings_sound">Sound on key press</string>
+    <string name="settings_smart">Smart suggestions (dates, amounts, units)</string>
     <string name="settings_clipboard">Clipboard history</string>
     <string name="settings_clipboard_clear">Clear clipboard history</string>
     <string name="settings_clipboard_clear_title">Clear clipboard history?</string>
@@ -158,4 +159,6 @@
     <string name="emoji_flags">Flags</string>
     <string name="licences_emoji_title">Emoji list</string>
     <string name="licences_emoji_body">Emoji list derived from Unicode emoji data, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your phone’s font.</string>
+    <string name="licences_calendar_title">Bikram Sambat calendar</string>
+    <string name="licences_calendar_body">Month lengths for BS 2000–2090 from nepali-date-pro-max by l3lackcurtains, under the MIT licence.</string>
 </resources>

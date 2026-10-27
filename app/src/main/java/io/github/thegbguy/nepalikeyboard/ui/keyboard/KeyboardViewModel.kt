@@ -25,6 +25,8 @@ import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyboardLayout
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.domain.model.TransliterationBuffer
+import io.github.thegbguy.nepalikeyboard.domain.smart.SmartAction
+import io.github.thegbguy.nepalikeyboard.domain.smart.SmartSuggester
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliTransliterationEngine
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationEngine
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
@@ -64,6 +66,9 @@ class KeyboardViewModel : ViewModel() {
 
     /** Saved clipboard items. The IME service replaces this with the on-device file. */
     var clipboardStorage: ClipboardStorage = InMemoryClipboardStorage()
+
+    /** Smart suggestions (amounts, dates, units); replaced in tests. */
+    var smartSuggester = SmartSuggester()
 
     /** Wall-clock time for clipboard items; replaced in tests. */
     var clock: () -> Long = System::currentTimeMillis
@@ -114,6 +119,10 @@ class KeyboardViewModel : ViewModel() {
      */
     fun onKeyClick(key: KeyData) {
         if (_state.value.pasteSuggestion != null) _state.update { it.copy(pasteSuggestion = null) }
+        // Keys that change the text drop smart suggestions; the cursor update that follows makes new ones.
+        // Shift and the layout keys leave them.
+        val editsText = key.keyType == KeyType.CHARACTER || key.keyType == KeyType.ACTION || key.primary == "⌫"
+        if (editsText && _state.value.smartActions.isNotEmpty()) _state.update { it.copy(smartActions = emptyList()) }
         when (key.keyType) {
             KeyType.CHARACTER -> handleCharacterKey(key)
             KeyType.ACTION -> handleActionKey(key)
@@ -193,6 +202,7 @@ class KeyboardViewModel : ViewModel() {
                 showEmoji = true,
                 showClipboard = false,
                 pasteSuggestion = null,
+                smartActions = emptyList(),
                 showLanguageMenu = false,
                 emojiRecents = prefs.emojiRecents,
                 transliterationBuffer = TransliterationBuffer(),
@@ -270,6 +280,7 @@ class KeyboardViewModel : ViewModel() {
                 showEmoji = false,
                 showLanguageMenu = false,
                 pasteSuggestion = null,
+                smartActions = emptyList(),
                 copied = copied,
                 clipItems = items,
                 transliterationBuffer = TransliterationBuffer(),
@@ -404,6 +415,7 @@ class KeyboardViewModel : ViewModel() {
         _state.update {
             it.copy(
                 currentLanguage = mode,
+                smartActions = emptyList(),
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
                 showSuggestionBar = false
@@ -446,10 +458,13 @@ class KeyboardViewModel : ViewModel() {
 
     private fun handleCharacterKey(key: KeyData) {
         val output = key.getOutput(_state.value.isShifted)
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) settlePendingPoint(output)
         if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION && endsRomanizedWord(output)) {
             // Punctuation ends the word: "huncha," must commit हुन्छ, not look up "huncha,".
+            val afterDigit = output == "." && endsWithDigit()
             commitTransliterationBuffer()
-            inputConnection?.commitText(if (output == ".") "।" else output, 1)
+            inputConnection?.commitText(if (output == "." && !afterDigit) "।" else output, 1)
+            pendingPoint = afterDigit
         } else if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
             // Transliteration mode - buffer input and show romanized text
             val currentBuffer = _state.value.transliterationBuffer
@@ -480,6 +495,7 @@ class KeyboardViewModel : ViewModel() {
     }
 
     private fun handleActionKey(key: KeyData) {
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) settlePendingPoint(key.primary)
         when (key.primary) {
             " " -> {
                 // Space key
@@ -580,6 +596,31 @@ class KeyboardViewModel : ViewModel() {
      */
     private fun endsRomanizedWord(output: String): Boolean =
         output.length == 1 && !output[0].isLetterOrDigit() && output[0] !in "~^" && !output[0].isWhitespace()
+
+    /**
+     * A "." typed right after a digit in Romanized mode stays a decimal point (रु ०.५०) instead of
+     * becoming ।. If the next key isn't a digit, it was a full stop after all: turn it into ।.
+     */
+    private var pendingPoint = false
+
+    private fun endsWithDigit(): Boolean {
+        val buffered = _state.value.transliterationBuffer.romanizedText
+        if (buffered.isNotEmpty()) return buffered.last().isDigit()
+        val before = inputConnection?.getTextBeforeCursor(1, 0)?.lastOrNull() ?: return false
+        return before in '0'..'9' || before in '०'..'९'
+    }
+
+    private fun settlePendingPoint(next: String) {
+        if (!pendingPoint) return
+        pendingPoint = false
+        if (next.length == 1 && (next[0] in '0'..'9')) return
+        val ic = inputConnection ?: return
+        if (ic.getTextBeforeCursor(1, 0)?.toString() != ".") return
+        ic.beginBatchEdit()
+        ic.deleteSurroundingText(1, 0)
+        ic.commitText("।", 1)
+        ic.endBatchEdit()
+    }
 
     /** Commits the Romanized word being typed as Devanagari, if there is one. */
     private fun commitTransliterationBuffer() {
@@ -761,6 +802,7 @@ class KeyboardViewModel : ViewModel() {
             else -> LanguageMode.ENGLISH
         }
 
+        pendingPoint = false
         // Reset state when new input field is focused
         _state.update {
             it.copy(
@@ -770,6 +812,7 @@ class KeyboardViewModel : ViewModel() {
                 showClipboard = false,
                 copied = null,
                 pasteSuggestion = recentCopyToOffer(field),
+                smartActions = emptyList(),
                 feel = prefs.feel,
                 currentLanguage = language,
                 isShifted = false,
@@ -795,12 +838,62 @@ class KeyboardViewModel : ViewModel() {
      * @param composingStart start of the composing region, or -1 if there is none
      */
     fun onSelectionChanged(selStart: Int, selEnd: Int, composingStart: Int, composingEnd: Int) {
-        if (_state.value.transliterationBuffer.isEmpty()) return
-        val stillComposing = composingStart >= 0 && selStart == selEnd && selEnd == composingEnd
-        if (stillComposing) return
-        if (composingStart >= 0) inputConnection?.finishComposingText()
+        if (_state.value.transliterationBuffer.isNotEmpty()) {
+            val stillComposing = composingStart >= 0 && selStart == selEnd && selEnd == composingEnd
+            if (!stillComposing) {
+                if (composingStart >= 0) inputConnection?.finishComposingText()
+                _state.update {
+                    it.copy(
+                        transliterationBuffer = TransliterationBuffer(),
+                        suggestions = emptyList(),
+                        showSuggestionBar = false
+                    )
+                }
+            }
+        }
+        refreshSmartActions(hasSelection = selStart != selEnd)
+    }
+
+    /**
+     * Looks at the text before the cursor and offers conversions of it in the strip. Runs on
+     * every cursor update, which also follows each key press, so a suggestion never outlives
+     * the text it was made from.
+     */
+    private fun refreshSmartActions(hasSelection: Boolean) {
+        val st = _state.value
+        val off = hasSelection || !prefs.smartSuggestions || st.showEmoji || st.showClipboard ||
+            !smartSuggester.allows(st.field)
+        val actions = if (off) emptyList() else {
+            val composing = if (st.currentLanguage == LanguageMode.TRANSLITERATION) st.transliterationBuffer.romanizedText else ""
+            val text = inputConnection
+                ?.getTextBeforeCursor(SmartSuggester.CONTEXT_CHARS + composing.length, 0)
+                ?.toString()
+            // The field holds the Romanized word as composing text; if it doesn't end with it, this update is stale.
+            if (text == null || !text.endsWith(composing)) emptyList()
+            else smartSuggester.suggest(text.dropLast(composing.length), composing, st.currentLanguage, st.field)
+        }
+        if (actions != st.smartActions) _state.update { it.copy(smartActions = actions) }
+    }
+
+    /**
+     * Applies a smart suggestion in one batch edit: drop the Romanized word being typed, delete
+     * the characters the suggestion replaces, then type it.
+     */
+    fun onSmartActionClick(action: SmartAction) {
+        val ic = inputConnection ?: return
+        val composing = _state.value.currentLanguage == LanguageMode.TRANSLITERATION &&
+            _state.value.transliterationBuffer.isNotEmpty()
+        ic.beginBatchEdit()
+        if (composing) {
+            ic.setComposingText("", 1)
+            ic.finishComposingText()
+        }
+        if (action.replace > 0) ic.deleteSurroundingText(action.replace, 0)
+        ic.commitText(action.text, 1)
+        ic.endBatchEdit()
         _state.update {
             it.copy(
+                smartActions = emptyList(),
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
                 showSuggestionBar = false
@@ -1011,6 +1104,8 @@ data class KeyboardState(
     val clipItems: List<ClipItem> = emptyList(),
     /** The idle strip offers this recent copy as Paste (copied in the last two minutes). */
     val pasteSuggestion: CopiedText? = null,
+    /** Conversions of the text before the cursor (amounts, dates, units), at most two. */
+    val smartActions: List<SmartAction> = emptyList(),
     /** The saved Nepali style, shown checked in the language menu. */
     val nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
     /** Key height, vibration and sound from Settings. */

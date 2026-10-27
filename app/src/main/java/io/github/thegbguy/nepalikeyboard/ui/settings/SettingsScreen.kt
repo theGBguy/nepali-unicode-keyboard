@@ -86,6 +86,8 @@ fun SettingsScreen(
     onHeightChange: (KeyHeight) -> Unit,
     onVibrateChange: (Boolean) -> Unit,
     onSoundChange: (Boolean) -> Unit,
+    smartSuggestions: Boolean,
+    onSmartSuggestionsChange: (Boolean) -> Unit,
     clipboardHistory: Boolean,
     onClipboardHistoryChange: (Boolean) -> Unit,
     onClearClipboard: () -> Unit,
@@ -140,6 +142,8 @@ fun SettingsScreen(
             SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onVibrateChange)
             RowDivider()
             SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onSoundChange)
+            RowDivider()
+            SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, onSmartSuggestionsChange)
             RowDivider()
             SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onClipboardHistoryChange)
             RowDivider()
@@ -345,6 +349,7 @@ fun LicencesScreen(onBack: () -> Unit) {
             listOf(
                 R.string.licences_words_title to R.string.licences_words_body,
                 R.string.licences_emoji_title to R.string.licences_emoji_body,
+                R.string.licences_calendar_title to R.string.licences_calendar_body,
                 R.string.licences_libraries_title to R.string.licences_libraries_body
             ).forEachIndexed { i, (title, body) ->
                 if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
