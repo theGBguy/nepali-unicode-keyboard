@@ -152,6 +152,9 @@ val validateUploadSigning by tasks.registering {
 tasks.matching { it.name == "bundleRelease" }.configureEach { dependsOn(validateUploadSigning) }
 
 dependencies {
+    // Keyboard logic shared with iOS
+    implementation(project(":shared"))
+
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

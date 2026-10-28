@@ -22,12 +22,14 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import io.github.thegbguy.nepalikeyboard.MainActivity
-import io.github.thegbguy.nepalikeyboard.data.handwriting.MlKitHandwriting
 import io.github.thegbguy.nepalikeyboard.data.clipboard.FileClipboardStorage
 import io.github.thegbguy.nepalikeyboard.data.clipboard.SystemClipboardSource
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiData
+import io.github.thegbguy.nepalikeyboard.data.handwriting.MlKitHandwriting
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
+import io.github.thegbguy.nepalikeyboard.domain.model.from
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliWordList
+import io.github.thegbguy.nepalikeyboard.domain.transliteration.loadAsync
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
