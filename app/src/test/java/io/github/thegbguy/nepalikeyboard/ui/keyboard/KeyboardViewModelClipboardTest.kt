@@ -167,6 +167,43 @@ class KeyboardViewModelClipboardTest {
     }
 
     @Test
+    fun `clear all clears the phone's clipboard so the current copy doesn't come back`() {
+        clipboard.copied = CopiedText("copied", sensitive = false)
+        storage.save(listOf(ClipItem("older", time = 1)))
+        vm.openClipboard()
+        vm.onClipClearAll()
+        assertTrue(clipboard.cleared)
+        assertNull(vm.state.value.copied)
+        assertEquals(emptyList<String>(), saved())
+
+        vm.closeClipboard()
+        vm.openClipboard()
+        assertNull(vm.state.value.copied)
+        assertEquals(emptyList<String>(), vm.state.value.clipItems.map { it.text })
+    }
+
+    @Test
+    fun `clear all also clears a sensitive copy, which was never saved`() {
+        clipboard.copied = CopiedText("hunter2", sensitive = true)
+        vm.openClipboard()
+        vm.onClipClearAll()
+        assertTrue(clipboard.cleared)
+        assertNull(vm.state.value.copied)
+    }
+
+    @Test
+    fun `clear all keeps the phone's clipboard when the current copy is pinned`() {
+        clipboard.copied = CopiedText("keep", sensitive = false)
+        storage.save(listOf(ClipItem("older", time = 1)))
+        vm.openClipboard()
+        vm.onClipPin("keep", true)
+        vm.onClipClearAll()
+        assertFalse(clipboard.cleared)
+        assertEquals("keep", vm.state.value.copied?.text)
+        assertEquals(listOf("keep"), saved())
+    }
+
+    @Test
     fun `pin survives clear all`() {
         storage.save(listOf(ClipItem("b", time = 2), ClipItem("a", time = 1)))
         vm.openClipboard()
