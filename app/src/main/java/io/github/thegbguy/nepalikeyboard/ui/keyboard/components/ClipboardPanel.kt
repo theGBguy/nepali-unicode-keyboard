@@ -176,7 +176,8 @@ fun ClipboardPanel(
                 Text("ABC", color = colors.keyText, fontSize = 15.sp)
             }
             Spacer(Modifier.weight(1f))
-            if (items.any { !it.pinned }) {
+            // Shown while anything would go: unpinned history or an unpinned current copy
+            if (items.any { !it.pinned } || (copied != null && copiedItem?.pinned != true)) {
                 Box(
                     Modifier
                         .fillMaxHeight()

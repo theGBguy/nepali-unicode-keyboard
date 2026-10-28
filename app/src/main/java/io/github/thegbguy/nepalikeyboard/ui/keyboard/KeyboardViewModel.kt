@@ -461,8 +461,18 @@ class KeyboardViewModel : ViewModel() {
         updateClipItems { ClipboardHistory.delete(it, text) }
     }
 
-    /** The panel's "Clear all": pinned items stay. */
-    fun onClipClearAll() = updateClipItems(ClipboardHistory::clearUnpinned)
+    /**
+     * The panel's "Clear all": pinned items stay. The phone's current copy is cleared too unless
+     * it's pinned, or it would stay on screen and be saved again the next time the panel opens.
+     */
+    fun onClipClearAll() {
+        val copied = _state.value.copied
+        if (copied != null && clipboardStorage.load().none { it.text == copied.text && it.pinned }) {
+            clipboardSource?.clear()
+            _state.update { it.copy(copied = null, pasteSuggestion = null) }
+        }
+        updateClipItems(ClipboardHistory::clearUnpinned)
+    }
 
     private fun updateClipItems(change: (List<ClipItem>) -> List<ClipItem>) {
         val items = change(clipboardStorage.load())
