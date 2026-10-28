@@ -1,0 +1,74 @@
+# Generates NepaliKeyboard.xcodeproj: `cd iosApp && xcodegen generate`.
+# The generated project is committed, so building doesn't need XcodeGen; rerun it only after
+# changing this file. Source folders are synced, so new Swift files need no regeneration.
+name: NepaliKeyboard
+options:
+  bundleIdPrefix: io.github.thegbguy
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  # Nepali strings live in the String Catalogs (Localizable.xcstrings) of both targets
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: 2G9CN64MSN
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    # The shared framework is built for Apple silicon simulators only (no iosX64 target)
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+targets:
+  NepaliKeyboard:
+    type: application
+    platform: iOS
+    scheme: {}
+    sources:
+      - path: App
+        type: syncedFolder
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.nepalikeyboard
+        PRODUCT_NAME: NepaliKeyboard
+        INFOPLIST_KEY_CFBundleDisplayName: Nepali Keyboard
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - target: NepaliKeyboardExtension
+        embed: true
+  NepaliKeyboardExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Keyboard
+        type: syncedFolder
+      # The same word list as Android, so both platforms always suggest the same words
+      - path: ../app/src/main/assets/words_ne.tsv
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.nepalikeyboard.keyboard
+        PRODUCT_NAME: NepaliKeyboardExtension
+        INFOPLIST_FILE: KeyboardInfo.plist
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Nepali Keyboard
+        # The shared Kotlin code (KeyboardController, transliteration, layouts), built by Gradle
+        FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS: -framework NepaliKeyboardShared
+    preBuildScripts:
+      - name: Build shared Kotlin framework
+        basedOnDependencyAnalysis: false
+        script: |
+          # Xcode's environment has no JAVA_HOME; Gradle needs JDK 17 or newer
+          if [ -z "$JAVA_HOME" ]; then
+            export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)"
+          fi
+          cd "$SRCROOT/.."
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode

@@ -1,0 +1,116 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "How we handle your data": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हामी तपाईंको डेटा कसरी सम्हाल्छौं"
+          }
+        }
+      }
+    },
+    "In Settings, tap Keyboards and turn on Nepali Keyboard.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिङमा Keyboards थिच्नुहोस् र Nepali Keyboard अन गर्नुहोस्।"
+          }
+        }
+      }
+    },
+    "In any text field, hold 🌐 below the keyboard and pick Nepali Keyboard.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जुनसुकै टेक्स्ट फिल्डमा किबोर्डमुनिको 🌐 थिचिराख्नुहोस् र Nepali Keyboard छान्नुहोस्।"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिङ खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Romanized or traditional layout. Takes about a minute to set up.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोमनाइज्ड वा परम्परागत लेआउट। सेटअप गर्न करिब एक मिनेट लाग्छ।"
+          }
+        }
+      }
+    },
+    "Switch to it": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यसमा स्विच गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "The अ/A key switches between Nepali and English. Hold it to change this choice later.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अ/A कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
+          }
+        }
+      }
+    },
+    "Try it": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चलाएर हेर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Turn on the keyboard": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किबोर्ड अन गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Type Nepali\nin any app": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जुनसुकै एपमा\nनेपाली लेख्नुहोस्"
+          }
+        }
+      }
+    },
+    "Type “namaste” and press space": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“namaste” टाइप गरी स्पेस थिच्नुहोस्"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

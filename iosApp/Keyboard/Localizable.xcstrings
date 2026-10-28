@@ -1,0 +1,196 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Caps lock": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्याप्स लक"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मेटाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भयो"
+          }
+        }
+      }
+    },
+    "English, Romanized Nepali or traditional Nepali. Long-press for options.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अंग्रेजी, रोमन नेपाली वा परम्परागत नेपाली। थप विकल्पका लागि थिचिराख्नुहोस्।"
+          }
+        }
+      }
+    },
+    "Go": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जानुहोस्"
+          }
+        }
+      }
+    },
+    "Letters": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अक्षर"
+          }
+        }
+      }
+    },
+    "New line": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नयाँ लाइन"
+          }
+        }
+      }
+    },
+    "Next": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अर्को"
+          }
+        }
+      }
+    },
+    "Numbers and symbols": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अंक र चिन्ह"
+          }
+        }
+      }
+    },
+    "Previous": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अघिल्लो"
+          }
+        }
+      }
+    },
+    "Romanized": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोमनाइज्ड"
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खोज्नुहोस्"
+          }
+        }
+      }
+    },
+    "Send": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पठाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Shift": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सिफ्ट"
+          }
+        }
+      }
+    },
+    "Space": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्पेस"
+          }
+        }
+      }
+    },
+    "Switch keyboard": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अर्को किबोर्ड"
+          }
+        }
+      }
+    },
+    "Traditional layout": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "परम्परागत लेआउट"
+          }
+        }
+      }
+    },
+    "नेपाली · Romanized": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली · रोमनाइज्ड"
+          }
+        }
+      }
+    },
+    "नेपाली · Traditional": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली · परम्परागत"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
