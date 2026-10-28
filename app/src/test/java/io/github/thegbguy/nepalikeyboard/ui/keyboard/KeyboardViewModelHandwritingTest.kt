@@ -47,7 +47,7 @@ class KeyboardViewModelHandwritingTest {
         override suspend fun deleteModel() { deleted = true }
     }
 
-    private lateinit var vm: KeyboardViewModel
+    private lateinit var vm: KeyboardController
     private lateinit var ic: InputConnection
     private lateinit var prefs: InMemoryKeyboardPrefs
     private lateinit var recognizer: FakeRecognizer
@@ -59,12 +59,12 @@ class KeyboardViewModelHandwritingTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         prefs = InMemoryKeyboardPrefs()
         recognizer = FakeRecognizer()
-        vm = KeyboardViewModel()
+        vm = KeyboardController()
         vm.prefs = prefs
         vm.handwritingRecognizer = recognizer
         ic = mockk(relaxed = true)
         every { ic.getTextBeforeCursor(any(), 0) } returns "म "
-        vm.inputConnectionProvider = { ic }
+        vm.editor = { InputConnectionEditor(ic) }
         vm.onInputStarted(textField)
     }
 

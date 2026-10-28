@@ -19,7 +19,7 @@ import org.junit.Test
 
 class KeyboardViewModelSmartTest {
 
-    private lateinit var vm: KeyboardViewModel
+    private lateinit var vm: KeyboardController
     private lateinit var ic: InputConnection
     private lateinit var prefs: InMemoryKeyboardPrefs
 
@@ -35,11 +35,11 @@ class KeyboardViewModelSmartTest {
     @Before
     fun setUp() {
         prefs = InMemoryKeyboardPrefs()
-        vm = KeyboardViewModel()
+        vm = KeyboardController()
         vm.prefs = prefs
         ic = mockk(relaxed = true)
         every { ic.getTextBeforeCursor(any(), 0) } answers { fieldText.takeLast(firstArg<Int>()) }
-        vm.inputConnectionProvider = { ic }
+        vm.editor = { InputConnectionEditor(ic) }
     }
 
     private fun labels() = vm.state.value.smartActions.map { it.label }

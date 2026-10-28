@@ -33,6 +33,8 @@ import io.github.thegbguy.nepalikeyboard.domain.transliteration.loadAsync
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.InputConnectionEditor
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardController
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardViewModel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.SharedKeyboardPrefs
 import io.github.thegbguy.nepalikeyboard.ui.setup.MicPermissionActivity
@@ -83,27 +85,27 @@ class NepaliIMEService : InputMethodService(),
         NepaliWordList.loadAsync(this)
         EmojiData.loadAsync(this)
 
-        keyboardViewModel.prefs = keyboardPrefs
-        keyboardViewModel.clipboardSource = SystemClipboardSource(this).also { source ->
+        keyboard.prefs = keyboardPrefs
+        keyboard.clipboardSource = SystemClipboardSource(this).also { source ->
             // Android only tells the default keyboard (or the focused app) about copies
-            source.observe { keyboardViewModel.onSystemCopy() }
+            source.observe { keyboard.onSystemCopy() }
         }
-        keyboardViewModel.clipboardStorage = FileClipboardStorage.shared(this)
+        keyboard.clipboardStorage = FileClipboardStorage.shared(this)
         // Nothing from ML Kit runs until the user opens handwriting and agrees
-        keyboardViewModel.handwritingRecognizer = MlKitHandwriting.shared(this)
-        keyboardPrefs.observe { keyboardViewModel.onPrefsChanged() }
-        keyboardViewModel.onRequestMicPermission = { MicPermissionActivity.start(this) }
-        MicPermissionActivity.onResult = { granted -> keyboardViewModel.onMicPermissionResult(granted) }
-        keyboardViewModel.onRequestShowKeyboard = {
+        keyboard.handwritingRecognizer = MlKitHandwriting.shared(this)
+        keyboardPrefs.observe { keyboard.onPrefsChanged() }
+        keyboard.onRequestMicPermission = { MicPermissionActivity.start(this) }
+        MicPermissionActivity.onResult = { granted -> keyboard.onMicPermissionResult(granted) }
+        keyboard.onRequestShowKeyboard = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) requestShowSelf(0)
         }
-        keyboardViewModel.onOpenSettings = {
+        keyboard.onOpenSettings = {
             startActivity(
                 Intent(this, MainActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             )
         }
-        keyboardViewModel.onSwitchKeyboard = {
+        keyboard.onSwitchKeyboard = {
             getSystemService(InputMethodManager::class.java)?.showInputMethodPicker()
         }
 
@@ -157,13 +159,13 @@ class NepaliIMEService : InputMethodService(),
 
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
 
-    private val keyboardViewModel: KeyboardViewModel
-        get() = ViewModelProvider(this)[KeyboardViewModel::class.java]
+    private val keyboard: KeyboardController
+        get() = ViewModelProvider(this)[KeyboardViewModel::class.java].controller
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
-        keyboardViewModel.inputConnectionProvider = { currentInputConnection }
-        keyboardViewModel.onInputStarted(FieldInfo.from(info), restarting)
+        keyboard.editor = { currentInputConnection?.let(::InputConnectionEditor) }
+        keyboard.onInputStarted(FieldInfo.from(info), restarting)
     }
 
     override fun onUpdateSelection(
@@ -175,18 +177,18 @@ class NepaliIMEService : InputMethodService(),
         candidatesEnd: Int
     ) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        keyboardViewModel.onSelectionChanged(newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        keyboard.onSelectionChanged(newSelStart, newSelEnd, candidatesStart, candidatesEnd)
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
-        keyboardViewModel.onInputFinished()
+        keyboard.onInputFinished()
         super.onFinishInputView(finishingInput)
     }
 
     override fun onDestroy() {
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         keyboardPrefs.stopObserving()
-        keyboardViewModel.clipboardSource?.observe(null)
+        keyboard.clipboardSource?.observe(null)
         speechRecognitionManager?.destroy()
         speechRecognitionManager = null
         super.onDestroy()

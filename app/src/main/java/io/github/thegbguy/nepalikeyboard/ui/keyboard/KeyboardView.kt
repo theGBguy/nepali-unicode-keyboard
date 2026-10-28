@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.thegbguy.nepalikeyboard.domain.voice.messageRes
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
@@ -107,10 +108,10 @@ private val PreviewHeight = 56.dp
  */
 @Composable
 fun KeyboardView(
-    viewModel: KeyboardViewModel = viewModel(),
+    keyboard: KeyboardController = viewModel<KeyboardViewModel>().controller,
     onInsetsChange: (visibleTop: Int, extraTop: Int) -> Unit = { _, _ -> }
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by keyboard.state.collectAsState()
     val colors = keyboardColors()
     val enterLabel = enterKeyLabel(state.field)
     val spaceLabel = stringResource(
@@ -174,11 +175,11 @@ fun KeyboardView(
                 bottomRowHeight = keyHeight,
                 feel = state.feel,
                 recents = state.emojiRecents,
-                onEmoji = { viewModel.onEmojiClick(it) },
-                onBackspace = { viewModel.onEmojiBackspace() },
-                onBackspaceRepeatStart = { viewModel.onBackspaceLongPressStart() },
-                onBackspaceRepeatEnd = { viewModel.onBackspaceLongPressEnd() },
-                onClose = { viewModel.closeEmoji() }
+                onEmoji = { keyboard.onEmojiClick(it) },
+                onBackspace = { keyboard.onEmojiBackspace() },
+                onBackspaceRepeatStart = { keyboard.onBackspaceLongPressStart() },
+                onBackspaceRepeatEnd = { keyboard.onBackspaceLongPressEnd() },
+                onClose = { keyboard.closeEmoji() }
             )
             Spacer(Modifier.height(RowGap))
         } else if (state.handwriting != null) {
@@ -192,17 +193,17 @@ fun KeyboardView(
                 phase = state.handwriting!!,
                 strokes = state.inkStrokes,
                 candidates = state.inkCandidates,
-                onAccept = { viewModel.onHandwritingAccept() },
-                onRetry = { viewModel.onHandwritingRetry() },
-                onStroke = { stroke, w, h -> viewModel.onInkStroke(stroke, w, h) },
-                onCandidate = { viewModel.onInkCandidate(it) },
-                onText = { viewModel.onInkText(it) },
-                onSpace = { viewModel.onInkSpace() },
-                onEnter = { viewModel.onInkEnter() },
-                onBackspace = { viewModel.onInkBackspace() },
-                onBackspaceRepeatStart = { viewModel.onBackspaceLongPressStart() },
-                onBackspaceRepeatEnd = { viewModel.onBackspaceLongPressEnd() },
-                onClose = { viewModel.closeHandwriting() }
+                onAccept = { keyboard.onHandwritingAccept() },
+                onRetry = { keyboard.onHandwritingRetry() },
+                onStroke = { stroke, w, h -> keyboard.onInkStroke(stroke, w, h) },
+                onCandidate = { keyboard.onInkCandidate(it) },
+                onText = { keyboard.onInkText(it) },
+                onSpace = { keyboard.onInkSpace() },
+                onEnter = { keyboard.onInkEnter() },
+                onBackspace = { keyboard.onInkBackspace() },
+                onBackspaceRepeatStart = { keyboard.onBackspaceLongPressStart() },
+                onBackspaceRepeatEnd = { keyboard.onBackspaceLongPressEnd() },
+                onClose = { keyboard.closeHandwriting() }
             )
             Spacer(Modifier.height(RowGap))
         } else if (state.showClipboard) {
@@ -214,14 +215,14 @@ fun KeyboardView(
                 feel = state.feel,
                 copied = state.copied,
                 items = state.clipItems,
-                onPaste = { viewModel.onClipPaste(it) },
-                onPin = { text, pinned -> viewModel.onClipPin(text, pinned) },
-                onDelete = { viewModel.onClipDelete(it) },
-                onClearAll = { viewModel.onClipClearAll() },
-                onBackspace = { viewModel.onEmojiBackspace() },
-                onBackspaceRepeatStart = { viewModel.onBackspaceLongPressStart() },
-                onBackspaceRepeatEnd = { viewModel.onBackspaceLongPressEnd() },
-                onClose = { viewModel.closeClipboard() }
+                onPaste = { keyboard.onClipPaste(it) },
+                onPin = { text, pinned -> keyboard.onClipPin(text, pinned) },
+                onDelete = { keyboard.onClipDelete(it) },
+                onClearAll = { keyboard.onClipClearAll() },
+                onBackspace = { keyboard.onEmojiBackspace() },
+                onBackspaceRepeatStart = { keyboard.onBackspaceLongPressStart() },
+                onBackspaceRepeatEnd = { keyboard.onBackspaceLongPressEnd() },
+                onClose = { keyboard.closeClipboard() }
             )
             Spacer(Modifier.height(RowGap))
         } else {
@@ -233,22 +234,22 @@ fun KeyboardView(
             latinText = if (state.showSuggestionBar) buffer.romanizedText else "",
             isListening = state.isVoiceListening,
             partialResult = state.partialVoiceResult,
-            errorMessage = state.voiceError,
+            errorMessage = state.voiceError?.messageRes,
             showMic = state.field.allowsVoice,
             showEmoji = !state.field.isPrivate && !state.field.prefersNumbers,
             showClipboard = !state.field.isPrivate,
             pasteSuggestion = state.pasteSuggestion?.let { if (it.sensitive) "" else it.text },
             smartActions = state.smartActions,
-            onSmartActionClick = { viewModel.onSmartActionClick(it) },
-            onEmojiClick = { viewModel.openEmoji() },
-            onClipboardClick = { viewModel.openClipboard() },
+            onSmartActionClick = { keyboard.onSmartActionClick(it) },
+            onEmojiClick = { keyboard.openEmoji() },
+            onClipboardClick = { keyboard.openClipboard() },
             showHandwriting = !state.field.isPrivate,
-            onHandwritingClick = { viewModel.openHandwriting() },
-            onPasteClick = { viewModel.onPasteSuggestion() },
-            onSettingsClick = { viewModel.openSettings() },
-            onSuggestionClick = { viewModel.onSuggestionClick(it) },
-            onKeepLatin = { viewModel.onKeepLatin() },
-            onMicClick = { viewModel.toggleVoiceInput() }
+            onHandwritingClick = { keyboard.openHandwriting() },
+            onPasteClick = { keyboard.onPasteSuggestion() },
+            onSettingsClick = { keyboard.openSettings() },
+            onSuggestionClick = { keyboard.onSuggestionClick(it) },
+            onKeepLatin = { keyboard.onKeepLatin() },
+            onMicClick = { keyboard.toggleVoiceInput() }
         )
 
         // The keys area eases to the new layout's height and clips while it does
@@ -276,14 +277,14 @@ fun KeyboardView(
                         colors = colors,
                         height = if (isNumberRow) numberRowKeyHeight else keyHeight,
                         feel = state.feel,
-                        onTap = { viewModel.onKeyClick(key) },
+                        onTap = { keyboard.onKeyClick(key) },
                         onLongPress = when {
-                            isLanguageKey -> ({ viewModel.onLanguageLongPress() })
-                            alternate != null -> ({ viewModel.onKeyLongPress(alternate) })
+                            isLanguageKey -> ({ keyboard.onLanguageLongPress() })
+                            alternate != null -> ({ keyboard.onKeyLongPress(alternate) })
                             else -> null
                         },
-                        onRepeatStart = if (isBackspace) ({ viewModel.onBackspaceLongPressStart() }) else null,
-                        onRepeatEnd = if (isBackspace) ({ viewModel.onBackspaceLongPressEnd() }) else null,
+                        onRepeatStart = if (isBackspace) ({ keyboard.onBackspaceLongPressStart() }) else null,
+                        onRepeatEnd = if (isBackspace) ({ keyboard.onBackspaceLongPressEnd() }) else null,
                         modifier = Modifier.weight(key.flex)
                     )
                 }
@@ -300,9 +301,9 @@ fun KeyboardView(
                 bottomOffset = keyHeight + RowGap + 8.dp,
                 style = state.nepaliStyle,
                 romanizedAllowed = state.field.allowsTransliteration,
-                onStyle = { viewModel.setNepaliStyle(it) },
-                onSwitchKeyboard = { viewModel.switchKeyboard() },
-                onDismiss = { viewModel.dismissLanguageMenu() }
+                onStyle = { keyboard.setNepaliStyle(it) },
+                onSwitchKeyboard = { keyboard.switchKeyboard() },
+                onDismiss = { keyboard.dismissLanguageMenu() }
             )
         }
     }

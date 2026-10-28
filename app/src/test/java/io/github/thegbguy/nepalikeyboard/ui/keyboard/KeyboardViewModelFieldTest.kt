@@ -20,7 +20,7 @@ import org.junit.Test
 
 class KeyboardViewModelFieldTest {
 
-    private lateinit var vm: KeyboardViewModel
+    private lateinit var vm: KeyboardController
     private lateinit var ic: InputConnection
 
     private val textField = FieldInfo.classify(InputType.TYPE_CLASS_TEXT, EditorInfo.IME_ACTION_DONE)
@@ -38,9 +38,9 @@ class KeyboardViewModelFieldTest {
 
     @Before
     fun setUp() {
-        vm = KeyboardViewModel()
+        vm = KeyboardController()
         ic = mockk(relaxed = true)
-        vm.inputConnectionProvider = { ic }
+        vm.editor = { InputConnectionEditor(ic) }
     }
 
     private fun language() = vm.state.value.currentLanguage
@@ -196,7 +196,7 @@ class KeyboardViewModelFieldTest {
         val second: InputConnection = mockk(relaxed = true)
         vm.onInputStarted(textField)
         vm.onKeyClick(KeyData("a"))
-        vm.inputConnectionProvider = { second }
+        vm.editor = { InputConnectionEditor(second) }
         vm.onKeyClick(KeyData("b"))
         verify { ic.commitText("a", 1) }
         verify { second.commitText("b", 1) }
@@ -266,7 +266,7 @@ class KeyboardViewModelFieldTest {
         vm.onKeyClick(globe) // to English
         assertEquals(false, stored.typeNepali)
 
-        val next = KeyboardViewModel().apply { prefs = stored }
+        val next = KeyboardController().apply { prefs = stored }
         next.onInputStarted(textField)
         assertEquals(LanguageMode.ENGLISH, next.state.value.currentLanguage)
     }
