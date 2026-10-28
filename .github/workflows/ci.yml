@@ -44,7 +44,22 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v6
+      # Kotlin/Native's compiler, LLVM and sysroot (~/.konan) aren't part of the Gradle cache.
+      # Keyed on the Kotlin version, so they're only downloaded again after a Kotlin bump.
+      - id: kotlin
+        run: echo "version=$(sed -n 's/^kotlin = "\(.*\)"/\1/p' gradle/libs.versions.toml)" >> "$GITHUB_OUTPUT"
+      - id: konan
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ runner.arch }}-${{ steps.kotlin.outputs.version }}
       - run: ./gradlew :shared:iosSimulatorArm64Test
+      # Saved from main only, like the Gradle cache; pull requests restore it
+      - if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.konan
+          key: ${{ steps.konan.outputs.cache-primary-key }}
       - if: failure()
         uses: actions/upload-artifact@v7
         with:
