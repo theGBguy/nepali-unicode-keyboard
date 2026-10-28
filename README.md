@@ -36,9 +36,9 @@ Release builds need an upload key. Copy `keystore.properties.example` to `keysto
 | Path | What's there |
 | --- | --- |
 | `app/src/main/java/.../service` | `InputMethodService` entry point |
-| `shared/src/commonMain` | Transliteration engine, calendar, numbers, units, smart suggestions, clipboard history, key layouts (Kotlin Multiplatform, shared with iOS, unit-tested) |
+| `shared/src/commonMain` | `KeyboardController` (what every key, panel and suggestion does), transliteration engine, calendar, numbers, units, smart suggestions, clipboard history, key layouts (Kotlin Multiplatform, shared with iOS, unit-tested) |
 | `app/src/main/java/.../domain`, `.../data` | Android-only parts: field types from `EditorInfo`, word list loading, voice, handwriting, clipboard |
-| `app/src/main/java/.../ui` | Compose keyboard, setup and settings screens |
+| `app/src/main/java/.../ui` | Compose keyboard (drawing `KeyboardController`'s state; `InputConnectionEditor` connects it to the field), setup and settings screens |
 | `app/src/main/assets` | Word list and emoji data |
 | `tools/wordlist`, `tools/emoji` | Scripts that regenerate the assets |
 | `fastlane/metadata` | Play listing text, changelogs and screenshots (English and Nepali) |

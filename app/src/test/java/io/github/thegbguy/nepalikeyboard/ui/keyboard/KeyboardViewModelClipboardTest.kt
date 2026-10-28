@@ -39,7 +39,7 @@ class KeyboardViewModelClipboardTest {
         }
     }
 
-    private lateinit var vm: KeyboardViewModel
+    private lateinit var vm: KeyboardController
     private lateinit var ic: InputConnection
     private lateinit var clipboard: FakeClipboard
     private lateinit var storage: InMemoryClipboardStorage
@@ -60,8 +60,8 @@ class KeyboardViewModelClipboardTest {
         clipboard = FakeClipboard()
         storage = InMemoryClipboardStorage()
         prefs = InMemoryKeyboardPrefs(typeNepali = false)
-        vm = KeyboardViewModel().also {
-            it.inputConnectionProvider = { ic }
+        vm = KeyboardController().also {
+            it.editor = { InputConnectionEditor(ic) }
             it.prefs = prefs
             it.clipboardSource = clipboard
             it.clipboardStorage = storage

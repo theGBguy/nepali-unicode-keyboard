@@ -1,10 +1,13 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.inputmethodservice.InputMethodService
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 
@@ -15,24 +18,27 @@ class ComposeKeyboardView(
 
     @Composable
     override fun Content() {
-        val viewModel: KeyboardViewModel = viewModel()
+        val keyboard = viewModel<KeyboardViewModel>().controller
 
         // Get InputConnection from the IME service
         val imeService = context as? InputMethodService
 
         // Read the current connection on every use; it changes with each focused field
         LaunchedEffect(imeService) {
-            viewModel.inputConnectionProvider = { imeService?.currentInputConnection }
+            keyboard.editor = { imeService?.currentInputConnection?.let(::InputConnectionEditor) }
         }
 
-        // Set up speech recognition manager with context for permission checking
+        // Set up speech recognition, with the app context for permission checking
         LaunchedEffect(speechRecognitionManager) {
             speechRecognitionManager?.let {
-                viewModel.setSpeechRecognitionManager(it, context)
+                val app = context.applicationContext
+                keyboard.setVoiceInput(it) {
+                    ContextCompat.checkSelfPermission(app, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+                }
             }
         }
 
-        KeyboardView(viewModel = viewModel, onInsetsChange = ::updateInsets)
+        KeyboardView(keyboard = keyboard, onInsetsChange = ::updateInsets)
     }
 
     /** Window y of the drawn keyboard's top; -1 until it has been laid out. */

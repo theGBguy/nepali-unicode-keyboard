@@ -1,8 +1,6 @@
 package io.github.thegbguy.nepalikeyboard.domain.voice
 
 import android.content.Context
-import androidx.annotation.StringRes
-import io.github.thegbguy.nepalikeyboard.R
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognitionListener
@@ -14,39 +12,27 @@ import android.util.Log
  * Manager class for handling speech recognition.
  * Wraps Android's SpeechRecognizer API with Nepali language support.
  */
-class SpeechRecognitionManager(private val context: Context) {
+class SpeechRecognitionManager(private val context: Context) : VoiceInput {
 
     companion object {
         private const val TAG = "NepaliVoiceRecognition"
     }
 
     private var speechRecognizer: SpeechRecognizer? = null
-    private var listener: SpeechRecognitionListener? = null
+    private var listener: VoiceListener? = null
     private var isListening = false
-
-    /**
-     * Listener interface for speech recognition events.
-     */
-    interface SpeechRecognitionListener {
-        fun onReadyForSpeech()
-        fun onBeginningOfSpeech()
-        fun onEndOfSpeech()
-        fun onResults(results: List<String>)
-        fun onError(@StringRes messageRes: Int)
-        fun onPartialResults(partialResults: List<String>)
-    }
 
     /**
      * Check if speech recognition is available on this device.
      */
-    fun isRecognitionAvailable(): Boolean {
+    override fun isRecognitionAvailable(): Boolean {
         return SpeechRecognizer.isRecognitionAvailable(context)
     }
 
     /**
      * Set the listener for speech recognition events.
      */
-    fun setListener(listener: SpeechRecognitionListener) {
+    override fun setListener(listener: VoiceListener) {
         this.listener = listener
     }
 
@@ -54,11 +40,11 @@ class SpeechRecognitionManager(private val context: Context) {
      * Start listening for speech input.
      * Uses Nepali (ne-NP) locale for recognition.
      */
-    fun startListening() {
+    override fun startListening() {
         if (isListening) return
 
         if (!isRecognitionAvailable()) {
-            listener?.onError(R.string.voice_error_unavailable)
+            listener?.onError(VoiceError.UNAVAILABLE)
             return
         }
 
@@ -82,7 +68,7 @@ class SpeechRecognitionManager(private val context: Context) {
             isListening = true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start speech recognition", e)
-            listener?.onError(R.string.voice_error_start_failed)
+            listener?.onError(VoiceError.START_FAILED)
             isListening = false
         }
     }
@@ -90,7 +76,7 @@ class SpeechRecognitionManager(private val context: Context) {
     /**
      * Stop listening for speech input.
      */
-    fun stopListening() {
+    override fun stopListening() {
         if (!isListening) return
 
         try {
@@ -117,7 +103,7 @@ class SpeechRecognitionManager(private val context: Context) {
      * Release all resources.
      * Call this when the manager is no longer needed.
      */
-    fun destroy() {
+    override fun destroy() {
         cancel()
         try {
             speechRecognizer?.destroy()
@@ -157,7 +143,7 @@ class SpeechRecognitionManager(private val context: Context) {
             override fun onError(error: Int) {
                 isListening = false
                 Log.e(TAG, "Speech recognition error code: $error")
-                listener?.onError(errorMessageRes(error))
+                listener?.onError(voiceError(error))
             }
 
             override fun onResults(results: Bundle?) {
@@ -167,7 +153,7 @@ class SpeechRecognitionManager(private val context: Context) {
                     listener?.onResults(matches)
                 } else {
                     Log.d(TAG, "No speech results detected")
-                    listener?.onError(R.string.voice_error_no_speech)
+                    listener?.onError(VoiceError.NO_SPEECH)
                 }
             }
 
@@ -184,20 +170,19 @@ class SpeechRecognitionManager(private val context: Context) {
         }
     }
 
-    @StringRes
-    private fun errorMessageRes(errorCode: Int): Int {
+    private fun voiceError(errorCode: Int): VoiceError {
         return when (errorCode) {
-            SpeechRecognizer.ERROR_AUDIO -> R.string.voice_error_audio
-            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> R.string.voice_error_mic_permission
+            SpeechRecognizer.ERROR_AUDIO -> VoiceError.AUDIO
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> VoiceError.MIC_PERMISSION
             SpeechRecognizer.ERROR_NETWORK,
-            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> R.string.voice_error_network
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> VoiceError.NETWORK
             SpeechRecognizer.ERROR_NO_MATCH,
-            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.voice_error_no_speech
-            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> R.string.voice_error_busy
-            SpeechRecognizer.ERROR_SERVER -> R.string.voice_error_server
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> VoiceError.NO_SPEECH
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> VoiceError.BUSY
+            SpeechRecognizer.ERROR_SERVER -> VoiceError.SERVER
             SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED,
-            SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE -> R.string.voice_error_language
-            else -> R.string.voice_error_generic
+            SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE -> VoiceError.LANGUAGE
+            else -> VoiceError.GENERIC
         }
     }
 }
