@@ -29,6 +29,13 @@ Requirements: Android Studio (or the Gradle wrapper) and JDK 17.
 ./gradlew :shared:iosSimulatorArm64Test # shared tests on the iOS simulator (macOS only)
 ```
 
+The iOS app (a setup screen plus the keyboard extension) is in `iosApp/`. Open `iosApp/NepaliKeyboard.xcodeproj` in Xcode 26 and run the `NepaliKeyboard` scheme; a build phase runs Gradle to build the shared Kotlin framework, so JDK 17 is needed here too. The project is generated from `iosApp/project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen): after editing that file, run `xcodegen generate` in `iosApp/`. New Swift files need no regeneration.
+
+```sh
+xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard \
+  -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+```
+
 Release builds need an upload key. Copy `keystore.properties.example` to `keystore.properties` and fill it in, or set `PLAY_STORE_STORE_FILE`, `PLAY_STORE_STORE_PASSWORD`, `PLAY_STORE_KEY_ALIAS` and `PLAY_STORE_KEY_PASSWORD`.
 
 ## Project layout
@@ -39,7 +46,8 @@ Release builds need an upload key. Copy `keystore.properties.example` to `keysto
 | `shared/src/commonMain` | `KeyboardController` (what every key, panel and suggestion does), transliteration engine, calendar, numbers, units, smart suggestions, clipboard history, key layouts (Kotlin Multiplatform, shared with iOS, unit-tested) |
 | `app/src/main/java/.../domain`, `.../data` | Android-only parts: field types from `EditorInfo`, word list loading, voice, handwriting, clipboard |
 | `app/src/main/java/.../ui` | Compose keyboard (drawing `KeyboardController`'s state; `InputConnectionEditor` connects it to the field), setup and settings screens |
-| `app/src/main/assets` | Word list and emoji data |
+| `app/src/main/assets` | Word list and emoji data (the iOS keyboard bundles the same word list) |
+| `iosApp/App`, `iosApp/Keyboard` | iOS setup app and keyboard extension (SwiftUI over `KeyboardController`; `ProxyEditor` connects it to the field) |
 | `tools/wordlist`, `tools/emoji` | Scripts that regenerate the assets |
 | `fastlane/metadata` | Play listing text, changelogs and screenshots (English and Nepali) |
 

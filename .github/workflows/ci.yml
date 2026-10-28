@@ -54,6 +54,10 @@ jobs:
           path: ~/.konan
           key: konan-${{ runner.os }}-${{ runner.arch }}-${{ steps.kotlin.outputs.version }}
       - run: ./gradlew :shared:iosSimulatorArm64Test
+      - name: Build the iOS app and keyboard
+        run: >
+          xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard
+          -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
       # Saved from main only, like the Gradle cache; pull requests restore it
       - if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
