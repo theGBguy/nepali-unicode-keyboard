@@ -85,6 +85,18 @@ class KeyboardControllerTest {
     }
 
     @Test
+    fun `backspace on the only Romanized letter removes it`() {
+        field.text = "a "
+        keyboard.onKeyClick(globe)
+        type("y")
+        keyboard.onKeyClick(backspace)
+        assertEquals("a ", field.shown)
+        assertTrue(keyboard.state.value.transliterationBuffer.isEmpty())
+        keyboard.onKeyClick(backspace)
+        assertEquals("a", field.shown)
+    }
+
+    @Test
     fun `a full stop ends the Romanized word as a danda`() {
         keyboard.onKeyClick(globe)
         type("namaste.")

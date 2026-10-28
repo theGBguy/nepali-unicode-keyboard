@@ -859,6 +859,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope = { MainScope() }) {
                     }
 
                     if (newBuffer.isEmpty()) {
+                        // Remove the last letter: finishing composing would keep it as typed
+                        inputConnection?.setComposingText("")
                         inputConnection?.finishComposingText()
                     } else {
                         // Show romanized text, not Devanagari
