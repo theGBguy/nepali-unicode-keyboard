@@ -1,0 +1,40 @@
+Nepali Unicode Keyboard
+Copyright (C) 2026 Chiranjeevi Pandey
+
+The source code is licensed under the GNU General Public License v3.0 (see LICENSE).
+
+Additional permission under GNU GPL version 3 section 7
+
+If you modify this program, or any covered work, by linking or combining it with
+Google ML Kit or Google Play services (or a modified version of those libraries),
+containing parts covered by the terms of their respective licences, the licensors
+of this program grant you additional permission to convey the resulting work.
+
+Name and icon
+
+"Nepali Unicode Keyboard" and the app icon are not licensed under the GPL. Forks
+must use a different name, icon and application ID.
+
+Third-party material
+
+- app/src/main/assets/words_ne.tsv
+  Contains word frequencies derived from Nepali Wikipedia
+  (https://ne.wikipedia.org), licensed under CC BY-SA 4.0
+  (https://creativecommons.org/licenses/by-sa/4.0/). The word list as a whole is
+  shared under CC BY-SA 4.0, not the GPL. tools/wordlist/colloquial_ne.tsv was
+  written for this project and is part of the same list.
+
+- app/src/main/assets/emoji.tsv, tools/emoji/emoji-test.txt
+  Derived from Unicode emoji data, Copyright (C) Unicode, Inc., Unicode License v3
+  (https://www.unicode.org/license.txt).
+
+- Bikram Sambat month lengths in domain/calendar/BsCalendar.kt
+  From nepali-date-pro-max by l3lackcurtains
+  (https://github.com/l3lackcurtains/nepali-date-pro-max), MIT License.
+
+- app/src/main/res/drawable/ic_ui_*.xml
+  Google Material Symbols, Apache License 2.0.
+
+Libraries (Jetpack Compose, AndroidX, Kotlin, kotlinx.coroutines) are under the
+Apache License 2.0. Google ML Kit Digital Ink Recognition is used under the
+ML Kit terms of service (https://developers.google.com/ml-kit/terms).

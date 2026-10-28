@@ -23,3 +23,8 @@ keystore.properties
 # Staging copy of design/screenshots for gpc images sync
 /fastlane/screenshots/
 .local-archive/
+__pycache__/
+*.pyc
+# Internal plans, legal-page generator, icon and store-asset generators: kept locally, not published
+/docs/
+/design/
