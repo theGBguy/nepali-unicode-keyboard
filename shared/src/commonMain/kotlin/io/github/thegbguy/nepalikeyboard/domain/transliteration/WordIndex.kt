@@ -60,6 +60,9 @@ class WordIndex private constructor(
         const val DISTANCE_PENALTY = 2.0
         private const val MAX_COMPLETION_KEYS = 400
 
+        /** [build] from the whole file's text (for Swift, which can't make a Kotlin Sequence). */
+        fun parse(text: String): WordIndex = build(text.lineSequence())
+
         fun build(lines: Sequence<String>): WordIndex {
             val byKey = HashMap<String, MutableList<Entry>>()
             val frequencies = HashMap<String, Int>()

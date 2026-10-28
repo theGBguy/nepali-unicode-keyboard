@@ -177,6 +177,35 @@ class KeyboardControllerTest {
         assertEquals(emptyList(), storage.load())
     }
 
+    @Test
+    fun `moving the cursor away from the Romanized word ends it`() {
+        keyboard.onKeyClick(globe)
+        type("ghar")
+        keyboard.onCursorMoved(stillComposing = true, hasComposing = true, hasSelection = false)
+        assertEquals("ghar", keyboard.currentState.transliterationBuffer.romanizedText)
+
+        keyboard.onCursorMoved(stillComposing = false, hasComposing = true, hasSelection = false)
+        assertTrue(keyboard.currentState.transliterationBuffer.isEmpty())
+        assertEquals("ghar", field.text) // kept as typed, like Android's finishComposingText
+        type("a")
+        assertEquals("a", field.composing)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `watchState reports the current state and each change`() = runTest {
+        val watched = KeyboardController { backgroundScope }.also { it.editor = { field } }
+        val seen = mutableListOf<LanguageMode>()
+        val watch = watched.watchState { seen += it.currentLanguage }
+        runCurrent()
+        watched.onKeyClick(globe)
+        runCurrent()
+        watch.cancel()
+        watched.onKeyClick(globe)
+        runCurrent()
+        assertEquals(listOf(LanguageMode.ENGLISH, LanguageMode.TRANSLITERATION), seen)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `holding backspace keeps deleting until it's released`() = runTest {

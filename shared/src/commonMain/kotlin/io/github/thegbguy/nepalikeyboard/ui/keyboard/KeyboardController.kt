@@ -53,7 +53,10 @@ private fun nowMillis(): Long = Clock.System.now().toEpochMilliseconds()
  * Coroutines (backspace repeat, handwriting, voice) run in the scope from [scopeFactory], made on
  * first use; [close] cancels it.
  */
-class KeyboardController(scopeFactory: () -> CoroutineScope = { MainScope() }) {
+class KeyboardController(scopeFactory: () -> CoroutineScope) {
+
+    /** Runs coroutines on the main thread (Swift can't use Kotlin default arguments). */
+    constructor() : this({ MainScope() })
 
     private val scopeDelegate = lazy(scopeFactory)
     private val scope: CoroutineScope by scopeDelegate
@@ -1004,22 +1007,41 @@ class KeyboardController(scopeFactory: () -> CoroutineScope = { MainScope() }) {
      *
      * @param composingStart start of the composing region, or -1 if there is none
      */
-    fun onSelectionChanged(selStart: Int, selEnd: Int, composingStart: Int, composingEnd: Int) {
-        if (_state.value.transliterationBuffer.isNotEmpty()) {
-            val stillComposing = composingStart >= 0 && selStart == selEnd && selEnd == composingEnd
-            if (!stillComposing) {
-                if (composingStart >= 0) inputConnection?.finishComposingText()
-                _state.update {
-                    it.copy(
-                        transliterationBuffer = TransliterationBuffer(),
-                        suggestions = emptyList(),
-                        showSuggestionBar = false
-                    )
-                }
+    fun onSelectionChanged(selStart: Int, selEnd: Int, composingStart: Int, composingEnd: Int) =
+        onCursorMoved(
+            stillComposing = composingStart >= 0 && selStart == selEnd && selEnd == composingEnd,
+            hasComposing = composingStart >= 0,
+            hasSelection = selStart != selEnd
+        )
+
+    /**
+     * The same, for platforms that don't report positions (iOS): [stillComposing] says whether the
+     * cursor still sits right after the Romanized word, [hasComposing] whether the field still
+     * shows it as composing text.
+     */
+    fun onCursorMoved(stillComposing: Boolean, hasComposing: Boolean, hasSelection: Boolean) {
+        if (_state.value.transliterationBuffer.isNotEmpty() && !stillComposing) {
+            if (hasComposing) inputConnection?.finishComposingText()
+            _state.update {
+                it.copy(
+                    transliterationBuffer = TransliterationBuffer(),
+                    suggestions = emptyList(),
+                    showSuggestionBar = false
+                )
             }
         }
-        refreshSmartActions(hasSelection = selStart != selEnd)
+        refreshSmartActions(hasSelection = hasSelection)
     }
+
+    /**
+     * Calls [onEach] with the current state and then every change, in the controller's scope (the
+     * main thread). For Swift, which can't collect a Flow; [StateWatch.cancel] stops it.
+     */
+    fun watchState(onEach: (KeyboardState) -> Unit): StateWatch =
+        StateWatch(scope.launch { state.collect { onEach(it) } })
+
+    /** The current state, for Swift (StateFlow's value loses its type there). */
+    val currentState: KeyboardState get() = _state.value
 
     /**
      * Looks at the text before the cursor and offers conversions of it in the strip. Runs on
@@ -1290,6 +1312,11 @@ class KeyboardController(scopeFactory: () -> CoroutineScope = { MainScope() }) {
         /** How long after a copy the strip offers Paste. */
         const val PASTE_SUGGESTION_WINDOW_MS = 2 * 60 * 1000L
     }
+}
+
+/** A running [KeyboardController.watchState]. */
+class StateWatch internal constructor(private val job: Job) {
+    fun cancel() = job.cancel()
 }
 
 /**
