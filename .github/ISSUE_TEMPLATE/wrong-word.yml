@@ -1,0 +1,42 @@
+name: Wrong or missing word
+description: A Romanized spelling gives the wrong Nepali word, or a word is missing.
+title: "Word: "
+labels: ["word"]
+body:
+  - type: input
+    id: typed
+    attributes:
+      label: What you typed
+      placeholder: dherai
+    validations:
+      required: true
+  - type: input
+    id: got
+    attributes:
+      label: What you got
+      description: The first suggestion, or "nothing" if the word didn't appear.
+      placeholder: धेरइ
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: What you expected
+      placeholder: धेरै
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Typing mode
+      options:
+        - Romanized
+        - Traditional
+        - Handwriting
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Other spellings people use for this word, or the sentence you were typing.

@@ -49,7 +49,7 @@ The keyboard collects no data. See the [privacy policy](https://nepali-indie-dev
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run the unit tests before opening a PR. The tests for the transliteration engine check real words against the word list, so include a test case for any word you fix.
+Word reports, bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to report a wrong word, the pull request rules and commit sign-off. Report security or privacy problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 

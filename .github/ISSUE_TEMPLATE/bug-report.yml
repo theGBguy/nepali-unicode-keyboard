@@ -1,0 +1,34 @@
+name: Bug report
+description: A crash, a wrong character, a key that does nothing.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what happened instead. Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open WhatsApp and tap the message field
+        2. Switch to Romanized
+        3. ...
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Settings, at the bottom.
+      placeholder: "1.2.1"
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Phone and Android version
+      placeholder: Samsung Galaxy A54, Android 14
+    validations:
+      required: true
