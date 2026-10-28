@@ -4,6 +4,7 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.domain.model.classify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

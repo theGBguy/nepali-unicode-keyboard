@@ -8,7 +8,7 @@
 
 ## Checklist
 
-- [ ] `./gradlew :app:testDebugUnitTest` passes
+- [ ] `./gradlew :app:testDebugUnitTest :shared:testAndroidHostTest` passes
 - [ ] New user-facing text is in both `values/strings.xml` and `values-ne/strings.xml` (or I've said I need help with the Nepali)
 - [ ] No new permissions, network calls, analytics or dependencies
 - [ ] Commits are signed off (`git commit -s`)

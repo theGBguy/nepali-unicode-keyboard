@@ -7,6 +7,7 @@ import io.github.thegbguy.nepalikeyboard.domain.handwriting.HandwritingRecognize
 import io.github.thegbguy.nepalikeyboard.domain.handwriting.InkPoint
 import io.github.thegbguy.nepalikeyboard.domain.handwriting.InkStroke
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
+import io.github.thegbguy.nepalikeyboard.domain.model.classify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

@@ -11,6 +11,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyType
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.domain.model.classify
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder

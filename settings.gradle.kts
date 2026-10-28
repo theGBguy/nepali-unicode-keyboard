@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Nepali Keyboard"
 include(":app")
+include(":shared")
