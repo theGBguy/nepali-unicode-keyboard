@@ -25,7 +25,8 @@ Requirements: Android Studio (or the Gradle wrapper) and JDK 17.
 
 ```sh
 ./gradlew :app:assembleDebug     # debug APK, no signing setup needed
-./gradlew :app:testDebugUnitTest # unit tests
+./gradlew :app:testDebugUnitTest :shared:testAndroidHostTest # unit tests
+./gradlew :shared:iosSimulatorArm64Test # shared tests on the iOS simulator (macOS only)
 ```
 
 Release builds need an upload key. Copy `keystore.properties.example` to `keystore.properties` and fill it in, or set `PLAY_STORE_STORE_FILE`, `PLAY_STORE_STORE_PASSWORD`, `PLAY_STORE_KEY_ALIAS` and `PLAY_STORE_KEY_PASSWORD`.
@@ -35,7 +36,8 @@ Release builds need an upload key. Copy `keystore.properties.example` to `keysto
 | Path | What's there |
 | --- | --- |
 | `app/src/main/java/.../service` | `InputMethodService` entry point |
-| `app/src/main/java/.../domain` | Transliteration engine, calendar, numbers, units, smart suggestions (plain Kotlin, unit-tested) |
+| `shared/src/commonMain` | Transliteration engine, calendar, numbers, units, smart suggestions, clipboard history, key layouts (Kotlin Multiplatform, shared with iOS, unit-tested) |
+| `app/src/main/java/.../domain`, `.../data` | Android-only parts: field types from `EditorInfo`, word list loading, voice, handwriting, clipboard |
 | `app/src/main/java/.../ui` | Compose keyboard, setup and settings screens |
 | `app/src/main/assets` | Word list and emoji data |
 | `tools/wordlist`, `tools/emoji` | Scripts that regenerate the assets |

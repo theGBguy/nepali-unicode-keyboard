@@ -22,7 +22,7 @@ You need Android Studio (or the Gradle wrapper) and JDK 17. A debug build needs 
 
 ```sh
 ./gradlew :app:assembleDebug
-./gradlew :app:testDebugUnitTest
+./gradlew :app:testDebugUnitTest :shared:testAndroidHostTest
 ```
 
 ### Fixing words
