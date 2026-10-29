@@ -24,6 +24,11 @@ enum KeyboardMetrics {
         isNumberRow(row) ? keyHeight - numberRowInset : keyHeight
     }
 
+    /** What a panel (emoji) replaces: the strip and the rows with the gaps between them. */
+    static func panelHeight(of state: KeyboardState) -> CGFloat {
+        height(of: state) - bottomPadding - rowGap
+    }
+
     /** The whole keyboard: strip, rows and their gaps, bottom padding. */
     static func height(of state: KeyboardState) -> CGFloat {
         let keyHeight = keyHeight(state)

@@ -4,7 +4,7 @@ import NepaliKeyboardShared
 /**
  * The 40 pt row above the keys. Shows Romanized suggestions (best guess in bold, then a smart
  * suggestion or the next guess, then the Latin text as typed) or smart suggestions. It keeps its
- * height when empty so the keyboard never jumps. Emoji, clipboard and settings come later.
+ * height when empty so the keyboard never jumps; with nothing to suggest it shows the emoji button.
  */
 struct KeyboardStripView: View {
     @ObservedObject var model: KeyboardModel
@@ -18,6 +18,16 @@ struct KeyboardStripView: View {
 
         GeometryReader { geometry in
             let slots = slots(latin: latin, buffer: buffer, smart: smart)
+            if slots.isEmpty {
+                // Nothing to suggest: the panel buttons, like Android's strip
+                HStack(spacing: 0) {
+                    if !state.field.isPrivate && !state.field.prefersNumbers {
+                        iconButton("face.smiling", label: String(localized: "Emoji")) { model.openEmoji() }
+                    }
+                    Spacer(minLength: 0)
+                }
+                .frame(maxHeight: .infinity)
+            } else {
             let dividers = CGFloat(max(slots.count - 1, 0))
             let unit = (geometry.size.width - dividers) / max(slots.reduce(0) { $0 + $1.weight }, 1)
             HStack(spacing: 0) {
@@ -27,8 +37,24 @@ struct KeyboardStripView: View {
                 }
             }
             .frame(maxHeight: .infinity)
+            }
         }
         .padding(.horizontal, 4)
+    }
+
+    private func iconButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button {
+            model.keyDown()
+            action()
+        } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 20))
+                .foregroundStyle(colors.hint)
+                .frame(width: 48, height: KeyboardMetrics.stripHeight)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(label))
     }
 
     private enum Slot {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		17D57443FC2C66966F4E98D0 /* words_ne.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 3B84A07FE0645CB3CF19E15B /* words_ne.tsv */; };
+		218E73FD84778E2B4AC2C4EA /* emoji.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 23EDEBCB90A18B273AC597D4 /* emoji.tsv */; };
 		7FE35C469ACC666E3DED05DC /* NepaliKeyboardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23EDEBCB90A18B273AC597D4 /* emoji.tsv */ = {isa = PBXFileReference; path = emoji.tsv; sourceTree = "<group>"; };
 		3B84A07FE0645CB3CF19E15B /* words_ne.tsv */ = {isa = PBXFileReference; path = words_ne.tsv; sourceTree = "<group>"; };
 		A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NepaliKeyboardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70AE527B4B79681B96BE64B /* NepaliKeyboard.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NepaliKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,6 +104,7 @@
 		26661E20651A467C402A5CDD /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				23EDEBCB90A18B273AC597D4 /* emoji.tsv */,
 				3B84A07FE0645CB3CF19E15B /* words_ne.tsv */,
 			);
 			path = assets;
@@ -234,6 +237,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				218E73FD84778E2B4AC2C4EA /* emoji.tsv in Resources */,
 				17D57443FC2C66966F4E98D0 /* words_ne.tsv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
