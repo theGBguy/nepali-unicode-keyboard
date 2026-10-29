@@ -12,9 +12,10 @@
 			<false/>
 			<key>PrimaryLanguage</key>
 			<string>ne-NP</string>
-			<!-- No Full Access: the keyboard has no network, no shared container and no clipboard reads yet -->
+			<!-- Full Access is opt-in and only needed for clipboard history (and impact haptics):
+			     without it iOS hides the pasteboard from keyboards. Everything else works with it off -->
 			<key>RequestsOpenAccess</key>
-			<false/>
+			<true/>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.keyboard-service</string>

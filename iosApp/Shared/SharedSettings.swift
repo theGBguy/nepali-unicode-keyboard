@@ -22,6 +22,26 @@ enum SharedSettings {
         static let smartSuggestions = "smart_suggestions"
         static let sound = "sound"
         static let vibrate = "vibrate"
+        static let clipboardHistory = "clipboard_history"
+    }
+
+    /**
+     * The keyboard's clipboard history (Android's text format). Only the keyboard writes it, and
+     * only with Full Access; the app can delete it.
+     */
+    static var clipboardFile: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID)?
+            .appendingPathComponent("clipboard.txt")
+    }
+
+    static func clearClipboardHistory() {
+        guard let file = clipboardFile else { return }
+        try? FileManager.default.removeItem(at: file)
+    }
+
+    static var hasClipboardHistory: Bool {
+        guard let file = clipboardFile else { return false }
+        return FileManager.default.fileExists(atPath: file.path)
     }
 
     /**

@@ -19,10 +19,17 @@ struct KeyboardStripView: View {
         GeometryReader { geometry in
             let slots = slots(latin: latin, buffer: buffer, smart: smart)
             if slots.isEmpty {
-                // Nothing to suggest: the panel buttons, like Android's strip
+                // Nothing to suggest: the panel buttons and a recent copy, like Android's strip
                 HStack(spacing: 0) {
                     if !state.field.isPrivate && !state.field.prefersNumbers {
                         iconButton("face.smiling", label: String(localized: "Emoji")) { model.openEmoji() }
+                    }
+                    if !state.field.isPrivate {
+                        iconButton("clipboard", label: String(localized: "Clipboard")) { model.openClipboard() }
+                    }
+                    if model.canPaste && !state.field.isPrivate {
+                        divider
+                        pasteButton
                     }
                     Spacer(minLength: 0)
                 }
@@ -55,6 +62,25 @@ struct KeyboardStripView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(label))
+    }
+
+    /**
+     * Offered when something new was copied. Plain "Paste" rather than a preview: reading the
+     * text makes iOS ask "Allow Paste", so it's read only when tapped.
+     */
+    private var pasteButton: some View {
+        Button {
+            model.keyDown()
+            model.pasteSuggestion()
+        } label: {
+            Text("Paste")
+                .font(.system(size: 15))
+                .foregroundStyle(colors.keyText)
+                .padding(.horizontal, 12)
+                .frame(maxHeight: .infinity)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private enum Slot {

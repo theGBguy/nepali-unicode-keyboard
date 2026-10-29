@@ -37,6 +37,9 @@ struct KeyboardRootView: View {
                     // In place of the strip and rows, at their height
                     EmojiPanel(model: model, state: state, colors: colors,
                                height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
+                } else if state.showClipboard {
+                    ClipboardPanel(model: model, state: state, colors: colors,
+                                   height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
                 } else {
                     KeyboardStripView(model: model, state: state, colors: colors)
                         .frame(height: KeyboardMetrics.stripHeight)

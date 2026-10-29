@@ -1,12 +1,72 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Cancel": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रद्द गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मेटाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Clear clipboard history": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्लिपबोर्ड इतिहास मेटाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Clear clipboard history?": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्लिपबोर्ड इतिहास मेटाउने?"
+          }
+        }
+      }
+    },
+    "Clipboard history": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्लिपबोर्ड इतिहास"
+          }
+        }
+      }
+    },
     "Dates, amounts and units as you type": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "टाइप गर्दा मिति, रकम र एकाइ"
+          }
+        }
+      }
+    },
+    "Full Access": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Access"
           }
         }
       }
@@ -57,6 +117,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "कीको उचाइ"
+          }
+        }
+      }
+    },
+    "Needs Full Access. Kept on this iPhone only.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Access चाहिन्छ। यही iPhone मा मात्र रहन्छ।"
           }
         }
       }
@@ -181,6 +251,16 @@
         }
       }
     },
+    "Source code": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सोर्स कोड"
+          }
+        }
+      }
+    },
     "Switch to it": {
       "localizations": {
         "ne": {
@@ -207,6 +287,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "अ/A कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
+          }
+        }
+      }
+    },
+    "This removes every saved item, including pinned ones.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिन गरिएका सहित सबै सेभ गरिएका कुरा हट्छन्।"
           }
         }
       }
