@@ -98,7 +98,7 @@ final class KeyboardModel: ObservableObject {
 
     /** A key went down: click and/or tap, as set in the app. */
     func keyDown() {
-        KeyFeedback.keyDown(sound: state.feel.sound, vibrate: state.feel.vibrate)
+        KeyFeedback.keyDown(sound: state.feel.sound, vibrate: state.feel.vibrate, fullAccess: hasFullAccess)
     }
 
     func tap(_ key: KeyData) {
