@@ -72,6 +72,11 @@ object SoundKey {
         return if (following == HALANT || following in vowelSigns) "" else "a"
     }
 
+    // Compiled once: these run for every word while the word list loads and on every key press
+    private val loneC = Regex("c(?!h)")
+    private val accentMarks = Regex("[~^]")
+    private val mBeforeConsonant = Regex("m(?=[^aeiou])")
+
     /** Lowercase and fold spelling variants that sound the same. */
     fun normalize(roman: String): String {
         var s = roman.lowercase()
@@ -79,7 +84,7 @@ object SoundKey {
             .replace("w", "v").replace("f", "ph").replace("q", "k").replace("z", "j")
             .replace("x", "ksh")
         // A lone "c" (not "ch") is ch
-        s = Regex("c(?!h)").replace(s, "ch")
+        s = loneC.replace(s, "ch")
         return s
     }
 
@@ -91,7 +96,7 @@ object SoundKey {
             .replace("jh", "J").replace("th", "T").replace("dh", "D").replace("ph", "P")
             .replace("bh", "B").replace("sh", "s").replace("v", "b")
             .replace("aa", "a").replace("ii", "i").replace("uu", "u")
-            .replace(Regex("[~^]"), "")
+            .replace(accentMarks, "")
         // Drop the "a" after a consonant: whether it's written, long or inherent varies by typist
         val out = StringBuilder()
         for (i in s.indices) {
@@ -101,7 +106,7 @@ object SoundKey {
         }
         s = out.toString()
         // m before a consonant is usually anusvara (sambidhan = संविधान)
-        s = Regex("m(?=[^aeiou])").replace(s, "n")
+        s = mBeforeConsonant.replace(s, "n")
         return s
     }
 
