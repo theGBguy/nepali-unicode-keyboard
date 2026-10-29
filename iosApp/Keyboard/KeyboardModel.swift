@@ -25,7 +25,10 @@ final class KeyboardModel: ObservableObject {
         let editor = ProxyEditor(controller: inputController)
         self.editor = editor
         controller.editor = { editor }
-        controller.prefs = DefaultsKeyboardPrefs()
+        // The App Group is writable only with Full Access
+        controller.prefs = DefaultsKeyboardPrefs(canWriteGroup: { [weak inputController] in
+            inputController?.hasFullAccess ?? false
+        })
         controller.onSwitchKeyboard = { [weak inputController] in inputController?.advanceToNextInputMode() }
         watch = controller.watchState { [weak self] state in
             self?.state = state
