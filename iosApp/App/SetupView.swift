@@ -78,10 +78,14 @@ struct SetupView: View {
             let screen = UIScreen.main.bounds.height
             keyboardHeight = max(screen - frame.minY, 0)
         }
-        // Also after it resizes: a third-party keyboard sets its height only once it's on screen
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidChangeFrameNotification)) { _ in
+        // Scroll once the inset for the keyboard's new height is laid out: a third-party keyboard
+        // first reports only its bottom strip, then its full height once it's on screen, and a
+        // scroll in the same run-loop turn as the inset change still sees the old inset
+        .onChange(of: keyboardHeight) { _ in
             guard tryFocused else { return }
-            withAnimation { scroller.scrollTo(Self.tryHint, anchor: .bottom) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                withAnimation { scroller.scrollTo(Self.tryHint, anchor: .bottom) }
+            }
         }
         // Back from Settings: the keyboard may have been added or removed there
         .onChange(of: scenePhase) { phase in
