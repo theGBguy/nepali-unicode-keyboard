@@ -33,7 +33,7 @@ You need Android Studio (or the Gradle wrapper) and JDK 17. A debug build needs 
 
 ### Pull request rules
 
-- Unit tests pass. CI runs them on every pull request.
+- Unit tests pass. CI runs them on every pull request, and a pull request must be up to date with `main` to merge (use **Update branch** if it isn't), so `main` is always what CI tested.
 - New user-facing text goes in both `app/src/main/res/values/strings.xml` and `values-ne/strings.xml`. If you can't write the Nepali, say so in the PR and it'll be translated before merge.
 - **No new permissions, network calls, analytics or tracking.** The app promises that nothing you type leaves the phone, and every change has to keep that promise.
 - No new dependency without asking first.
