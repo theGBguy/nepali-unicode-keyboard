@@ -31,6 +31,8 @@ Requirements: Android Studio (or the Gradle wrapper) and JDK 17.
 
 The iOS app (one screen with setup steps, settings and a try-it field, plus the keyboard extension) is in `iosApp/`. Open `iosApp/NepaliKeyboard.xcodeproj` in Xcode 26 and run the `NepaliKeyboard` scheme; a build phase runs Gradle to build the shared Kotlin framework, so JDK 17 is needed here too. The project is generated from `iosApp/project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen): after editing that file, run `xcodegen generate` in `iosApp/`. New Swift files need no regeneration.
 
+On iOS, clipboard history is the only feature that needs **Allow Full Access** (iOS hides the pasteboard from keyboards without it). It's opt-in and everything else works with it off. The history is kept in the App Group (`clipboard.txt`), never leaves the phone, and can be cleared from the app. Reading a copy from another app makes iOS ask "Allow Paste" (Settings → Nepali Keyboard → Paste from Other Apps), so the keyboard reads the pasteboard only when you tap Paste or open the clipboard panel.
+
 ```sh
 xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
@@ -48,7 +50,7 @@ Release builds need an upload key. Copy `keystore.properties.example` to `keysto
 | `app/src/main/java/.../ui` | Compose keyboard (drawing `KeyboardController`'s state; `InputConnectionEditor` connects it to the field), setup and settings screens |
 | `app/src/main/assets` | Word list and emoji data (the iOS keyboard bundles the same word list) |
 | `iosApp/App`, `iosApp/Keyboard` | iOS setup app and keyboard extension (SwiftUI over `KeyboardController`; `ProxyEditor` connects it to the field) |
-| `iosApp/Shared` | Settings keys used by both iOS targets. The app writes them to the App Group `group.io.github.thegbguy.nepalikeyboard`; the keyboard can only read the group without Full Access, so it keeps what it changes itself in its own defaults |
+| `iosApp/Shared` | Settings keys and the clipboard history file used by both iOS targets. The app writes them to the App Group `group.io.github.thegbguy.nepalikeyboard`; the keyboard can only read the group without Full Access, so it keeps what it changes itself in its own defaults |
 | `tools/wordlist`, `tools/emoji` | Scripts that regenerate the assets |
 | `fastlane/metadata` | Play listing text, changelogs and screenshots (English and Nepali) |
 

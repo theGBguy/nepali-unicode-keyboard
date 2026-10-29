@@ -31,6 +31,36 @@
         }
       }
     },
+    "Clear all": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सबै हटाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Clipboard": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्लिपबोर्ड"
+          }
+        }
+      }
+    },
+    "Copy text in any app and it shows here.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कुनै पनि एपमा टेक्स्ट कपी गर्नुहोस्, यहाँ देखिन्छ।"
+          }
+        }
+      }
+    },
     "Delete": {
       "localizations": {
         "ne": {
@@ -101,6 +131,16 @@
         }
       }
     },
+    "Hidden: marked private by the app it came from": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लुकाइएको: पठाउने एपले निजी भनेको"
+          }
+        }
+      }
+    },
     "Letters": {
       "localizations": {
         "ne": {
@@ -147,6 +187,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "वस्तु"
+          }
+        }
+      }
+    },
+    "Paste": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पेस्ट"
+          }
+        }
+      }
+    },
+    "Pin": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिन गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Pinned": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिन गरिएका"
           }
         }
       }
@@ -251,6 +321,16 @@
         }
       }
     },
+    "Tap again to clear": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हटाउन फेरि थिच्नुहोस्"
+          }
+        }
+      }
+    },
     "Traditional layout": {
       "localizations": {
         "ne": {
@@ -267,6 +347,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "यात्रा र ठाउँ"
+          }
+        }
+      }
+    },
+    "Turn on Full Access in the Nepali Keyboard app": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली किबोर्ड एपमा Full Access खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Unpin": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पिन हटाउनुहोस्"
           }
         }
       }

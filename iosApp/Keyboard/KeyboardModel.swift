@@ -9,12 +9,20 @@ final class KeyboardModel: ObservableObject {
     @Published private(set) var state: KeyboardState
     /** Whether iOS wants this keyboard to show its own key for the next keyboard. */
     @Published var needsInputModeSwitchKey = false
+    /** Full Access, re-checked each time the keyboard opens (the user can change it any time). */
+    @Published private(set) var hasFullAccess = false
+    /** Something new was copied: the strip offers Paste, read only when tapped. */
+    @Published private(set) var canPaste = false
+    /** The copy last pasted from the strip, so it isn't offered again. */
+    private var pastedCopyId: Int64?
 
     private var editor: ProxyEditor?
     private var watch: StateWatch?
     private weak var inputController: UIInputViewController?
     /** What the focused field asked for last time, to tell a new field from a text change. */
     private var lastField: FieldInfo?
+    private var clipboardSource: PasteboardClipboardSource?
+    private var clipboardStorage: GroupClipboardStorage?
 
     init() {
         state = controller.currentState
@@ -30,6 +38,14 @@ final class KeyboardModel: ObservableObject {
             inputController?.hasFullAccess ?? false
         })
         controller.onSwitchKeyboard = { [weak inputController] in inputController?.advanceToNextInputMode() }
+        // Clipboard history needs Full Access: without it the keyboard sees an empty pasteboard
+        let fullAccess = { [weak inputController] in inputController?.hasFullAccess ?? false }
+        let source = PasteboardClipboardSource(hasFullAccess: fullAccess)
+        let storage = GroupClipboardStorage(hasFullAccess: fullAccess)
+        clipboardSource = source
+        clipboardStorage = storage
+        controller.clipboardSource = source
+        controller.clipboardStorage = storage
         watch = controller.watchState { [weak self] state in
             self?.state = state
         }
@@ -37,14 +53,20 @@ final class KeyboardModel: ObservableObject {
 
     /** The keyboard came on screen for a field. */
     func inputStarted() {
-        guard let proxy = inputController?.textDocumentProxy else { return }
-        let field = FieldInfo.from(proxy)
+        guard let inputController else { return }
+        hasFullAccess = inputController.hasFullAccess
+        // The app may have cleared the history while the keyboard was closed
+        clipboardStorage?.reload()
+        clipboardSource?.observe { [weak self] in self?.canPaste = true }
+        canPaste = recentCopyId().map { $0 != pastedCopyId } ?? false
+        let field = FieldInfo.from(inputController.textDocumentProxy)
         lastField = field
         controller.onInputStarted(field: field, restarting: false)
         afterEdit()
     }
 
     func inputFinished() {
+        clipboardSource?.observe(onCopy: nil)
         controller.onInputFinished()
     }
 
@@ -76,10 +98,11 @@ final class KeyboardModel: ObservableObject {
 
     /** A key went down: click and/or tap, as set in the app. */
     func keyDown() {
-        KeyFeedback.keyDown(sound: state.feel.sound, vibrate: state.feel.vibrate)
+        KeyFeedback.keyDown(sound: state.feel.sound, vibrate: state.feel.vibrate, fullAccess: hasFullAccess)
     }
 
     func tap(_ key: KeyData) {
+        canPaste = false
         controller.onKeyClick(key: key)
         afterEdit()
     }
@@ -124,11 +147,71 @@ final class KeyboardModel: ObservableObject {
         controller.onEmojiClick(emoji: emoji)
     }
 
+    // MARK: Clipboard
+
+    private func recentCopyId() -> Int64? {
+        clipboardSource?.recentCopyId(withinMillis: 2 * 60 * 1000)?.int64Value
+    }
+
+    /** Runs [body] with pasteboard reads allowed: only for taps that need the text. */
+    private func reading(_ body: () -> Void) {
+        clipboardSource?.readAllowed = true
+        body()
+        clipboardSource?.readAllowed = false
+    }
+
+    func openClipboard() {
+        canPaste = false
+        reading { controller.openClipboard() }
+    }
+
+    func closeClipboard() {
+        controller.closeClipboard()
+        afterEdit()
+    }
+
+    func pasteClip(_ text: String) {
+        controller.onClipPaste(text: text)
+        afterEdit()
+    }
+
+    func pinClip(_ text: String, pinned: Bool) {
+        controller.onClipPin(text: text, pinned: pinned)
+    }
+
+    func deleteClip(_ text: String) {
+        controller.onClipDelete(text: text)
+    }
+
+    func clearClips() {
+        controller.onClipClearAll()
+    }
+
+    /** The strip's Paste: reads the copy now (iOS may ask), pastes it and saves it like the panel does. */
+    func pasteSuggestion() {
+        canPaste = false
+        pastedCopyId = recentCopyId()
+        var copied: CopiedText?
+        reading { copied = clipboardSource?.read() }
+        guard let copied else { return }
+        if copied.sensitive {
+            inputController?.textDocumentProxy.insertText(copied.text)
+        } else {
+            controller.onClipPaste(text: copied.text)
+        }
+        afterEdit()
+    }
+
+    func clearPasteOffer() {
+        canPaste = false
+    }
+
     func nextKeyboard() {
         inputController?.advanceToNextInputMode()
     }
 
     func close() {
+        clipboardSource?.observe(onCopy: nil)
         watch?.cancel()
         controller.close()
     }

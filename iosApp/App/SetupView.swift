@@ -21,6 +21,7 @@ struct SetupView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
 
+    private static let sourceCode = URL(string: "https://github.com/theGBguy/nepali-unicode-keyboard")!
     private static let privacyPolicy = URL(string: "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html")!
 
     private var setupDone: Bool {
@@ -154,6 +155,8 @@ struct SetupView: View {
                 Text(verbatim: "·").foregroundStyle(.tertiary)
             }
             Button("How we handle your data") { openURL(Self.privacyPolicy) }
+            Text(verbatim: "·").foregroundStyle(.tertiary)
+            Button("Source code") { openURL(Self.sourceCode) }
         }
         .font(.footnote)
         .tint(.secondary)

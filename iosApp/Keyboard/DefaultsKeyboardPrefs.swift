@@ -5,7 +5,7 @@ import NepaliKeyboardShared
  * Keyboard settings. The app's Settings write to the App Group, which the keyboard can only read
  * without Full Access: its writes are dropped silently, though this process's defaults cache
  * still shows them. So:
- * - key height, smart suggestions, sound and vibration come from the group;
+ * - key height, smart suggestions, sound, vibration and clipboard history come from the group;
  * - Nepali style is set in two places (the app's Settings and the keyboard's language menu). Each
  *   copy has a timestamp and the newer one wins. With Full Access the keyboard also writes the
  *   group, so the app shows the keyboard's choice;
@@ -86,9 +86,10 @@ final class DefaultsKeyboardPrefs: NSObject, KeyboardPrefs {
         set { local.set(EmojiRecents.shared.encode(recents: newValue), forKey: "emoji_recents") }
     }
 
+    /** Set in the app; history needs Full Access as well. */
     var clipboardHistory: Bool {
-        get { local.object(forKey: "clipboard_history") as? Bool ?? true }
-        set { local.set(newValue, forKey: "clipboard_history") }
+        get { group.object(forKey: SharedSettings.Key.clipboardHistory) as? Bool ?? true }
+        set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.clipboardHistory) } }
     }
 
     var handwriting: Bool {

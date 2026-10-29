@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /**
  * The keyboard's settings, stored in the App Group for the keyboard to read when it next opens.
@@ -17,6 +18,10 @@ struct SettingsSection: View {
     private var sound = SharedSettings.defaultSound
     @AppStorage(SharedSettings.Key.vibrate, store: SharedSettings.group)
     private var vibrate = SharedSettings.defaultVibrate
+    @AppStorage(SharedSettings.Key.clipboardHistory, store: SharedSettings.group)
+    private var clipboardHistory = true
+    @State private var confirmClear = false
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -83,11 +88,67 @@ struct SettingsSection: View {
             }
             .tint(Color.crimson)
             .padding(.top, 14)
+
+            Divider().padding(.top, 14)
+
+            clipboard
         }
         .onChange(of: keySize) { _ in onChange() }
         .onChange(of: smartSuggestions) { _ in onChange() }
         .onChange(of: sound) { _ in onChange() }
         .onChange(of: vibrate) { _ in onChange() }
+        .onChange(of: clipboardHistory) { _ in onChange() }
+    }
+
+    /**
+     * Clipboard history is the one feature that needs Full Access: without it iOS hides the
+     * pasteboard from keyboards. The app can't tell whether it's on, so the row just opens the
+     * app's page in iPhone Settings (Keyboards → Allow Full Access).
+     */
+    @ViewBuilder
+    private var clipboard: some View {
+        Toggle(isOn: $clipboardHistory) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Clipboard history")
+                    .font(.subheadline.weight(.medium))
+                Text("Needs Full Access. Kept on this iPhone only.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .tint(Color.crimson)
+        .padding(.top, 14)
+
+        Divider().padding(.top, 14)
+
+        Button {
+            if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+        } label: {
+            HStack {
+                Text("Full Access")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.primary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 14)
+
+        Divider().padding(.top, 14)
+
+        Button("Clear clipboard history", role: .destructive) { confirmClear = true }
+            .font(.subheadline.weight(.medium))
+            .padding(.top, 14)
+            .alert("Clear clipboard history?", isPresented: $confirmClear) {
+                Button("Clear", role: .destructive) { SharedSettings.clearClipboardHistory() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This removes every saved item, including pinned ones.")
+            }
     }
 
     /** Also stamps the time, so this choice beats an older one made in the keyboard's menu. */
