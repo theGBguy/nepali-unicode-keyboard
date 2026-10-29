@@ -1,0 +1,37 @@
+import Foundation
+
+/**
+ * Settings the app and the keyboard share through the App Group. The app writes them; the
+ * keyboard reads them each time it opens. Without Full Access iOS gives the keyboard read-only
+ * access to the group (its writes are silently dropped), so anything the keyboard itself changes
+ * is stored in its own defaults as well (see the keyboard's `DefaultsKeyboardPrefs`).
+ *
+ * Keys and values match Android's SharedPreferences, so the shared Kotlin code sees the same names.
+ */
+enum SharedSettings {
+    static let groupID = "group.io.github.thegbguy.nepalikeyboard"
+
+    /** The group's defaults; the app's own defaults if the group isn't available (unsigned builds). */
+    static let group: UserDefaults = UserDefaults(suiteName: groupID) ?? .standard
+
+    enum Key {
+        static let nepaliStyle = "nepali_style"
+        /** When [nepaliStyle] was last set, in seconds since 1970, so the newer of two copies wins. */
+        static let nepaliStyleTime = "nepali_style_time"
+        static let keyHeight = "key_height"
+        static let smartSuggestions = "smart_suggestions"
+    }
+}
+
+/** How Nepali is typed; stored as Android's values. */
+enum NepaliStyle: String, CaseIterable {
+    case romanized
+    case traditional
+}
+
+/** Key height presets; stored as the shared `KeyHeight` enum's names. */
+enum KeySize: String, CaseIterable {
+    case short = "SHORT"
+    case normal = "NORMAL"
+    case tall = "TALL"
+}

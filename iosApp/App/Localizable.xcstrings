@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Dates, amounts and units as you type": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइप गर्दा मिति, रकम र एकाइ"
+          }
+        }
+      }
+    },
     "How we handle your data": {
       "localizations": {
         "ne": {
@@ -31,12 +41,82 @@
         }
       }
     },
+    "I’ve set it up": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मैले सेटअप गरिसकें"
+          }
+        }
+      }
+    },
+    "Key height": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कीको उचाइ"
+          }
+        }
+      }
+    },
+    "Nepali Keyboard": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली किबोर्ड"
+          }
+        }
+      }
+    },
+    "Nepali typing": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली टाइपिङ"
+          }
+        }
+      }
+    },
+    "Normal": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सामान्य"
+          }
+        }
+      }
+    },
+    "Not showing? Hold 🌐 and pick Nepali Keyboard.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "देखिएन? 🌐 थिचिराख्नुहोस् र नेपाली किबोर्ड छान्नुहोस्।"
+          }
+        }
+      }
+    },
     "Open Settings": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "सेटिङ खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Romanized": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोमनाइज्ड"
           }
         }
       }
@@ -51,6 +131,46 @@
         }
       }
     },
+    "Settings": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिङ"
+          }
+        }
+      }
+    },
+    "Setup steps": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटअपका चरण"
+          }
+        }
+      }
+    },
+    "Short": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "होचो"
+          }
+        }
+      }
+    },
+    "Smart suggestions": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्मार्ट सुझाव"
+          }
+        }
+      }
+    },
     "Switch to it": {
       "localizations": {
         "ne": {
@@ -61,12 +181,32 @@
         }
       }
     },
+    "Tall": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अग्लो"
+          }
+        }
+      }
+    },
     "The अ/A key switches between Nepali and English. Hold it to change this choice later.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "अ/A कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
+          }
+        }
+      }
+    },
+    "Traditional": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "परम्परागत"
           }
         }
       }

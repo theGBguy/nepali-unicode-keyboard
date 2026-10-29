@@ -30,6 +30,9 @@ targets:
     sources:
       - path: App
         type: syncedFolder
+      # Settings keys and the App Group, used by both targets
+      - path: Shared
+        type: syncedFolder
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.nepalikeyboard
@@ -40,6 +43,11 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    # Settings live in the App Group's defaults so the keyboard reads what the app's Settings set
+    entitlements:
+      path: NepaliKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups: [group.io.github.thegbguy.nepalikeyboard]
     dependencies:
       - target: NepaliKeyboardExtension
         embed: true
@@ -48,6 +56,8 @@ targets:
     platform: iOS
     sources:
       - path: Keyboard
+        type: syncedFolder
+      - path: Shared
         type: syncedFolder
       # The same word list as Android, so both platforms always suggest the same words
       - path: ../app/src/main/assets/words_ne.tsv
@@ -62,6 +72,10 @@ targets:
         # The shared Kotlin code (KeyboardController, transliteration, layouts), built by Gradle
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         OTHER_LDFLAGS: -framework NepaliKeyboardShared
+    entitlements:
+      path: NepaliKeyboardExtension.entitlements
+      properties:
+        com.apple.security.application-groups: [group.io.github.thegbguy.nepalikeyboard]
     preBuildScripts:
       - name: Build shared Kotlin framework
         basedOnDependencyAnalysis: false
