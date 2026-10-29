@@ -2,8 +2,21 @@ name: CI
 
 on:
   pull_request:
+  # Pull requests are tested merged into main and must be up to date to merge (branch
+  # protection), so a merge doesn't need a second run. Main still runs when the build setup
+  # changes, which refreshes the Gradle and Kotlin/Native caches that pull requests restore
+  # (caches saved by a pull request are visible only to that pull request).
   push:
     branches: [main]
+    paths:
+      - 'gradle/**'
+      - '**/*.gradle.kts'
+      - 'gradle.properties'
+      - '.github/workflows/ci.yml'
+  # Weekly, so the caches aren't evicted (GitHub drops caches unused for 7 days)
+  schedule:
+    - cron: '30 2 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
