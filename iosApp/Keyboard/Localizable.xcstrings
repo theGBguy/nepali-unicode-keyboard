@@ -1,6 +1,26 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Activities": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गतिविधि"
+          }
+        }
+      }
+    },
+    "Animals and nature": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "जनावर र प्रकृति"
+          }
+        }
+      }
+    },
     "Caps lock": {
       "localizations": {
         "ne": {
@@ -31,12 +51,42 @@
         }
       }
     },
+    "Emoji": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इमोजी"
+          }
+        }
+      }
+    },
     "English, Romanized Nepali or traditional Nepali. Long-press for options.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "अंग्रेजी, रोमन नेपाली वा परम्परागत नेपाली। थप विकल्पका लागि थिचिराख्नुहोस्।"
+          }
+        }
+      }
+    },
+    "Flags": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "झन्डा"
+          }
+        }
+      }
+    },
+    "Food and drink": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खाना र पेय"
           }
         }
       }
@@ -91,12 +141,32 @@
         }
       }
     },
+    "Objects": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वस्तु"
+          }
+        }
+      }
+    },
     "Previous": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "अघिल्लो"
+          }
+        }
+      }
+    },
+    "Recent": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हालै प्रयोग गरिएका"
           }
         }
       }
@@ -141,6 +211,16 @@
         }
       }
     },
+    "Smileys and people": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अनुहार र मानिस"
+          }
+        }
+      }
+    },
     "Space": {
       "localizations": {
         "ne": {
@@ -161,12 +241,32 @@
         }
       }
     },
+    "Symbols": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चिह्न"
+          }
+        }
+      }
+    },
     "Traditional layout": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "परम्परागत लेआउट"
+          }
+        }
+      }
+    },
+    "Travel and places": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यात्रा र ठाउँ"
           }
         }
       }

@@ -108,6 +108,22 @@ final class KeyboardModel: ObservableObject {
         if on { controller.onBackspaceLongPressStart() } else { controller.onBackspaceLongPressEnd(); afterEdit() }
     }
 
+    // MARK: Emoji
+
+    func openEmoji() {
+        EmojiCatalog.shared.loadIfNeeded()
+        controller.openEmoji()
+    }
+
+    func closeEmoji() {
+        controller.closeEmoji()
+        afterEdit()
+    }
+
+    func emoji(_ emoji: String) {
+        controller.onEmojiClick(emoji: emoji)
+    }
+
     func nextKeyboard() {
         inputController?.advanceToNextInputMode()
     }

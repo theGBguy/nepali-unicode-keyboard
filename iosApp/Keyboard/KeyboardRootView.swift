@@ -21,7 +21,7 @@ enum RowKey: Identifiable {
     }
 }
 
-/** The keyboard: suggestion strip, then the key rows. Colours follow light and dark mode. */
+/** The keyboard: suggestion strip, then the key rows (or the emoji panel in their place). Colours follow light and dark mode. */
 struct KeyboardRootView: View {
     @ObservedObject var model: KeyboardModel
     @Environment(\.colorScheme) private var scheme
@@ -33,16 +33,21 @@ struct KeyboardRootView: View {
 
         ZStack(alignment: .bottomLeading) {
             VStack(spacing: 0) {
-                KeyboardStripView(model: model, state: state, colors: colors)
-                    .frame(height: KeyboardMetrics.stripHeight)
-                VStack(spacing: KeyboardMetrics.rowGap) {
-                    ForEach(Array(state.currentLayout.rows.enumerated()), id: \.offset) { _, row in
-                        KeyRow(model: model, state: state, row: row, colors: colors, keyHeight: keyHeight)
+                if state.showEmoji {
+                    // In place of the strip and rows, at their height
+                    EmojiPanel(model: model, state: state, colors: colors,
+                               height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
+                } else {
+                    KeyboardStripView(model: model, state: state, colors: colors)
+                        .frame(height: KeyboardMetrics.stripHeight)
+                    VStack(spacing: KeyboardMetrics.rowGap) {
+                        ForEach(Array(state.currentLayout.rows.enumerated()), id: \.offset) { _, row in
+                            KeyRow(model: model, state: state, row: row, colors: colors, keyHeight: keyHeight)
+                        }
                     }
                 }
-                .padding(.top, 0)
-                .padding(.bottom, KeyboardMetrics.bottomPadding + KeyboardMetrics.rowGap)
             }
+            .padding(.bottom, KeyboardMetrics.bottomPadding + KeyboardMetrics.rowGap)
             .padding(.horizontal, KeyboardMetrics.sidePadding)
 
             if state.showLanguageMenu {

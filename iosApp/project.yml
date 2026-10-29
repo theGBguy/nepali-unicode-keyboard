@@ -62,6 +62,8 @@ targets:
       # The same word list as Android, so both platforms always suggest the same words
       - path: ../app/src/main/assets/words_ne.tsv
         buildPhase: resources
+      - path: ../app/src/main/assets/emoji.tsv
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.nepalikeyboard.keyboard
