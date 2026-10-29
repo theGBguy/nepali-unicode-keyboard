@@ -5,7 +5,7 @@ import NepaliKeyboardShared
  * Keyboard settings. The app's Settings write to the App Group, which the keyboard can only read
  * without Full Access: its writes are dropped silently, though this process's defaults cache
  * still shows them. So:
- * - key height and smart suggestions come from the group;
+ * - key height, smart suggestions, sound and vibration come from the group;
  * - Nepali style is set in two places (the app's Settings and the keyboard's language menu). Each
  *   copy has a timestamp and the newer one wins. With Full Access the keyboard also writes the
  *   group, so the app shows the keyboard's choice;
@@ -64,21 +64,21 @@ final class DefaultsKeyboardPrefs: NSObject, KeyboardPrefs {
         set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.smartSuggestions) } }
     }
 
+    var sound: Bool {
+        get { group.object(forKey: SharedSettings.Key.sound) as? Bool ?? SharedSettings.defaultSound }
+        set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.sound) } }
+    }
+
+    var vibrate: Bool {
+        get { group.object(forKey: SharedSettings.Key.vibrate) as? Bool ?? SharedSettings.defaultVibrate }
+        set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.vibrate) } }
+    }
+
     // MARK: The keyboard's own
 
     var typeNepali: Bool {
         get { local.object(forKey: "type_nepali") as? Bool ?? true }
         set { local.set(newValue, forKey: "type_nepali") }
-    }
-
-    var vibrate: Bool {
-        get { local.object(forKey: "vibrate") as? Bool ?? true }
-        set { local.set(newValue, forKey: "vibrate") }
-    }
-
-    var sound: Bool {
-        get { local.bool(forKey: "sound") }
-        set { local.set(newValue, forKey: "sound") }
     }
 
     var emojiRecents: [String] {

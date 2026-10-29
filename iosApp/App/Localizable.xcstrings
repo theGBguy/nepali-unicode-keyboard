@@ -171,6 +171,16 @@
         }
       }
     },
+    "Sound on key press": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "की थिच्दा आवाज"
+          }
+        }
+      }
+    },
     "Switch to it": {
       "localizations": {
         "ne": {
@@ -247,6 +257,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "“namaste” टाइप गरी स्पेस थिच्नुहोस्"
+          }
+        }
+      }
+    },
+    "Vibrate on key press": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "की थिच्दा कम्पन"
+          }
+        }
+      }
+    },
+    "When keyboard sound is on in iPhone Settings": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone सेटिङमा किबोर्डको आवाज खुला हुँदा"
           }
         }
       }
