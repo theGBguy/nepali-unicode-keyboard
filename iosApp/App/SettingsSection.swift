@@ -13,6 +13,10 @@ struct SettingsSection: View {
     private var keySize: KeySize = .normal
     @AppStorage(SharedSettings.Key.smartSuggestions, store: SharedSettings.group)
     private var smartSuggestions = true
+    @AppStorage(SharedSettings.Key.sound, store: SharedSettings.group)
+    private var sound = SharedSettings.defaultSound
+    @AppStorage(SharedSettings.Key.vibrate, store: SharedSettings.group)
+    private var vibrate = SharedSettings.defaultVibrate
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -55,9 +59,35 @@ struct SettingsSection: View {
             }
             .tint(Color.crimson)
             .padding(.top, 14)
+
+            Divider().padding(.top, 14)
+
+            Toggle(isOn: $sound) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sound on key press")
+                        .font(.subheadline.weight(.medium))
+                    // playInputClick() is silent unless the system setting is on as well
+                    Text("When keyboard sound is on in iPhone Settings")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .tint(Color.crimson)
+            .padding(.top, 14)
+
+            Divider().padding(.top, 14)
+
+            Toggle(isOn: $vibrate) {
+                Text("Vibrate on key press")
+                    .font(.subheadline.weight(.medium))
+            }
+            .tint(Color.crimson)
+            .padding(.top, 14)
         }
         .onChange(of: keySize) { _ in onChange() }
         .onChange(of: smartSuggestions) { _ in onChange() }
+        .onChange(of: sound) { _ in onChange() }
+        .onChange(of: vibrate) { _ in onChange() }
     }
 
     /** Also stamps the time, so this choice beats an older one made in the keyboard's menu. */

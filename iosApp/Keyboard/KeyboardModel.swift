@@ -74,6 +74,11 @@ final class KeyboardModel: ObservableObject {
 
     // MARK: Actions from the views
 
+    /** A key went down: click and/or tap, as set in the app. */
+    func keyDown() {
+        KeyFeedback.keyDown(sound: state.feel.sound, vibrate: state.feel.vibrate)
+    }
+
     func tap(_ key: KeyData) {
         controller.onKeyClick(key: key)
         afterEdit()

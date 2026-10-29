@@ -143,6 +143,7 @@ struct KeyView: View {
                     .onChanged { _ in
                         guard !pressed else { return }
                         pressed = true
+                        model.keyDown()
                         longPressed = false
                         if isBackspace { model.tap(key) }
                         if isBackspace || isLanguageKey || alternate != nil {

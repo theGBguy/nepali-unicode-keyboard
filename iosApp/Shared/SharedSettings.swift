@@ -20,7 +20,17 @@ enum SharedSettings {
         static let nepaliStyleTime = "nepali_style_time"
         static let keyHeight = "key_height"
         static let smartSuggestions = "smart_suggestions"
+        static let sound = "sound"
+        static let vibrate = "vibrate"
     }
+
+    /**
+     * iOS defaults, which differ from Android's: the click plays only when the system's Keyboard
+     * Feedback → Sound is on too, like Apple's keyboard; haptics start off, like Keyboard
+     * Feedback → Haptic.
+     */
+    static let defaultSound = true
+    static let defaultVibrate = false
 }
 
 /** How Nepali is typed; stored as Android's values. */
