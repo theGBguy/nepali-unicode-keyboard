@@ -35,9 +35,21 @@
     <string name="key_delete">Delete</string>
     <string name="key_shift">Shift</string>
     <string name="key_caps_lock">Caps lock</string>
-    <string name="key_language">English, Romanized Nepali or traditional Nepali. Long-press for options.</string>
+    <string name="key_language">Language</string>
     <string name="key_numbers">Numbers and symbols</string>
     <string name="key_letters">Letters</string>
+    <string name="key_more_symbols">More symbols</string>
+    <string name="key_language_options">Language options</string>
+    <string name="key_type_alternate">Type %1$s</string>
+    <string name="key_capital">Capital %1$s</string>
+    <string name="key_vowel_sign">%1$s vowel sign</string>
+    <string name="key_halanta">Halanta</string>
+    <string name="key_anusvara">Anusvara</string>
+    <string name="key_chandrabindu">Chandrabindu</string>
+    <string name="key_visarga">Visarga</string>
+    <string name="key_mode_english">English</string>
+    <string name="key_mode_romanized">Romanized Nepali</string>
+    <string name="key_mode_traditional">Traditional Nepali</string>
     <string name="voice_start">Voice typing</string>
     <string name="voice_stop">Stop listening</string>
 

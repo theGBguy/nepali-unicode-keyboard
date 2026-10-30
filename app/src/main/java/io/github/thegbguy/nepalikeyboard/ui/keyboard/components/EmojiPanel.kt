@@ -43,6 +43,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -93,8 +98,10 @@ fun EmojiPanel(
         }
     }
     val view = LocalView.current
+    val letters = stringResource(R.string.key_letters)
+    val paneLabel = stringResource(R.string.emoji_open)
 
-    Column(Modifier.fillMaxWidth().height(height)) {
+    Column(Modifier.fillMaxWidth().height(height).semantics { paneTitle = paneLabel }) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(44.dp),
             state = gridState,
@@ -106,7 +113,7 @@ fun EmojiPanel(
                         text = stringResource(category.label),
                         color = colors.hint,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 8.dp, top = 10.dp, bottom = 4.dp)
+                        modifier = Modifier.padding(start = 8.dp, top = 10.dp, bottom = 4.dp).semantics { heading() }
                     )
                 }
                 items(list, key = { "${category.key}-$it" }, contentType = { "emoji" }) { emoji ->
@@ -138,7 +145,8 @@ fun EmojiPanel(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(7.dp))
                     .background(colors.functionKey)
-                    .clickable(onClick = onClose),
+                    .clickable(onClick = onClose)
+                    .clearAndSetSemantics { contentDescription = letters; onClick { onClose(); true } },
                 contentAlignment = Alignment.Center
             ) {
                 Text("ABC", color = colors.keyText, fontSize = 15.sp)
@@ -151,7 +159,10 @@ fun EmojiPanel(
                         Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .semantics { contentDescription = label }
+                            .semantics {
+                                contentDescription = label
+                                if (selected) this.selected = true
+                            }
                             .clickable {
                                 scope.launch { gridState.scrollToItem(headerIndex.getValue(category)) }
                             },
@@ -199,7 +210,11 @@ internal fun BackspaceKey(
             .fillMaxHeight()
             .clip(RoundedCornerShape(7.dp))
             .background(colors.functionKey)
-            .semantics { contentDescription = description }
+            // TalkBack's double-tap never reaches the gesture below
+            .semantics {
+                contentDescription = description
+                onClick { tap(); true }
+            }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {

@@ -189,7 +189,7 @@ private fun androidx.compose.foundation.layout.RowScope.Slot(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = text,
+            text = withNepaliSpeech(text),
             color = color,
             fontSize = fontSize,
             fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,

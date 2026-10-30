@@ -33,7 +33,7 @@ The iOS app (one screen with setup steps, settings and a try-it field, plus the 
 
 On iOS, clipboard history is the only feature that needs **Allow Full Access** (iOS hides the pasteboard from keyboards without it). It's opt-in and everything else works with it off. The history is kept in the App Group (`clipboard.txt`), never leaves the phone, and can be cleared from the app. Reading a copy from another app makes iOS ask "Allow Paste" (Settings → Nepali Keyboard → Paste from Other Apps), so the keyboard reads the pasteboard only when you tap Paste or open the clipboard panel.
 
-The iOS keyboard works with VoiceOver: keys read their character (Nepali vowel signs and marks by name, e.g. "आ vowel sign", "Halanta"), the language key reads the current mode, and what a long-press does (the corner character, the language menu, pinning or deleting a clipboard item) is in the Actions rotor.
+The keyboard works with TalkBack and VoiceOver: keys read their character (Nepali vowel signs and marks by name, e.g. "आ vowel sign", "Halanta", Devanagari spoken with a Hindi voice where no Nepali one is installed), the language key reads the current mode, and what a long-press does (the corner character, the language menu, pinning or deleting a clipboard item) is in the actions menu.
 
 ```sh
 xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard \
