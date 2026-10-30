@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import NepaliKeyboardShared
 
 /**
@@ -61,6 +62,7 @@ struct ClipboardPanel: View {
                 .padding(.leading, 12)
                 .padding(.top, 12)
                 .padding(.bottom, 10)
+                .accessibilityAddTraits(.isHeader)
 
             if !model.hasFullAccess || tiles.isEmpty {
                 Text(model.hasFullAccess ? "Copy text in any app and it shows here." : "Turn on Full Access in the Nepali Keyboard app")
@@ -81,6 +83,8 @@ struct ClipboardPanel: View {
                 .padding(.top, 4)
         }
         .frame(height: height)
+        // VoiceOver moves to the panel instead of losing its place
+        .onAppear { UIAccessibility.post(notification: .screenChanged, argument: nil) }
         .task(id: confirmToken) {
             // "Tap again to clear" goes back after three seconds
             guard confirmClear else { return }
@@ -184,8 +188,26 @@ struct ClipboardPanel: View {
             model.keyDown()
             actionsFor = tile.text
         }
-        .accessibilityAddTraits(.isButton)
+        // One element per tile; pin and delete are actions rather than a long-press
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(tile.label.count > 160 ? String(tile.label.prefix(160)) + "…" : tile.label))
+        .accessibilityValue(tile.pinned ? Text("Pinned") : Text(verbatim: ""))
         .accessibilityHint(Text("Paste"))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction {
+            model.keyDown()
+            model.pasteClip(tile.text)
+        }
+        .accessibilityActions {
+            if tile.saved {
+                if tile.pinned || !pinsFull {
+                    Button(tile.pinned ? String(localized: "Unpin") : String(localized: "Pin")) {
+                        model.pinClip(tile.text, pinned: !tile.pinned)
+                    }
+                }
+                Button(String(localized: "Delete")) { model.deleteClip(tile.text) }
+            }
+        }
     }
 
     private func action(_ symbol: String, label: String, tint: Color, enabled: Bool, perform: @escaping () -> Void) -> some View {
@@ -227,6 +249,7 @@ struct ClipboardPanel: View {
                     } else {
                         confirmClear = true
                         confirmToken += 1
+                        UIAccessibility.post(notification: .announcement, argument: String(localized: "Tap again to clear"))
                     }
                 } label: {
                     Text(confirmClear ? "Tap again to clear" : "Clear all")

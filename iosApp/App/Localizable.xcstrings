@@ -261,6 +261,16 @@
         }
       }
     },
+    "Step %lld: %@": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चरण %lld: %@"
+          }
+        }
+      }
+    },
     "Switch to it": {
       "localizations": {
         "ne": {

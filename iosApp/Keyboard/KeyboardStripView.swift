@@ -126,6 +126,7 @@ struct KeyboardStripView: View {
             slot(word, color: colors.keyText, bold: bold, size: 17) { model.suggestion(word) }
         case let .latin(text):
             slot(text, color: colors.hint, bold: false, size: 15) { model.keepLatin() }
+                .accessibilityHint(Text("Keep as typed"))
         case let .smart(action):
             smartSlot(action)
         }
@@ -156,6 +157,7 @@ struct KeyboardStripView: View {
                 Image(systemName: smartIcon(action.kind))
                     .font(.system(size: 12))
                     .foregroundStyle(colors.hint)
+                    .accessibilityHidden(true)
                 Text(action.label)
                     .font(.system(size: 16))
                     .foregroundStyle(colors.keyText)

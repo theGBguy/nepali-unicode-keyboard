@@ -39,6 +39,7 @@ struct SetupView: View {
                 if showSteps {
                     Text("Type Nepali\nin any app")
                         .font(.largeTitle.weight(.bold))
+                        .accessibilityAddTraits(.isHeader)
                         .padding(.top, 32)
                     Text("Romanized or traditional layout. Takes about a minute to set up.")
                         .font(.body)
@@ -49,6 +50,7 @@ struct SetupView: View {
                 } else {
                     Text("Nepali Keyboard")
                         .font(.largeTitle.weight(.bold))
+                        .accessibilityAddTraits(.isHeader)
                         .padding(.top, 32)
                 }
 
@@ -125,12 +127,14 @@ struct SetupView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Try it")
                 .font(.title3.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
             Text("Type “namaste” and press space")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
             TextField("", text: $tryText, axis: .vertical)
                 .focused($tryFocused)
+                .accessibilityLabel(Text("Try it"))
                 .lineLimit(1...4)
                 .padding(12)
                 .background(RoundedRectangle(cornerRadius: 10).stroke(Color(uiColor: .separator)))
@@ -152,10 +156,10 @@ struct SetupView: View {
         HStack(spacing: 6) {
             if setupDone && !stepsReopened {
                 Button("Setup steps") { withAnimation { stepsReopened = true } }
-                Text(verbatim: "·").foregroundStyle(.tertiary)
+                Text(verbatim: "·").foregroundStyle(.tertiary).accessibilityHidden(true)
             }
             Button("How we handle your data") { openURL(Self.privacyPolicy) }
-            Text(verbatim: "·").foregroundStyle(.tertiary)
+            Text(verbatim: "·").foregroundStyle(.tertiary).accessibilityHidden(true)
             Button("Source code") { openURL(Self.sourceCode) }
         }
         .font(.footnote)
@@ -184,8 +188,11 @@ struct SetupView: View {
                 .foregroundStyle(.secondary)
                 .frame(width: 28, height: 28)
                 .overlay(Circle().stroke(Color(uiColor: .separator)))
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.headline)
+                    .accessibilityLabel(Text("Step \(number): \(Text(title))"))
+                    .accessibilityAddTraits(.isHeader)
                 Text(detail).font(.subheadline).foregroundStyle(.secondary)
                 extra()
             }

@@ -169,6 +169,7 @@ private final class LabelHeader: UICollectionReusableView {
         label.font = .systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
+        label.accessibilityTraits = .header
         NSLayoutConstraint.activate([
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)
