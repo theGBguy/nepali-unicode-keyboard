@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import NepaliKeyboardShared
 
 /**
@@ -52,6 +53,8 @@ struct EmojiPanel: View {
                 .padding(.top, 4)
         }
         .frame(height: height)
+        // VoiceOver moves to the panel instead of losing its place
+        .onAppear { UIAccessibility.post(notification: .screenChanged, argument: nil) }
     }
 
     private func bottomRow(_ sections: [Section]) -> some View {
@@ -88,6 +91,7 @@ struct EmojiPanel: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(Text(label(section.category)))
+                        .accessibilityAddTraits(selected ? .isSelected : [])
                     }
                 }
             }

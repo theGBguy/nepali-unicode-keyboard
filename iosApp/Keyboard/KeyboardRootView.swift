@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import NepaliKeyboardShared
 
 /** One key as the row draws it: a key from the shared layout, or iOS's next-keyboard key. */
@@ -144,6 +145,7 @@ private struct LanguageMenu: View {
             Color.black.opacity(0.001)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onTapGesture { model.controller.dismissLanguageMenu() }
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 0) {
                 row(String(localized: "Romanized"), checked: state.nepaliStyle == .transliteration,
                     enabled: state.field.allowsTransliteration) {
@@ -163,6 +165,11 @@ private struct LanguageMenu: View {
             .padding(.leading, 8)
             .padding(.bottom, 0)
         }
+        // VoiceOver stays in the menu until a choice or the escape gesture closes it
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isModal)
+        .accessibilityAction(.escape) { model.controller.dismissLanguageMenu() }
+        .onAppear { UIAccessibility.post(notification: .screenChanged, argument: nil) }
     }
 
     private func row(_ label: String, icon: String? = nil, checked: Bool, enabled: Bool, action: @escaping () -> Void) -> some View {
@@ -190,5 +197,7 @@ private struct LanguageMenu: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
+        .accessibilityLabel(Text(label))
+        .accessibilityAddTraits(checked ? .isSelected : [])
     }
 }

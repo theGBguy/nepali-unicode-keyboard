@@ -27,6 +27,7 @@ struct SettingsSection: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Settings")
                 .font(.title3.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
 
             Text("Nepali typing")
                 .font(.subheadline.weight(.medium))
@@ -132,6 +133,7 @@ struct SettingsSection: View {
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
             .contentShape(Rectangle())
         }

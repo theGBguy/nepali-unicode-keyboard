@@ -54,7 +54,7 @@ func keyVisual(_ key: KeyData, state: KeyboardState, colors: KeyboardColors) -> 
         )
     case "🌐":
         return KeyVisual(text: "अ/A", background: colors.functionKey, content: colors.keyText, fontSize: 15,
-                         description: String(localized: "English, Romanized Nepali or traditional Nepali. Long-press for options."))
+                         description: String(localized: "Language"))
     case " ":
         let label: String
         switch state.currentLanguage {
@@ -67,7 +67,8 @@ func keyVisual(_ key: KeyData, state: KeyboardState, colors: KeyboardColors) -> 
     case "?123", SymbolLayout.shared.PAGE_ONE, SymbolLayout.shared.PAGE_TWO:
         return KeyVisual(text: key.primary == "?123" && nepaliKeys ? "?१२३" : key.primary,
                          background: colors.functionKey, content: colors.keyText, fontSize: 14,
-                         description: String(localized: "Numbers and symbols"))
+                         description: key.primary == "?123" ? String(localized: "Numbers and symbols")
+                             : String(localized: "More symbols"))
     case "ABC":
         return KeyVisual(text: nepaliKeys ? "कखग" : "ABC", background: colors.functionKey, content: colors.keyText,
                          fontSize: 14, description: String(localized: "Letters"))
@@ -84,9 +85,43 @@ func keyVisual(_ key: KeyData, state: KeyboardState, colors: KeyboardColors) -> 
 }
 
 /**
+ * What VoiceOver says for a character key. Devanagari vowel signs and marks alone are silent or
+ * garbled in speech, so they get names; capital Latin letters say so, like Apple's keyboard.
+ */
+func spokenCharacter(_ text: String) -> String {
+    switch text {
+    case "्": return String(localized: "Halanta")
+    case "ं": return String(localized: "Anusvara")
+    case "ँ": return String(localized: "Chandrabindu")
+    case "ः": return String(localized: "Visarga")
+    default: break
+    }
+    if let vowel = vowelForSign[text] { return String(localized: "\(vowel) vowel sign") }
+    if text.count == 1, text != text.lowercased() { return String(localized: "Capital \(text)") }
+    return text
+}
+
+private let vowelForSign: [String: String] = [
+    "ा": "आ", "ि": "इ", "ी": "ई", "ु": "उ", "ू": "ऊ", "ृ": "ऋ",
+    "े": "ए", "ै": "ऐ", "ो": "ओ", "ौ": "औ",
+]
+
+/** The current input mode, the language key's VoiceOver value. */
+func languageName(_ language: LanguageMode) -> String {
+    switch language {
+    case .nepali: return String(localized: "Traditional Nepali")
+    case .transliteration: return String(localized: "Romanized Nepali")
+    default: return String(localized: "English")
+    }
+}
+
+/**
  * One key. Taps fire on release; a long-press types the corner hint (or opens the language menu
  * on अ/A); backspace deletes on touch-down and repeats while held. Character keys show a preview
  * bubble above the finger.
+ *
+ * VoiceOver activates a key through its default action (the drag gesture never sees that tap);
+ * what a long-press does is offered as a custom action instead.
  */
 struct KeyView: View {
     @ObservedObject var model: KeyboardModel
@@ -174,8 +209,23 @@ struct KeyView: View {
                     }
             )
             .accessibilityElement()
-            .accessibilityLabel(Text(visual.description ?? visual.text ?? key.primary))
+            .accessibilityLabel(Text(visual.description ?? spokenCharacter(visual.text ?? key.primary)))
+            .accessibilityValue(isLanguageKey ? Text(languageName(state.currentLanguage)) : Text(verbatim: ""))
+            .accessibilityHint(isLanguageKey ? Text("English, Romanized Nepali or traditional Nepali. Long-press for options.")
+                               : Text(verbatim: ""))
             .accessibilityAddTraits(.isKeyboardKey)
+            .accessibilityAddTraits(key.primary == "⇧" && state.isShifted ? .isSelected : [])
+            .accessibilityAction {
+                model.keyDown()
+                model.tap(key)
+            }
+            .accessibilityActions {
+                if isLanguageKey {
+                    Button("Language options") { model.controller.onLanguageLongPress() }
+                } else if let alternate {
+                    Button(String(localized: "Type \(spokenCharacter(alternate))")) { model.longPress(alternate: alternate) }
+                }
+            }
     }
 
     @ViewBuilder

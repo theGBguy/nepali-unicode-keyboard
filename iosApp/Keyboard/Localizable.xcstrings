@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ vowel sign": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ को मात्रा"
+          }
+        }
+      }
+    },
     "Activities": {
       "localizations": {
         "ne": {
@@ -21,12 +31,42 @@
         }
       }
     },
+    "Anusvara": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शिरबिन्दु"
+          }
+        }
+      }
+    },
+    "Capital %@": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ठूलो %@"
+          }
+        }
+      }
+    },
     "Caps lock": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "क्याप्स लक"
+          }
+        }
+      }
+    },
+    "Chandrabindu": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चन्द्रबिन्दु"
           }
         }
       }
@@ -91,6 +131,16 @@
         }
       }
     },
+    "English": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अंग्रेजी"
+          }
+        }
+      }
+    },
     "English, Romanized Nepali or traditional Nepali. Long-press for options.": {
       "localizations": {
         "ne": {
@@ -131,6 +181,16 @@
         }
       }
     },
+    "Halanta": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हलन्त"
+          }
+        }
+      }
+    },
     "Hidden: marked private by the app it came from": {
       "localizations": {
         "ne": {
@@ -141,12 +201,52 @@
         }
       }
     },
+    "Keep as typed": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइप गरेजस्तै राख्नुहोस्"
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भाषा"
+          }
+        }
+      }
+    },
+    "Language options": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भाषाका विकल्प"
+          }
+        }
+      }
+    },
     "Letters": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "अक्षर"
+          }
+        }
+      }
+    },
+    "More symbols": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "थप चिह्न"
           }
         }
       }
@@ -251,6 +351,16 @@
         }
       }
     },
+    "Romanized Nepali": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोमन नेपाली"
+          }
+        }
+      }
+    },
     "Search": {
       "localizations": {
         "ne": {
@@ -331,6 +441,16 @@
         }
       }
     },
+    "Traditional Nepali": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "परम्परागत नेपाली"
+          }
+        }
+      }
+    },
     "Traditional layout": {
       "localizations": {
         "ne": {
@@ -361,12 +481,32 @@
         }
       }
     },
+    "Type %@": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ टाइप गर्नुहोस्"
+          }
+        }
+      }
+    },
     "Unpin": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "पिन हटाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Visarga": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विसर्ग"
           }
         }
       }
