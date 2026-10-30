@@ -1,5 +1,15 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard.components
 
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import android.view.HapticFeedbackConstants
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -101,13 +111,15 @@ fun ClipboardPanel(
         onPaste(text)
     }
 
-    Column(Modifier.fillMaxWidth().height(height)) {
+    val title = stringResource(R.string.clipboard_title)
+    val letters = stringResource(R.string.key_letters)
+    Column(Modifier.fillMaxWidth().height(height).semantics { paneTitle = title }) {
         Text(
-            stringResource(R.string.clipboard_title),
+            title,
             color = colors.keyText,
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 10.dp)
+            modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 10.dp).semantics { heading() }
         )
         if (copied == null && items.isEmpty()) {
             Box(Modifier.weight(1f).fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
@@ -170,7 +182,8 @@ fun ClipboardPanel(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(7.dp))
                     .background(colors.functionKey)
-                    .clickable(onClick = onClose),
+                    .clickable(onClick = onClose)
+                    .clearAndSetSemantics { contentDescription = letters; onClick { onClose(); true } },
                 contentAlignment = Alignment.Center
             ) {
                 Text("ABC", color = colors.keyText, fontSize = 15.sp)
@@ -196,6 +209,8 @@ fun ClipboardPanel(
                 ) {
                     Text(
                         stringResource(if (confirmClear) R.string.clipboard_clear_confirm else R.string.clipboard_clear_all),
+                        // "Tap again to clear" is announced when it appears
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                         color = if (confirmClear) colors.error else colors.keyText,
                         fontSize = 14.sp
                     )
@@ -220,18 +235,30 @@ private fun ClipTile(
     onPin: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val pasteLabel = stringResource(R.string.clipboard_paste)
+    val pinLabel = stringResource(if (pinned) R.string.clipboard_unpin else R.string.clipboard_pin)
+    val deleteLabel = stringResource(R.string.clipboard_delete)
     Column(
         Modifier
             .fillMaxWidth()
             .clip(RowShape)
             .background(colors.key)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .combinedClickable(onClickLabel = pasteLabel, onClick = onClick, onLongClick = onLongClick)
+            // Pin and delete as TalkBack actions, instead of long-press then the small buttons
+            .semantics {
+                if (onLongClick != null) {
+                    customActions = listOfNotNull(
+                        if (pinEnabled) CustomAccessibilityAction(pinLabel) { onPin(); true } else null,
+                        CustomAccessibilityAction(deleteLabel) { onDelete(); true }
+                    )
+                }
+            }
     ) {
         Row(Modifier.fillMaxWidth().heightIn(min = 44.dp), verticalAlignment = Alignment.Top) {
             val pinMark = pinned && !showActions
             Column(Modifier.weight(1f).padding(start = 12.dp, end = if (pinMark) 0.dp else 12.dp, top = 10.dp, bottom = 10.dp)) {
                 Text(
-                    text = text,
+                    text = withNepaliSpeech(text),
                     color = if (muted) colors.hint else colors.keyText,
                     fontSize = 14.sp,
                     lineHeight = 19.sp,

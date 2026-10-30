@@ -1,5 +1,12 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.layout.layout
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.withNepaliSpeech
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
@@ -64,7 +71,15 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -254,7 +269,20 @@ fun KeyboardView(
 
         // The keys area eases to the new layout's height and clips while it does
         Box(Modifier.fillMaxWidth().height(rowsHeight).clipToBounds()) {
-        Column(Modifier.fillMaxWidth().wrapContentHeight(Alignment.Top, unbounded = true)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(Alignment.Top, unbounded = true)
+                // Keys are cells that draw half a gap in from each side, so the rows reach half a gap
+                // past the side padding to keep the outer keys where they were
+                .layout { measurable, constraints ->
+                    val extra = KeyGap.roundToPx()
+                    val placeable = measurable.measure(
+                        constraints.copy(minWidth = constraints.minWidth + extra, maxWidth = constraints.maxWidth + extra)
+                    )
+                    layout(constraints.maxWidth, placeable.height) { placeable.place(-extra / 2, 0) }
+                }
+        ) {
         state.currentLayout.rows.forEach { row ->
             val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
             val isNumberRow = isNumberRow(row)
@@ -264,16 +292,28 @@ fun KeyboardView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = RowGap),
-                horizontalArrangement = Arrangement.spacedBy(KeyGap)
             ) {
                 if (indent > 0f) Box(Modifier.weight(indent))
                 row.forEach { key ->
                     val alternate = keyAlternate(key, state.isShifted)
                     val isBackspace = key.primary == "⌫"
                     val isLanguageKey = key.primary == "🌐"
+                    val visual = keyVisual(key, state, enterLabel, spaceLabel, colors)
+                    val alternateLabel = alternate?.let { stringResource(R.string.key_type_alternate, spokenCharacter(it)) }
+                    val languageOptions = stringResource(R.string.key_language_options)
                     Key(
                         key = key,
-                        visual = keyVisual(key, state, enterLabel, spaceLabel, colors),
+                        visual = visual,
+                        a11y = KeyA11y(
+                            label = visual.description ?: spokenCharacter(visual.text ?: key.primary),
+                            state = if (isLanguageKey) languageName(state.currentLanguage) else null,
+                            selected = key.primary == "⇧" && state.isShifted,
+                            actions = when {
+                                isLanguageKey -> listOf(CustomAccessibilityAction(languageOptions) { keyboard.onLanguageLongPress(); true })
+                                alternate != null && alternateLabel != null -> listOf(CustomAccessibilityAction(alternateLabel) { keyboard.onKeyLongPress(alternate); true })
+                                else -> emptyList()
+                            }
+                        ),
                         colors = colors,
                         height = if (isNumberRow) numberRowKeyHeight else keyHeight,
                         feel = state.feel,
@@ -328,12 +368,19 @@ private fun BoxScope.LanguageMenu(
         Modifier
             .matchParentSize()
             .pointerInput(Unit) { detectTapGestures { onDismiss() } }
+            .clearAndSetSemantics {}
     )
+    val title = stringResource(R.string.key_language)
     Column(
         modifier = Modifier
             .align(Alignment.BottomStart)
             .windowInsetsPadding(keyboardBottomInsets)
             .padding(start = 8.dp, bottom = bottomOffset)
+            // TalkBack announces the menu when it opens and offers Dismiss to close it
+            .semantics {
+                paneTitle = title
+                dismiss { onDismiss(); true }
+            }
             .width(232.dp)
             .shadow(8.dp, PreviewShape)
             .clip(PreviewShape)
@@ -365,6 +412,7 @@ private fun MenuRow(
             .fillMaxWidth()
             .height(44.dp)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .semantics { if (checked) selected = true }
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -447,7 +495,7 @@ private fun keyVisual(
         "?123", SymbolLayout.PAGE_ONE, SymbolLayout.PAGE_TWO -> KeyVisual(
             text = if (key.primary == "?123" && nepaliKeys) "?१२३" else key.primary,
             background = colors.functionKey, content = colors.keyText, fontSize = 14.sp,
-            description = stringResource(R.string.key_numbers)
+            description = stringResource(if (key.primary == "?123") R.string.key_numbers else R.string.key_more_symbols)
         )
         "ABC" -> KeyVisual(
             text = if (nepaliKeys) "कखग" else "ABC",
@@ -465,15 +513,55 @@ private fun keyVisual(
     }
 }
 
+/** What TalkBack reads and offers for a key. */
+private data class KeyA11y(
+    val label: String,
+    val state: String? = null,
+    val selected: Boolean = false,
+    val actions: List<CustomAccessibilityAction> = emptyList()
+)
+
+private val vowelForSign = mapOf(
+    "ा" to "आ", "ि" to "इ", "ी" to "ई", "ु" to "उ", "ू" to "ऊ", "ृ" to "ऋ",
+    "े" to "ए", "ै" to "ऐ", "ो" to "ओ", "ौ" to "औ"
+)
+
+/**
+ * What TalkBack says for a character key. Devanagari vowel signs and marks alone are silent or
+ * garbled in speech, so they get names; capital Latin letters say so.
+ */
+@Composable
+private fun spokenCharacter(text: String): String = when (text) {
+    "्" -> stringResource(R.string.key_halanta)
+    "ं" -> stringResource(R.string.key_anusvara)
+    "ँ" -> stringResource(R.string.key_chandrabindu)
+    "ः" -> stringResource(R.string.key_visarga)
+    else -> vowelForSign[text]?.let { stringResource(R.string.key_vowel_sign, it) }
+        ?: if (text.length == 1 && text != text.lowercase()) stringResource(R.string.key_capital, text) else text
+}
+
+/** The current input mode, the language key's TalkBack state. */
+@Composable
+private fun languageName(mode: LanguageMode): String = stringResource(
+    when (mode) {
+        LanguageMode.NEPALI -> R.string.key_mode_traditional
+        LanguageMode.TRANSLITERATION -> R.string.key_mode_romanized
+        else -> R.string.key_mode_english
+    }
+)
+
 /**
  * One key. Taps fire on release; a long-press types the corner hint; backspace deletes on
  * touch-down and repeats while held. Each press gives a light haptic tick, and character keys
  * show a preview bubble above the finger.
+ *
+ * TalkBack activates it through its click action and reaches the long-press through custom actions.
  */
 @Composable
 private fun Key(
     key: KeyData,
     visual: KeyVisual,
+    a11y: KeyA11y,
     colors: KeyboardColors,
     height: Dp,
     feel: KeyFeel,
@@ -509,10 +597,29 @@ private fun Key(
         label = "keyScale"
     )
 
+    // No minimum touch target: Compose would otherwise widen these narrow keys to 48 dp for
+    // touches and TalkBack, and the widened bounds overlap, so TalkBack's focus box sat off the key.
+    // The keys tile the row instead (each draws half a gap in), so touches in the gaps still land.
+    val viewConfiguration = LocalViewConfiguration.current
+    val cellConfiguration = remember(viewConfiguration) {
+        object : ViewConfiguration by viewConfiguration {
+            override val minimumTouchTargetSize = DpSize.Zero
+        }
+    }
+    CompositionLocalProvider(LocalViewConfiguration provides cellConfiguration) {
     Box(
         modifier = modifier
             .height(height)
-            .then(if (visual.description != null) Modifier.semantics { contentDescription = visual.description } else Modifier)
+            // TalkBack's double-tap never reaches the gesture below: give it a click action, and
+            // what a long-press does as custom actions. The corner hint is part of this one node.
+            .clearAndSetSemantics {
+                // Text with a locale span, so Devanagari is spoken in a voice that can read it
+                text = withNepaliSpeech(a11y.label)
+                a11y.state?.let { stateDescription = it }
+                if (a11y.selected) selected = true
+                onClick { tap(); true }
+                if (a11y.actions.isNotEmpty()) customActions = a11y.actions
+            }
             .pointerInput(key.primary, repeating, hasLongPress) {
                 detectTapGestures(
                     onPress = {
@@ -537,6 +644,7 @@ private fun Key(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(horizontal = KeyGap / 2)
                 .graphicsLayer { scaleX = scale; scaleY = scale }
                 .shadow(if (colors.keyShadow == Color.Transparent) 0.dp else 0.5.dp, KeyShape)
                 .clip(KeyShape)
@@ -570,6 +678,7 @@ private fun Key(
                 Text(text = visual.text.orEmpty(), color = colors.keyText, fontSize = 28.sp, maxLines = 1)
             }
         }
+    }
     }
 }
 
