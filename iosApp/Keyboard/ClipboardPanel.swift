@@ -64,7 +64,9 @@ struct ClipboardPanel: View {
                 .padding(.bottom, 10)
                 .accessibilityAddTraits(.isHeader)
 
-            if !model.hasFullAccess || tiles.isEmpty {
+            if model.hasFullAccess && state.clipboardOff {
+                offCard
+            } else if !model.hasFullAccess || tiles.isEmpty {
                 Text(model.hasFullAccess ? "Copy text in any app and it shows here." : "Turn on Full Access in the Nepali Keyboard app")
                     .font(.system(size: 14))
                     .foregroundStyle(colors.hint)
@@ -91,6 +93,45 @@ struct ClipboardPanel: View {
             try? await Task.sleep(nanoseconds: 3_000_000_000)
             if !Task.isCancelled { confirmClear = false }
         }
+    }
+
+    /** History is off: offer to turn it on here instead of a list that would stay empty. */
+    private var offCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Clipboard history is off")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(colors.keyText)
+            Text("Copies you make are kept on this iPhone so you can paste them again. Nothing leaves the iPhone.")
+                .font(.system(size: 13))
+                .foregroundStyle(colors.hint)
+                .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            HStack(spacing: 8) {
+                Spacer(minLength: 0)
+                offButton(String(localized: "Not now"), primary: false) { model.closeClipboard() }
+                offButton(String(localized: "Turn on"), primary: true) { model.turnOnClipboardHistory() }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func offButton(_ text: String, primary: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            model.keyDown()
+            action()
+        } label: {
+            Text(text)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(primary ? colors.onAccent : colors.keyText)
+                .padding(.horizontal, 16)
+                .frame(height: 36)
+                .background(Capsule().fill(primary ? colors.accent : Color.clear))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 
     /**

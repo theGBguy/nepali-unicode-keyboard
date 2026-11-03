@@ -82,6 +82,8 @@ fun ClipboardPanel(
     feel: KeyFeel,
     copied: CopiedText?,
     items: List<ClipItem>,
+    off: Boolean,
+    onTurnOn: () -> Unit,
     onPaste: (String) -> Unit,
     onPin: (String, Boolean) -> Unit,
     onDelete: (String) -> Unit,
@@ -121,7 +123,26 @@ fun ClipboardPanel(
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 10.dp).semantics { heading() }
         )
-        if (copied == null && items.isEmpty()) {
+        if (off) {
+            // History is off: offer to turn it on here instead of a list that would stay empty
+            Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+                Text(stringResource(R.string.clipboard_off_title), color = colors.keyText, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(R.string.clipboard_off_body),
+                    color = colors.hint,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                Spacer(Modifier.weight(1f))
+                Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                    PanelButton(colors, stringResource(R.string.handwriting_not_now), primary = false, onClick = onClose)
+                    Spacer(Modifier.width(8.dp))
+                    PanelButton(colors, stringResource(R.string.clipboard_turn_on), primary = true, onClick = onTurnOn)
+                }
+            }
+        } else if (copied == null && items.isEmpty()) {
             Box(Modifier.weight(1f).fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
                 Text(
                     stringResource(R.string.clipboard_empty),

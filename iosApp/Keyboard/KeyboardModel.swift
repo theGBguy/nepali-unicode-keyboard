@@ -222,6 +222,11 @@ final class KeyboardModel: ObservableObject {
         reading { controller.openClipboard() }
     }
 
+    /** "Turn on" on the panel's history-off card; reading the copy may make iOS ask "Allow Paste". */
+    func turnOnClipboardHistory() {
+        reading { controller.onClipboardTurnOn() }
+    }
+
     func closeClipboard() {
         controller.closeClipboard()
         afterEdit()

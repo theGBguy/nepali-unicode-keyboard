@@ -232,8 +232,9 @@ private fun Message(colors: KeyboardColors, text: String, below: @Composable () 
     }
 }
 
+/** A rounded text button for a panel's message card (handwriting consent, clipboard history off). */
 @Composable
-private fun PanelButton(colors: KeyboardColors, text: String, primary: Boolean, onClick: () -> Unit) {
+internal fun PanelButton(colors: KeyboardColors, text: String, primary: Boolean, onClick: () -> Unit) {
     Box(
         Modifier
             .height(36.dp)
