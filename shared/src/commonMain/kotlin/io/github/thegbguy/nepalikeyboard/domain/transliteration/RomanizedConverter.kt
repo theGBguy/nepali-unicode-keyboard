@@ -9,7 +9,9 @@ package io.github.thegbguy.nepalikeyboard.domain.transliteration
  *   inherent vowel and adds nothing.
  * - Two consonants in a row join with a halant (`st` → स्त).
  * - A word-final consonant keeps its inherent `a` (`ghar` → घर), as Nepali is written.
- * - Capitals give retroflex letters (`T` ट, `Th` ठ, `D` ड, `Dh` ढ, `N` ण, `Sh`/`S` ष).
+ * - Capitals give retroflex letters (`T` ट, `Th` ठ, `D` ड, `Dh` ढ, `N` ण, `Sh` ष); `S` is श,
+ *   as in Hamro Nepali and other Romanized keyboards, so both sibilants have a capital key.
+ * - `ng` ङ, `yn` ञ, `gy` ज्ञ.
  * - `M` anusvara ं, `H` visarga ः, `~` or `^` chandrabindu ँ, `.` purna biram ।, digits → Nepali.
  */
 object RomanizedConverter {
@@ -21,9 +23,9 @@ object RomanizedConverter {
         "ksh" to "क्ष", "chh" to "छ", "Chh" to "छ",
         "kh" to "ख", "gh" to "घ", "ng" to "ङ", "ch" to "च", "jh" to "झ",
         "Th" to "ठ", "Dh" to "ढ", "th" to "थ", "dh" to "ध",
-        "ph" to "फ", "bh" to "भ", "Sh" to "ष", "sh" to "श", "gy" to "ज्ञ",
+        "ph" to "फ", "bh" to "भ", "Sh" to "ष", "sh" to "श", "gy" to "ज्ञ", "yn" to "ञ", "Yn" to "ञ",
         "Ch" to "च", "Kh" to "ख", "Gh" to "घ", "Jh" to "झ", "Ph" to "फ", "Bh" to "भ",
-        "T" to "ट", "D" to "ड", "N" to "ण", "S" to "ष",
+        "T" to "ट", "D" to "ड", "N" to "ण", "S" to "श",
         "k" to "क", "g" to "ग", "c" to "च", "j" to "ज", "t" to "त", "d" to "द", "n" to "न",
         "p" to "प", "f" to "फ", "b" to "ब", "m" to "म", "y" to "य", "r" to "र", "l" to "ल",
         "w" to "व", "v" to "व", "s" to "स", "h" to "ह", "x" to "क्ष", "z" to "ज", "q" to "क",
@@ -44,6 +46,13 @@ object RomanizedConverter {
     private val marks: Map<Char, String> = mapOf(
         'M' to "ं", 'H' to "ः", '~' to "ँ", '^' to "ँ", '.' to "।"
     )
+
+    /**
+     * The consonant with a halant when [roman] is exactly one consonant (`b` → ब्, `ng` → ङ्,
+     * `yn` → ञ्), the way half letters are typed on their own; null for anything else.
+     */
+    fun halfLetter(roman: String): String? =
+        consonants.firstOrNull { it.first == roman }?.let { it.second + HALANT }
 
     fun convert(roman: String): String {
         val out = StringBuilder()

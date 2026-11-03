@@ -119,6 +119,47 @@ class NepaliWordEngineTest {
     )
 
     @Test
+    fun `a consonant on its own commits the half letter, a capital the full letter`() = check(
+        "b" to "ब्",
+        "h" to "ह्",
+        "ng" to "ङ्",
+        "yn" to "ञ्",
+        "sh" to "श्",
+        "N" to "ण",
+        "Na" to "ण",
+        "S" to "श",
+        "Sh" to "ष"
+    )
+
+    @Test
+    fun `the full letter and words stay in the strip after a half letter`() {
+        val shown = type("b").candidates.map { it.devanagari }
+        assertEquals(listOf("ब्", "ब"), shown.take(2))
+        assertTrue(shown.toString(), "वा" in shown)
+    }
+
+    @Test
+    fun `capitals inside a word ask for those letters, sentence case doesn't`() = check(
+        "ghaDi" to "घडी",
+        "Nepal" to "नेपाल",
+        "Kathmandu" to "काठमाडौं",
+        "Thamel" to "ठमेल"
+    )
+
+    @Test
+    fun `verb endings take the eyelash ra, other र्य words keep the reph`() = check(
+        "garyo" to "गर\u094D\u200Dयो",
+        "paryo" to "पर\u094D\u200Dयो",
+        "maryo" to "मर\u094D\u200Dयो",
+        "heryo" to "हेर\u094D\u200Dयो",
+        "garyau" to "गर\u094D\u200Dयौ",
+        "karya" to "कार्य",
+        "karyalaya" to "कार्यालय",
+        "surya" to "सूर्य",
+        "bhagya" to "भाग्य"
+    )
+
+    @Test
     fun `unknown names fall back to letter-by-letter conversion`() {
         assertEquals("Thamel", "ठमेल", commit("Thamel"))
         assertTrue(type("namaste").candidates.size <= 6)
@@ -130,5 +171,17 @@ class NepaliWordEngineTest {
         var b = TransliterationBuffer()
         "namaste".forEach { b = bare.processInput(b, it.toString()) }
         assertEquals("नमस्ते", bare.commitBuffer(b))
+    }
+
+    @Test
+    fun `without the word list half letters and the eyelash ra still work`() {
+        val bare = NepaliTransliterationEngine { null }
+        fun commitBare(roman: String): String {
+            var b = TransliterationBuffer()
+            roman.forEach { b = bare.processInput(b, it.toString()) }
+            return bare.commitBuffer(b)
+        }
+        assertEquals("ञ्", commitBare("yn"))
+        assertEquals("गर\u094D\u200Dयो", commitBare("garyo"))
     }
 }
