@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FF371E31DB194E24F755ABC /* MLKitDigitalInkRecognition_resource.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 251D217EA4061AA6C5EE21D9 /* MLKitDigitalInkRecognition_resource.bundle */; };
 		17D57443FC2C66966F4E98D0 /* words_ne.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 3B84A07FE0645CB3CF19E15B /* words_ne.tsv */; };
 		218E73FD84778E2B4AC2C4EA /* emoji.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 23EDEBCB90A18B273AC597D4 /* emoji.tsv */; };
+		5A519BE9AF2C7D77B34AB12C /* MLKitDigitalInkRecognition in Frameworks */ = {isa = PBXBuildFile; productRef = AA3222B7C5653B8735DE7EBF /* MLKitDigitalInkRecognition */; };
 		7FE35C469ACC666E3DED05DC /* NepaliKeyboardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -38,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		23EDEBCB90A18B273AC597D4 /* emoji.tsv */ = {isa = PBXFileReference; path = emoji.tsv; sourceTree = "<group>"; };
+		251D217EA4061AA6C5EE21D9 /* MLKitDigitalInkRecognition_resource.bundle */ = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; path = MLKitDigitalInkRecognition_resource.bundle; sourceTree = "<group>"; };
 		3B84A07FE0645CB3CF19E15B /* words_ne.tsv */ = {isa = PBXFileReference; path = words_ne.tsv; sourceTree = "<group>"; };
 		A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NepaliKeyboardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70AE527B4B79681B96BE64B /* NepaliKeyboard.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NepaliKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,6 +76,17 @@
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		E86912E5DBAD3543A61BDEBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A519BE9AF2C7D77B34AB12C /* MLKitDigitalInkRecognition in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
 		06F13DBF0201EB6B34833DFE /* app */ = {
 			isa = PBXGroup;
@@ -89,6 +103,7 @@
 				2EE5DFAC972B8B81F46FE382 /* Keyboard */,
 				4FBE280E9E87F6B09C1D113A /* NepaliKeyboard */,
 				EFB49D7CC01065DCD271AE7C /* Shared */,
+				D63BA35A2A87A8122B017CC4 /* Vendor */,
 				78D5C59A2357B96D6BE1505A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,6 +151,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		D63BA35A2A87A8122B017CC4 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				251D217EA4061AA6C5EE21D9 /* MLKitDigitalInkRecognition_resource.bundle */,
+			);
+			path = Vendor;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -146,6 +169,7 @@
 				31C334E470C856C6B432D148 /* Build shared Kotlin framework */,
 				BA2159A0DBB6B78E9485EC5F /* Sources */,
 				46F83DA9F16B580A06B1432A /* Resources */,
+				E86912E5DBAD3543A61BDEBA /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -157,6 +181,7 @@
 			);
 			name = NepaliKeyboardExtension;
 			packageProductDependencies = (
+				AA3222B7C5653B8735DE7EBF /* MLKitDigitalInkRecognition */,
 			);
 			productName = NepaliKeyboardExtension;
 			productReference = A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */;
@@ -214,6 +239,9 @@
 			);
 			mainGroup = 0AA02D99D1AEF874D1C43CF9;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9A865399F05A2D1D2C13F253 /* XCRemoteSwiftPackageReference "google-mlkit-swiftpm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78D5C59A2357B96D6BE1505A /* Products */;
 			projectDirPath = "";
@@ -237,6 +265,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FF371E31DB194E24F755ABC /* MLKitDigitalInkRecognition_resource.bundle in Resources */,
 				218E73FD84778E2B4AC2C4EA /* emoji.tsv in Resources */,
 				17D57443FC2C66966F4E98D0 /* words_ne.tsv in Resources */,
 			);
@@ -370,7 +399,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				OTHER_LDFLAGS = "-framework NepaliKeyboardShared";
+				OTHER_LDFLAGS = "$(inherited) -framework NepaliKeyboardShared -ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.thegbguy.nepalikeyboard.keyboard;
 				PRODUCT_NAME = NepaliKeyboardExtension;
 				SDKROOT = iphoneos;
@@ -485,7 +514,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				OTHER_LDFLAGS = "-framework NepaliKeyboardShared";
+				OTHER_LDFLAGS = "$(inherited) -framework NepaliKeyboardShared -ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.thegbguy.nepalikeyboard.keyboard;
 				PRODUCT_NAME = NepaliKeyboardExtension;
 				SDKROOT = iphoneos;
@@ -546,6 +575,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9A865399F05A2D1D2C13F253 /* XCRemoteSwiftPackageReference "google-mlkit-swiftpm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/d-date/google-mlkit-swiftpm";
+			requirement = {
+				kind = exactVersion;
+				version = 9.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA3222B7C5653B8735DE7EBF /* MLKitDigitalInkRecognition */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9A865399F05A2D1D2C13F253 /* XCRemoteSwiftPackageReference "google-mlkit-swiftpm" */;
+			productName = MLKitDigitalInkRecognition;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9228F6B56DA2F84CAF2B464F /* Project object */;
 }

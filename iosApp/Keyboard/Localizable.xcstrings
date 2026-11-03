@@ -101,6 +101,16 @@
         }
       }
     },
+    "Couldn’t download. Check your internet connection.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डाउनलोड हुन सकेन। इन्टरनेट जडान जाँच्नुहोस्।"
+          }
+        }
+      }
+    },
     "Delete": {
       "localizations": {
         "ne": {
@@ -117,6 +127,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "भयो"
+          }
+        }
+      }
+    },
+    "Download": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डाउनलोड गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Downloading Nepali handwriting…": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली हस्तलिपि डाउनलोड हुँदैछ…"
           }
         }
       }
@@ -187,6 +217,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "हलन्त"
+          }
+        }
+      }
+    },
+    "Handwriting": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हस्तलिपि"
+          }
+        }
+      }
+    },
+    "Handwriting needs Full Access to download Google’s Nepali handwriting model. Turn it on in Settings → Nepali Keyboard → Keyboards.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google को नेपाली हस्तलिपि मोडेल डाउनलोड गर्न Full Access चाहिन्छ। Settings → Nepali Keyboard → Keyboards मा खोल्नुहोस्।"
           }
         }
       }
@@ -267,6 +317,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "अर्को"
+          }
+        }
+      }
+    },
+    "Not now": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अहिले होइन"
           }
         }
       }
@@ -471,6 +531,16 @@
         }
       }
     },
+    "Try again": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फेरि प्रयास गर्नुहोस्"
+          }
+        }
+      }
+    },
     "Turn on Full Access in the Nepali Keyboard app": {
       "localizations": {
         "ne": {
@@ -507,6 +577,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "विसर्ग"
+          }
+        }
+      }
+    },
+    "Write a word with one finger": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एउटा औँलाले शब्द लेख्नुहोस्"
+          }
+        }
+      }
+    },
+    "Write by hand": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हातले लेख्नुहोस्"
+          }
+        }
+      }
+    },
+    "Write here": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यहाँ लेख्नुहोस्"
+          }
+        }
+      }
+    },
+    "Writing area": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लेख्ने ठाउँ"
+          }
+        }
+      }
+    },
+    "Writing is recognised on this iPhone. Turning it on downloads Google’s Nepali handwriting model (about 15 MB) once, and Google’s ML Kit then sends Google usage diagnostics such as phone model and app version, never what you write. Turning it off in the app’s Settings deletes the model.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लेखाइ यही iPhone मा पहिचान हुन्छ। खोल्दा Google को नेपाली हस्तलिपि मोडेल (करिब १५ MB) एक पटक डाउनलोड हुन्छ, अनि Google को ML Kit ले फोनको मोडेल, एपको संस्करण जस्ता प्रयोग विवरण Google लाई पठाउँछ, तपाईंले लेखेको कुरा कहिल्यै होइन। एपको सेटिङमा बन्द गर्दा मोडेल मेटिन्छ।"
           }
         }
       }

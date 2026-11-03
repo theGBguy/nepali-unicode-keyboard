@@ -67,16 +67,29 @@ jobs:
           path: ~/.konan
           key: konan-${{ runner.os }}-${{ runner.arch }}-${{ steps.kotlin.outputs.version }}
       - run: ./gradlew :shared:iosSimulatorArm64Test
+      # The ML Kit package's binaries (~330 MB, all of them, though only handwriting is linked).
+      # Keyed on Package.resolved, so they're only downloaded again after a package update.
+      - id: spm
+        uses: actions/cache/restore@v6
+        with:
+          path: SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('iosApp/NepaliKeyboard.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
       - name: Build the iOS app and keyboard
         run: >
           xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard
-          -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+          -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath SourcePackages
+          CODE_SIGNING_ALLOWED=NO build
       # Saved from main only, like the Gradle cache; pull requests restore it
       - if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: ~/.konan
           key: ${{ steps.konan.outputs.cache-primary-key }}
+      - if: github.ref == 'refs/heads/main' && steps.spm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: SourcePackages
+          key: ${{ steps.spm.outputs.cache-primary-key }}
       - if: failure()
         uses: actions/upload-artifact@v7
         with:

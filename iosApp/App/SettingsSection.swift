@@ -20,6 +20,9 @@ struct SettingsSection: View {
     private var vibrate = SharedSettings.defaultVibrate
     @AppStorage(SharedSettings.Key.clipboardHistory, store: SharedSettings.group)
     private var clipboardHistory = true
+    @AppStorage(SharedSettings.Key.handwriting, store: SharedSettings.group)
+    private var handwriting = false
+    @State private var confirmHandwriting = false
     @State private var confirmClear = false
     @Environment(\.openURL) private var openURL
 
@@ -92,6 +95,10 @@ struct SettingsSection: View {
 
             Divider().padding(.top, 14)
 
+            handwritingToggle
+
+            Divider().padding(.top, 14)
+
             clipboard
         }
         .onChange(of: keySize) { _ in onChange() }
@@ -151,6 +158,35 @@ struct SettingsSection: View {
             } message: {
                 Text("This removes every saved item, including pinned ones.")
             }
+    }
+
+    /**
+     * Like Android's Settings switch: turning it on asks first (Google model download and ML Kit
+     * diagnostics); turning it off makes the keyboard delete the model when it next opens.
+     */
+    private var handwritingToggle: some View {
+        Toggle(isOn: Binding(
+            get: { handwriting },
+            set: { on in
+                if on { confirmHandwriting = true } else { handwriting = false; onChange() }
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Handwriting (uses Google)")
+                    .font(.subheadline.weight(.medium))
+                Text("Needs Full Access for the model download")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .tint(Color.crimson)
+        .padding(.top, 14)
+        .alert("Turn on handwriting?", isPresented: $confirmHandwriting) {
+            Button("Turn on") { handwriting = true; onChange() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Writing is recognised on this iPhone. Turning it on downloads Google’s Nepali handwriting model (about 15 MB) once, and Google’s ML Kit then sends Google usage diagnostics such as phone model and app version, never what you write. Turning it off here deletes the model.")
+        }
     }
 
     /** Also stamps the time, so this choice beats an older one made in the keyboard's menu. */

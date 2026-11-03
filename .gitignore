@@ -28,3 +28,6 @@ __pycache__/
 # Internal plans, legal-page generator, icon and store-asset generators: kept locally, not published
 /docs/
 /design/
+
+# Swift packages when built with -clonedSourcePackagesDirPath (CI)
+/SourcePackages

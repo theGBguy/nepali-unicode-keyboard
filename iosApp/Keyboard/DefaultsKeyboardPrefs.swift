@@ -92,9 +92,13 @@ final class DefaultsKeyboardPrefs: NSObject, KeyboardPrefs {
         set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.clipboardHistory) } }
     }
 
+    /**
+     * Turned on in the keyboard (which needs Full Access for handwriting, so it can write the
+     * group) or in the app; turning it off in the app deletes the model when the keyboard next opens.
+     */
     var handwriting: Bool {
-        get { local.bool(forKey: "handwriting") }
-        set { local.set(newValue, forKey: "handwriting") }
+        get { group.bool(forKey: SharedSettings.Key.handwriting) }
+        set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.handwriting) } }
     }
 
     var feel: KeyFeel {
