@@ -160,6 +160,9 @@
     <string name="clipboard_unpin">Unpin</string>
     <string name="clipboard_delete">Delete</string>
     <string name="clipboard_paste">Paste</string>
+    <string name="clipboard_off_title">Clipboard history is off</string>
+    <string name="clipboard_off_body">Copies you make are kept on this phone so you can paste them again. Nothing leaves the phone.</string>
+    <string name="clipboard_turn_on">Turn on</string>
     <string name="handwriting_open">Handwriting</string>
     <string name="handwriting_title">Write by hand</string>
     <string name="handwriting_consent">Writing is recognised on this phone. Turning it on downloads Google’s Nepali handwriting model (about 15 MB) once, and Google’s ML Kit then sends Google usage diagnostics such as phone model and app version, never what you write. Turning it off in Settings deletes the model.</string>

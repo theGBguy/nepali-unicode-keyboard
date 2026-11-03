@@ -230,6 +230,8 @@ fun KeyboardView(
                 feel = state.feel,
                 copied = state.copied,
                 items = state.clipItems,
+                off = state.clipboardOff,
+                onTurnOn = { keyboard.onClipboardTurnOn() },
                 onPaste = { keyboard.onClipPaste(it) },
                 onPin = { text, pinned -> keyboard.onClipPin(text, pinned) },
                 onDelete = { keyboard.onClipDelete(it) },
