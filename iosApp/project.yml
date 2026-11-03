@@ -9,6 +9,12 @@ options:
   developmentLanguage: en
   # Nepali strings live in the String Catalogs (Localizable.xcstrings) of both targets
   createIntermediateGroups: true
+# Google ML Kit (handwriting) as Swift packages: Google ships it only as CocoaPods binaries, which
+# this package republishes. Its device slices were checked to match Google's pod byte for byte.
+packages:
+  GoogleMLKit:
+    url: https://github.com/d-date/google-mlkit-swiftpm
+    exactVersion: 9.0.2
 settings:
   base:
     DEVELOPMENT_TEAM: 2G9CN64MSN
@@ -64,6 +70,9 @@ targets:
         buildPhase: resources
       - path: ../app/src/main/assets/emoji.tsv
         buildPhase: resources
+      # ML Kit's resource bundle, which Swift packages can't carry (same files as Google's pod)
+      - path: Vendor/MLKitDigitalInkRecognition_resource.bundle
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.nepalikeyboard.keyboard
@@ -73,11 +82,15 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Nepali Keyboard
         # The shared Kotlin code (KeyboardController, transliteration, layouts), built by Gradle
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
-        OTHER_LDFLAGS: -framework NepaliKeyboardShared
+        # -ObjC: ML Kit registers its classes through Objective-C categories the linker would drop
+        OTHER_LDFLAGS: $(inherited) -framework NepaliKeyboardShared -ObjC
     entitlements:
       path: NepaliKeyboardExtension.entitlements
       properties:
         com.apple.security.application-groups: [group.io.github.thegbguy.nepalikeyboard]
+    dependencies:
+      - package: GoogleMLKit
+        product: MLKitDigitalInkRecognition
     preBuildScripts:
       - name: Build shared Kotlin framework
         basedOnDependencyAnalysis: false

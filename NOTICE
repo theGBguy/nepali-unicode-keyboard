@@ -37,4 +37,7 @@ Third-party material
 
 Libraries (Jetpack Compose, AndroidX, Kotlin, kotlinx.coroutines) are under the
 Apache License 2.0. Google ML Kit Digital Ink Recognition is used under the
-ML Kit terms of service (https://developers.google.com/ml-kit/terms).
+ML Kit terms of service (https://developers.google.com/ml-kit/terms). On iOS it
+is linked through google-mlkit-swiftpm by d-date
+(https://github.com/d-date/google-mlkit-swiftpm), Apache License 2.0; the
+resource bundle in iosApp/Vendor/ is Google's, from the ML Kit pod.

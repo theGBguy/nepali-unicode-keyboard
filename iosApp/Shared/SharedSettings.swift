@@ -23,6 +23,8 @@ enum SharedSettings {
         static let sound = "sound"
         static let vibrate = "vibrate"
         static let clipboardHistory = "clipboard_history"
+        /** Handwriting is on: the user agreed to the model download (in the keyboard or the app). */
+        static let handwriting = "handwriting"
     }
 
     /**

@@ -55,6 +55,12 @@ final class KeyboardModel: ObservableObject {
     func inputStarted() {
         guard let inputController else { return }
         hasFullAccess = inputController.hasFullAccess
+        // Handwriting downloads its model, which needs Full Access; without it the panel says so
+        controller.handwritingRecognizer = hasFullAccess ? handwritingRecognizer : nil
+        // Turned off in the app: the model goes, like Android's Settings switch
+        if hasFullAccess && !controller.prefs.handwriting && MLKitHandwriting.shared.hasModel {
+            MLKitHandwriting.shared.deleteModel {}
+        }
         // The app may have cleared the history while the keyboard was closed
         clipboardStorage?.reload()
         clipboardSource?.observe { [weak self] in self?.canPaste = true }
@@ -145,6 +151,57 @@ final class KeyboardModel: ObservableObject {
 
     func emoji(_ emoji: String) {
         controller.onEmojiClick(emoji: emoji)
+    }
+
+    // MARK: Handwriting
+
+    /** Made on first use; nothing in ML Kit runs until the user agrees to the download. */
+    private lazy var handwritingRecognizer = CallbackHandwritingRecognizer(engine: MLKitHandwriting.shared)
+
+    func openHandwriting() {
+        controller.openHandwriting()
+    }
+
+    func closeHandwriting() {
+        controller.closeHandwriting()
+        afterEdit()
+    }
+
+    func acceptHandwriting() {
+        controller.onHandwritingAccept()
+    }
+
+    func retryHandwriting() {
+        controller.onHandwritingRetry()
+    }
+
+    func inkStroke(_ stroke: [InkPoint], width: CGFloat, height: CGFloat) {
+        controller.onInkStroke(stroke: stroke, width: Float(width), height: Float(height))
+    }
+
+    func inkCandidate(_ text: String) {
+        controller.onInkCandidate(text: text)
+        afterEdit()
+    }
+
+    func inkText(_ text: String) {
+        controller.onInkText(text: text)
+        afterEdit()
+    }
+
+    func inkSpace() {
+        controller.onInkSpace()
+        afterEdit()
+    }
+
+    func inkEnter() {
+        controller.onInkEnter()
+        afterEdit()
+    }
+
+    func inkBackspace() {
+        controller.onInkBackspace()
+        afterEdit()
     }
 
     // MARK: Clipboard

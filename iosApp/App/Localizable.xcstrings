@@ -71,6 +71,16 @@
         }
       }
     },
+    "Handwriting (uses Google)": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हस्तलिपि (Google प्रयोग गर्छ)"
+          }
+        }
+      }
+    },
     "How we handle your data": {
       "localizations": {
         "ne": {
@@ -117,6 +127,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "कीको उचाइ"
+          }
+        }
+      }
+    },
+    "Needs Full Access for the model download": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मोडेल डाउनलोड गर्न Full Access चाहिन्छ"
           }
         }
       }
@@ -331,6 +351,26 @@
         }
       }
     },
+    "Turn on": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Turn on handwriting?": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हस्तलिपि खोल्ने?"
+          }
+        }
+      }
+    },
     "Turn on the keyboard": {
       "localizations": {
         "ne": {
@@ -377,6 +417,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "iPhone सेटिङमा किबोर्डको आवाज खुला हुँदा"
+          }
+        }
+      }
+    },
+    "Writing is recognised on this iPhone. Turning it on downloads Google’s Nepali handwriting model (about 15 MB) once, and Google’s ML Kit then sends Google usage diagnostics such as phone model and app version, never what you write. Turning it off here deletes the model.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लेखाइ यही iPhone मा पहिचान हुन्छ। खोल्दा Google को नेपाली हस्तलिपि मोडेल (करिब १५ MB) एक पटक डाउनलोड हुन्छ, अनि Google को ML Kit ले फोनको मोडेल, एपको संस्करण जस्ता प्रयोग विवरण Google लाई पठाउँछ, तपाईंले लेखेको कुरा कहिल्यै होइन। यहाँ बन्द गर्दा मोडेल मेटिन्छ।"
           }
         }
       }

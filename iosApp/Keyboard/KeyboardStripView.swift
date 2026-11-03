@@ -26,6 +26,7 @@ struct KeyboardStripView: View {
                     }
                     if !state.field.isPrivate {
                         iconButton("clipboard", label: String(localized: "Clipboard")) { model.openClipboard() }
+                        iconButton("pencil.and.scribble", label: String(localized: "Handwriting")) { model.openHandwriting() }
                     }
                     if model.canPaste && !state.field.isPrivate {
                         divider

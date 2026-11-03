@@ -41,6 +41,9 @@ struct KeyboardRootView: View {
                 } else if state.showClipboard {
                     ClipboardPanel(model: model, state: state, colors: colors,
                                    height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
+                } else if let phase = state.handwriting {
+                    HandwritingPanel(model: model, state: state, phase: phase, colors: colors,
+                                     height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
                 } else {
                     KeyboardStripView(model: model, state: state, colors: colors)
                         .frame(height: KeyboardMetrics.stripHeight)
