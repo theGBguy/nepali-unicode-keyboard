@@ -416,11 +416,13 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     /**
      * Opens the clipboard panel in place of the keys. The current copy is read again (it may
      * predate the keyboard starting) and added to the history unless it's marked sensitive.
+     * With history off, the panel offers to turn it on instead, and nothing is read.
      */
     fun openClipboard() {
         commitTransliterationBuffer()
         if (_state.value.isVoiceListening) stopVoiceInput()
-        val copied = clipboardSource?.read()
+        val off = !prefs.clipboardHistory
+        val copied = if (off) null else clipboardSource?.read()
         var items = clipboardStorage.load()
         if (copied != null && !copied.sensitive && mayRecordClipboard()) {
             items = ClipboardHistory.add(items, copied.text, clock())
@@ -429,6 +431,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         _state.update {
             it.copy(
                 showClipboard = true,
+                clipboardOff = off,
                 showEmoji = false,
                 handwriting = null,
                 showLanguageMenu = false,
@@ -444,7 +447,13 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     }
 
     fun closeClipboard() {
-        _state.update { it.copy(showClipboard = false, copied = null) }
+        _state.update { it.copy(showClipboard = false, clipboardOff = false, copied = null) }
+    }
+
+    /** "Turn on" on the panel's history-off card: saves the setting and shows the history. */
+    fun onClipboardTurnOn() {
+        prefs.clipboardHistory = true
+        openClipboard()
     }
 
     /** Pastes [text] from the panel, moves it to the top of the history, and goes back to the keys. */
@@ -1331,6 +1340,8 @@ data class KeyboardState(
     val emojiRecents: List<String> = emptyList(),
     /** The clipboard panel replaces the keys. */
     val showClipboard: Boolean = false,
+    /** Clipboard history is off: the panel offers to turn it on instead of listing items. */
+    val clipboardOff: Boolean = false,
     /** The phone's current copy, read when the clipboard panel opened. */
     val copied: CopiedText? = null,
     /** Saved clipboard items, most recent first. */

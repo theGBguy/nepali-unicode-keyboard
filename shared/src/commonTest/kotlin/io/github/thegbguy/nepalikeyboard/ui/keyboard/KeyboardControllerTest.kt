@@ -18,6 +18,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -175,6 +176,42 @@ class KeyboardControllerTest {
         keyboard.onClipClearAll()
         assertNull(clipboard.copied)
         assertEquals(emptyList(), storage.load())
+    }
+
+    @Test
+    fun `with history off the clipboard panel offers to turn it on and reads nothing`() {
+        var reads = 0
+        val clipboard = object : ClipboardSource {
+            override fun read(): CopiedText? { reads++; return CopiedText("copied", sensitive = false) }
+            override fun observe(onCopy: (() -> Unit)?) {}
+            override fun recentCopyId(withinMillis: Long): Long? = null
+            override fun clear() {}
+        }
+        val storage = InMemoryClipboardStorage()
+        val prefs = InMemoryKeyboardPrefs(typeNepali = false, clipboardHistory = false)
+        keyboard.prefs = prefs
+        keyboard.clipboardSource = clipboard
+        keyboard.clipboardStorage = storage
+
+        keyboard.openClipboard()
+        assertTrue(keyboard.currentState.showClipboard)
+        assertTrue(keyboard.currentState.clipboardOff)
+        assertNull(keyboard.currentState.copied)
+        assertEquals(0, reads)
+
+        keyboard.onClipboardTurnOn()
+        assertTrue(prefs.clipboardHistory)
+        assertFalse(keyboard.currentState.clipboardOff)
+        assertEquals("copied", keyboard.currentState.copied?.text)
+        assertEquals(listOf("copied"), storage.load().map { it.text })
+    }
+
+    @Test
+    fun `closing the panel forgets the history-off card`() {
+        keyboard.prefs = InMemoryKeyboardPrefs(typeNepali = false, clipboardHistory = false)
+        keyboard.openClipboard()
+        keyboard.closeClipboard()
+        assertFalse(keyboard.currentState.clipboardOff)
     }
 
     @Test
