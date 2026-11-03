@@ -11,6 +11,12 @@ struct KeyboardStripView: View {
     let state: KeyboardState
     let colors: KeyboardColors
 
+    /**
+     * The gear shows where settings are instead of opening the app: App Review doesn't allow
+     * keyboards to launch apps other than Settings.
+     */
+    @State private var showSettingsHint = false
+
     var body: some View {
         let buffer = state.transliterationBuffer
         let latin = state.showSuggestionBar ? buffer.romanizedText : ""
@@ -18,7 +24,21 @@ struct KeyboardStripView: View {
 
         GeometryReader { geometry in
             let slots = slots(latin: latin, buffer: buffer, smart: smart)
-            if slots.isEmpty {
+            if slots.isEmpty && showSettingsHint {
+                Text("Settings are in the Nepali Keyboard app")
+                    .font(.system(size: 15))
+                    .foregroundStyle(colors.keyText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { showSettingsHint = false }
+                    .onAppear { UIAccessibility.post(notification: .announcement, argument: String(localized: "Settings are in the Nepali Keyboard app")) }
+                    .task {
+                        try? await Task.sleep(nanoseconds: 3_000_000_000)
+                        if !Task.isCancelled { showSettingsHint = false }
+                    }
+            } else if slots.isEmpty {
                 // Nothing to suggest: the panel buttons and a recent copy, like Android's strip
                 HStack(spacing: 0) {
                     if !state.field.isPrivate && !state.field.prefersNumbers {
@@ -33,6 +53,7 @@ struct KeyboardStripView: View {
                         pasteButton
                     }
                     Spacer(minLength: 0)
+                    iconButton("gearshape", label: String(localized: "Keyboard settings")) { showSettingsHint = true }
                 }
                 .frame(maxHeight: .infinity)
             } else {

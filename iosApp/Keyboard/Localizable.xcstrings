@@ -91,6 +91,26 @@
         }
       }
     },
+    "Clipboard history is off": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "क्लिपबोर्ड इतिहास बन्द छ"
+          }
+        }
+      }
+    },
+    "Copies you make are kept on this iPhone so you can paste them again. Nothing leaves the iPhone.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तपाईंले कपी गरेका कुरा फेरि पेस्ट गर्न यही iPhone मा राखिन्छन्। iPhone बाट केही पनि बाहिर जाँदैन।"
+          }
+        }
+      }
+    },
     "Copy text in any app and it shows here.": {
       "localizations": {
         "ne": {
@@ -257,6 +277,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "टाइप गरेजस्तै राख्नुहोस्"
+          }
+        }
+      }
+    },
+    "Keyboard settings": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किबोर्ड सेटिङ"
           }
         }
       }
@@ -441,6 +471,16 @@
         }
       }
     },
+    "Settings are in the Nepali Keyboard app": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिङहरू Nepali Keyboard एपमा छन्"
+          }
+        }
+      }
+    },
     "Shift": {
       "localizations": {
         "ne": {
@@ -537,6 +577,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "फेरि प्रयास गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Turn on": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खोल्नुहोस्"
           }
         }
       }
