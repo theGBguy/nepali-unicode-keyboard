@@ -44,29 +44,70 @@ class NepaliTransliterationEngine(
             // Polite imperatives end in a halant: garnus → गर्नुस्, garnuhos → गर्नुहोस्
             if (POLITE_ENDING.containsMatchIn(romanizedText)) it + "्" else it
         }
-        val words = index() ?: return listOf(TransliterationCandidate(converted, romanizedText))
+        // A consonant typed on its own is a half letter (b → ब्, yn → ञ्). A capital one is the
+        // full letter first (N → ण, S → श), as capitals are typed for the letter itself.
+        val half = RomanizedConverter.halfLetter(romanizedText)
+        val literal = when {
+            half == null -> listOf(converted)
+            romanizedText.any { it.isUpperCase() } -> listOf(converted, half)
+            else -> listOf(half, converted)
+        }
+        val words = index() ?: return candidates(romanizedText, literal, emptyList())
 
         val scores = LinkedHashMap<String, Double>()
-        words.lookup(romanizedText).forEach { scores[it.word] = it.score }
+        val special = if (isStrict(romanizedText)) converted.filter { it in SPECIAL_LETTERS } else ""
+        // Typed capitals and yn/gy ask for those letters: drop words that don't have them (N → ण, not न)
+        words.lookup(romanizedText).forEach { if (special.all(it.word::contains)) scores[it.word] = it.score }
         // The literal conversion competes like a word typed exactly, with a small frequency floor
         val convertedScore = ln((words.frequency(converted) ?: UNKNOWN_WORD_FREQUENCY) + 1.0)
         if (convertedScore > (scores[converted] ?: Double.NEGATIVE_INFINITY)) scores[converted] = convertedScore
 
         val ranked = scores.entries.sortedByDescending { it.value }.map { it.key }
-        val completions = words.completions(romanizedText).filter { it !in scores }
-        return (ranked.take(MAX_EXACT) + completions).take(MAX_CANDIDATES).mapIndexed { i, word ->
-            TransliterationCandidate(
-                devanagari = word,
-                romanized = romanizedText,
-                confidence = 1f - i * 0.1f,
-                isComplete = word !in completions
-            )
-        }
+        val exact = if (half != null) literal + ranked else ranked
+        val completions = words.completions(romanizedText).filter { it !in scores && special.all(it::contains) }
+        return candidates(romanizedText, exact, completions)
     }
+
+    private fun candidates(
+        romanized: String,
+        exact: List<String>,
+        completions: List<String>
+    ): List<TransliterationCandidate> {
+        val fixedCompletions = completions.map(::eyelashRa)
+        return (exact.map(::eyelashRa).distinct().take(MAX_EXACT) + fixedCompletions)
+            .distinct().take(MAX_CANDIDATES).mapIndexed { i, word ->
+                TransliterationCandidate(
+                    devanagari = word,
+                    romanized = romanized,
+                    confidence = 1f - i * 0.1f,
+                    isComplete = word !in fixedCompletions
+                )
+            }
+    }
+
+    /**
+     * Input that spells its letters out: a capital (`ghaDi`, `N`) or `yn`. A capital that only
+     * starts a longer word is sentence case (`Nepal`, `Sita`), not a request for ण or श.
+     * (`gy` isn't strict: bhagya is भाग्य, not a word with ज्ञ.)
+     */
+    private fun isStrict(roman: String): Boolean {
+        if ("yn" in roman) return true
+        val rest = if (roman.length >= 3) roman.drop(1) else roman
+        return rest.any { it.isUpperCase() }
+    }
+
+    /**
+     * Verb endings -र्यो / -र्यौ are written with the eyelash ra (ZWJ): गर्‍यो, पार्‍यो, हेर्‍यौ.
+     * Without the joiner they render as a reph over य, which is how कार्य or सूर्य are spelled.
+     */
+    private fun eyelashRa(word: String): String = EYELASH_ENDING.replace(word, "र्\u200Dय$1")
 
     private companion object {
         /** Frequency given to a converted word that isn't in the list (names, slang, typos). */
         const val UNKNOWN_WORD_FREQUENCY = 10
+        /** Letters only an explicit spelling gives: retroflex, श/ष and ञ (also in ज्ञ). */
+        const val SPECIAL_LETTERS = "टठडढणशषञ"
+        val EYELASH_ENDING = Regex("र्य([ोौ][ंँ]?)$")
         val POLITE_ENDING = Regex("(nu|ho)s$")
         const val MAX_EXACT = 4
         const val MAX_CANDIDATES = 6

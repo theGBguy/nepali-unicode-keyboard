@@ -53,6 +53,25 @@ class RomanizedConverterTest {
     }
 
     @Test
+    fun `yn and the capital sibilants`() {
+        assertEquals("ञ", conv("yn"))
+        assertEquals("चिरञ्जीवी", conv("chiraynjiivii"))
+        assertEquals("श", conv("S"))
+        assertEquals("ष", conv("Sh"))
+    }
+
+    @Test
+    fun `a consonant on its own has a half-letter form`() {
+        assertEquals("ब्", RomanizedConverter.halfLetter("b"))
+        assertEquals("ङ्", RomanizedConverter.halfLetter("ng"))
+        assertEquals("ञ्", RomanizedConverter.halfLetter("yn"))
+        assertEquals("ष्", RomanizedConverter.halfLetter("Sh"))
+        assertEquals(null, RomanizedConverter.halfLetter("ba"))
+        assertEquals(null, RomanizedConverter.halfLetter("ai"))
+        assertEquals(null, RomanizedConverter.halfLetter("kt"))
+    }
+
+    @Test
     fun `nasal and other marks`() {
         assertEquals("संसार", conv("saMsaar"))
         assertEquals("दुःख", conv("duHkha"))

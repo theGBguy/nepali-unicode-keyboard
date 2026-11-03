@@ -147,7 +147,7 @@ class KeyboardViewModelClipboardTest {
         vm.openClipboard()
         vm.onClipPaste("first")
         verifyOrder {
-            ic.commitText("क", 1)
+            ic.commitText("क्", 1) // k alone is a half letter
             ic.commitText("first", 1)
         }
         assertEquals(listOf("first", "second"), saved())
