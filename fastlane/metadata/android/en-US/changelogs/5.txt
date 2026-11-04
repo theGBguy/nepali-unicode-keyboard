@@ -4,4 +4,4 @@ What's new in 1.3.0
 • TalkBack support
 • Romanized typing: half letters, ञ, capitals and the eyelash ra
 • Turn clipboard history on straight from the panel
-• Fixes: clear all now also clears the phone's current copy, and backspace now deletes the last Romanized letter
+• Bug fixes
