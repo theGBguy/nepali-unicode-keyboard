@@ -536,6 +536,61 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         setLanguage(next)
     }
 
+    /**
+     * A physical keyboard was connected or removed (Android). While one is connected only the
+     * strip shows, until the user opens the keys from it.
+     */
+    fun onHardwareKeyboardChanged(connected: Boolean) {
+        if (connected == _state.value.hardwareKeyboard) return
+        _state.update { it.copy(hardwareKeyboard = connected, keysWithHardwareKeyboard = false) }
+    }
+
+    /**
+     * A field got focus while the keyboard isn't on screen, so only a physical keyboard types into
+     * it (Android calls this from `onStartInput`). Sets up the field and mode like [onInputStarted]
+     * (English in password fields), but voice won't start since nothing is shown.
+     */
+    fun onHiddenInputStarted(field: FieldInfo, restarting: Boolean) {
+        onInputStarted(field, restarting)
+        inputShown = false
+    }
+
+    /** The strip's keyboard button: show or hide the keys while a physical keyboard is connected. */
+    fun toggleKeysWithHardwareKeyboard() {
+        _state.update { it.copy(keysWithHardwareKeyboard = !it.keysWithHardwareKeyboard) }
+    }
+
+    /**
+     * Text typed on a physical keyboard: a Latin character in Romanized mode, or the Devanagari
+     * the traditional layout gives for the key. Handled exactly like the same key on screen.
+     */
+    fun onHardwareText(text: String) = onKeyClick(KeyData(text))
+
+    /** Space on a physical keyboard: commits the Romanized word like the screen's space bar. */
+    fun onHardwareSpace() = onKeyClick(KeyData(" ", keyType = KeyType.ACTION))
+
+    /**
+     * Backspace on a physical keyboard. Edits the Romanized word and returns true while there is
+     * one; otherwise returns false so the field handles the key itself (with its own key repeat).
+     */
+    fun onHardwareBackspace(): Boolean {
+        if (_state.value.currentLanguage != LanguageMode.TRANSLITERATION
+            || _state.value.transliterationBuffer.isEmpty()
+        ) return false
+        onKeyClick(KeyData("⌫", keyType = KeyType.FUNCTION))
+        return true
+    }
+
+    /**
+     * A physical key the field handles itself (Enter, arrows, Tab, shortcuts): finish the
+     * Romanized word first, so the key acts on the committed text.
+     */
+    fun onHardwarePassThrough() {
+        if (_state.value.currentLanguage != LanguageMode.TRANSLITERATION) return
+        settlePendingPoint("")
+        commitTransliterationBuffer()
+    }
+
     /** Long-press on the language key. */
     fun onLanguageLongPress() {
         _state.update { it.copy(showLanguageMenu = true, nepaliStyle = prefs.nepaliStyle) }
@@ -1360,6 +1415,10 @@ data class KeyboardState(
     /** Key height, vibration and sound from Settings. */
     val feel: KeyFeel = KeyFeel(),
     val currentLanguage: LanguageMode = LanguageMode.ENGLISH,
+    /** A physical keyboard is connected (Android): only the strip shows... */
+    val hardwareKeyboard: Boolean = false,
+    /** ...unless the user opened the keys from the strip. */
+    val keysWithHardwareKeyboard: Boolean = false,
     val currentLayout: KeyboardLayout = EnglishLayout.getLayout(),
     val isShifted: Boolean = false,
     val isCapsLock: Boolean = false,

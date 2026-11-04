@@ -2,9 +2,11 @@ package io.github.thegbguy.nepalikeyboard.service
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.inputmethodservice.InputMethodService
 import android.inputmethodservice.InputMethodService.Insets
 import android.os.Build
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -165,8 +167,61 @@ class NepaliIMEService : InputMethodService(),
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         keyboard.editor = { currentInputConnection?.let(::InputConnectionEditor) }
+        keyboard.onHardwareKeyboardChanged(hasHardwareKeyboard())
         keyboard.onInputStarted(FieldInfo.from(info), restarting)
     }
+
+    /**
+     * Every focused field, shown or not. With a physical keyboard the user can type into a field
+     * while the keyboard is hidden, so the controller must know the field (English in password
+     * fields) even then.
+     */
+    override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
+        super.onStartInput(attribute, restarting)
+        if (!hasHardwareKeyboard() || isInputViewShown) return
+        keyboard.editor = { currentInputConnection?.let(::InputConnectionEditor) }
+        keyboard.onHardwareKeyboardChanged(true)
+        keyboard.onHiddenInputStarted(FieldInfo.from(attribute), restarting)
+    }
+
+    /**
+     * Never take over the screen with Android's landscape extract view (a full-screen copy of the
+     * text box above the keys); keys shrink to fit instead, and a physical keyboard needs only the strip.
+     */
+    override fun onEvaluateFullscreenMode(): Boolean = false
+
+    // Physical keyboard
+
+    private val hardwareKeys = HardwareKeyRouter { keyboard }
+
+    /** A physical keyboard is plugged in (USB, Bluetooth) and not folded away. */
+    private fun hasHardwareKeyboard(): Boolean {
+        val config = resources.configuration
+        return config.keyboard != Configuration.KEYBOARD_NOKEYS &&
+            config.hardKeyboardHidden != Configuration.HARDKEYBOARDHIDDEN_YES
+    }
+
+    /** Show the strip even with a physical keyboard: it carries the Romanized suggestions. */
+    override fun onEvaluateInputViewShown(): Boolean = super.onEvaluateInputViewShown() || hasHardwareKeyboard()
+
+    /** Android doesn't show a keyboard implicitly when a physical one is connected; the strip should. */
+    override fun onShowInputRequested(flags: Int, configChange: Boolean): Boolean =
+        super.onShowInputRequested(flags, configChange) || hasHardwareKeyboard()
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        keyboard.onHardwareKeyboardChanged(hasHardwareKeyboard())
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (currentInputConnection != null &&
+            hardwareKeys.onKeyDown(keyCode, event.metaState, event.getUnicodeChar(event.metaState), event.repeatCount)
+        ) return true
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean =
+        hardwareKeys.onKeyUp(keyCode) || super.onKeyUp(keyCode, event)
 
     override fun onUpdateSelection(
         oldSelStart: Int,

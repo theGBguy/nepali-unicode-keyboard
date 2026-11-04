@@ -153,6 +153,8 @@ class NepaliWordEngineTest {
         "maryo" to "मर\u094D\u200Dयो",
         "heryo" to "हेर\u094D\u200Dयो",
         "garyau" to "गर\u094D\u200Dयौ",
+        "haaryo" to "हार\u094D\u200Dयो",
+        "paaryo" to "पार\u094D\u200Dयो",
         "karya" to "कार्य",
         "karyalaya" to "कार्यालय",
         "surya" to "सूर्य",

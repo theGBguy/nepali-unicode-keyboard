@@ -172,6 +172,8 @@
     <string name="settings_handwriting_title">हस्तलिपि खोल्ने?</string>
     <string name="settings_handwriting_on">खोल्नुहोस्</string>
     <string name="keyboard_settings">किबोर्ड सेटिङ</string>
+    <string name="keyboard_show_keys">किबोर्ड देखाउनुहोस्</string>
+    <string name="keyboard_hide_keys">किबोर्ड लुकाउनुहोस्</string>
     <string name="emoji_recent">हालै प्रयोग गरिएका</string>
     <string name="emoji_smileys">अनुहार र मानिस</string>
     <string name="emoji_animals">जनावर र प्रकृति</string>
