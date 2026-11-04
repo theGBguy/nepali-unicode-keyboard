@@ -176,6 +176,8 @@
     <string name="settings_handwriting_title">Turn on handwriting?</string>
     <string name="settings_handwriting_on">Turn on</string>
     <string name="keyboard_settings">Keyboard settings</string>
+    <string name="keyboard_show_keys">Show keyboard</string>
+    <string name="keyboard_hide_keys">Hide keyboard</string>
     <string name="emoji_recent">Recent</string>
     <string name="emoji_smileys">Smileys and people</string>
     <string name="emoji_animals">Animals and nature</string>

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,6 +72,12 @@ fun KeyboardStrip(
     onSuggestionClick: (String) -> Unit,
     onKeepLatin: () -> Unit,
     onMicClick: () -> Unit,
+    /** The typing mode, shown while a physical keyboard hides the keys (and the space bar); null otherwise. */
+    modeLabel: String? = null,
+    onModeClick: () -> Unit = {},
+    /** With a physical keyboard: whether the keys are shown (the button hides them), else null. */
+    keysShown: Boolean? = null,
+    onToggleKeys: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -134,6 +141,15 @@ fun KeyboardStrip(
             }
         }
         if (!isListening && latinText.isEmpty()) {
+            if (modeLabel != null) ModeLabel(colors, modeLabel, onModeClick)
+            if (keysShown != null) {
+                StripIcon(
+                    colors,
+                    R.drawable.ic_ui_keyboard,
+                    if (keysShown) R.string.keyboard_hide_keys else R.string.keyboard_show_keys,
+                    onToggleKeys
+                )
+            }
             StripIcon(colors, R.drawable.ic_ui_settings, R.string.keyboard_settings, onSettingsClick)
         }
         if (showMic) {
@@ -300,6 +316,21 @@ private fun Listening(colors: KeyboardColors, partialResult: String?) {
             overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+/** The current mode as plain hint text; tapping it switches language like the language key. */
+@Composable
+private fun ModeLabel(colors: KeyboardColors, label: String, onClick: () -> Unit) {
+    Text(
+        text = label,
+        color = colors.hint,
+        fontSize = 13.sp,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+    )
 }
 
 @Composable

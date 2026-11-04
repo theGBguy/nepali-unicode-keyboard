@@ -148,7 +148,9 @@ fun KeyboardView(
     // the app as content insets: right away when it grows, once the animation ends when it shrinks,
     // so the app resizes once and never shows a gap.
     val targetKeyHeight = state.feel.height.dp.dp
-    val rowsTarget = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, targetKeyHeight, targetKeyHeight - 6.dp) + RowGap }
+    // With a physical keyboard only the strip shows, until the user opens the keys from it
+    val stripOnly = state.hardwareKeyboard && !state.keysWithHardwareKeyboard
+    val rowsTarget = if (stripOnly) 0.dp else state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, targetKeyHeight, targetKeyHeight - 6.dp) + RowGap }
     var settledRows by remember { mutableStateOf(rowsTarget) }
     val rowsHeight by animateDpAsState(
         rowsTarget,
@@ -266,7 +268,11 @@ fun KeyboardView(
             onSettingsClick = { keyboard.openSettings() },
             onSuggestionClick = { keyboard.onSuggestionClick(it) },
             onKeepLatin = { keyboard.onKeepLatin() },
-            onMicClick = { keyboard.toggleVoiceInput() }
+            onMicClick = { keyboard.toggleVoiceInput() },
+            modeLabel = if (stripOnly) spaceLabel else null,
+            onModeClick = { keyboard.switchLanguage() },
+            keysShown = if (state.hardwareKeyboard) !stripOnly else null,
+            onToggleKeys = { keyboard.toggleKeysWithHardwareKeyboard() }
         )
 
         // The keys area eases to the new layout's height and clips while it does
@@ -285,7 +291,7 @@ fun KeyboardView(
                     layout(constraints.maxWidth, placeable.height) { placeable.place(-extra / 2, 0) }
                 }
         ) {
-        state.currentLayout.rows.forEach { row ->
+        if (!stripOnly || rowsHeight > 0.dp) state.currentLayout.rows.forEach { row ->
             val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
             val isNumberRow = isNumberRow(row)
             // Indent short letter rows (the 9-key home row) by half a key on each side
