@@ -184,6 +184,12 @@ class NepaliIMEService : InputMethodService(),
         keyboard.onHiddenInputStarted(FieldInfo.from(attribute), restarting)
     }
 
+    /**
+     * Never take over the screen with Android's landscape extract view (a full-screen copy of the
+     * text box above the keys); keys shrink to fit instead, and a physical keyboard needs only the strip.
+     */
+    override fun onEvaluateFullscreenMode(): Boolean = false
+
     // Physical keyboard
 
     private val hardwareKeys = HardwareKeyRouter { keyboard }

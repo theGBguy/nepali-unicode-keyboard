@@ -9,6 +9,7 @@ import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.withNepaliSpeech
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.LaunchedEffect
@@ -105,6 +106,7 @@ import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 private val KeyGap = 5.dp
 private val RowGap = 7.dp
 private val StripHeight = 40.dp
+private val MinKeyHeight = 28.dp
 
 private fun isNumberRow(row: List<KeyData>) =
     row.all { it.keyType == KeyType.CHARACTER && it.primary.singleOrNull()?.isDigit() == true }
@@ -139,7 +141,12 @@ fun KeyboardView(
 
     // Height changes (key height setting, a layout with another row, a panel) animate instead of
     // jumping: keys grow or shrink smoothly, and the keyboard's outline follows with a spring.
-    val keyHeight by animateDpAsState(state.feel.height.dp.dp, tween(220, easing = FastOutSlowInEasing), label = "keyHeight")
+    // On a short screen (landscape) keys shrink so strip and rows take at most 60% of the height
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val tallestRows = NepaliLayout.getLayout().rows.size
+    val fittingKeyHeight = ((screenHeight * 0.6f - StripHeight) / tallestRows - RowGap).coerceAtLeast(MinKeyHeight)
+    val targetKeyHeight = minOf(state.feel.height.dp.dp, fittingKeyHeight)
+    val keyHeight by animateDpAsState(targetKeyHeight, tween(220, easing = FastOutSlowInEasing), label = "keyHeight")
     val numberRowKeyHeight = keyHeight - 6.dp
 
     // A layout with another row (traditional Nepali has six, English five) changes the height. The
@@ -147,7 +154,6 @@ fun KeyboardView(
     // tallest layout and the keys area eases inside it. The service reports the keyboard's top to
     // the app as content insets: right away when it grows, once the animation ends when it shrinks,
     // so the app resizes once and never shows a gap.
-    val targetKeyHeight = state.feel.height.dp.dp
     // With a physical keyboard only the strip shows, until the user opens the keys from it
     val stripOnly = state.hardwareKeyboard && !state.keysWithHardwareKeyboard
     val rowsTarget = if (stripOnly) 0.dp else state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, targetKeyHeight, targetKeyHeight - 6.dp) + RowGap }
@@ -158,7 +164,9 @@ fun KeyboardView(
         label = "rowsHeight",
         finishedListener = { settledRows = it }
     )
-    val reservedRows = remember(targetKeyHeight) {
+    // With only the strip showing there's nothing to reserve room for (it would push the strip
+    // off a landscape screen); connecting or removing a keyboard may resize the window once.
+    val reservedRows = if (stripOnly) 0.dp else remember(targetKeyHeight) {
         listOf(EnglishLayout.getLayout(), NepaliLayout.getLayout()).maxOf { layout ->
             layout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, targetKeyHeight, targetKeyHeight - 6.dp) + RowGap }
         }
