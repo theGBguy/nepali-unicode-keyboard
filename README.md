@@ -1,6 +1,6 @@
 # Nepali Unicode Keyboard
 
-An Android keyboard for typing Nepali in Unicode, in any app. It runs offline and doesn't send or store what you type.
+A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for Android; the iOS version is in progress. It runs offline and doesn't send or store what you type.
 
 <a href="https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard">Get it on Google Play</a>
 
@@ -12,12 +12,21 @@ An Android keyboard for typing Nepali in Unicode, in any app. It runs offline an
 
 ## Features
 
-- **Romanized typing.** Type `namaste` and get नमस्ते. Suggestions come from a built-in Nepali word list.
+- **Romanized typing.** Type `namaste` and get नमस्ते. Suggestions come from a built-in Nepali word list. Half letters, ञ and the eyelash ra (र्‍य) can be typed directly.
 - **Traditional layout.** Nepali Unicode (traditional) with long-press shift characters.
 - **Smart suggestions.** Bikram Sambat dates (`aaja`, `bholi`, `2026-10-21`), amounts in Nepali digits and words, and land/gold units (aana, ropani, tola).
 - **Handwriting** (ML Kit Digital Ink, opt-in) and **voice typing** (the phone's speech service).
+- **Physical keyboards** (Android). Romanized typing goes through the same engine; traditional typing uses the standard Windows Nepali layout. Ctrl + Space switches the language, and the screen shows just the suggestion strip, with a button to bring up the keys.
+- **Accessibility.** Works with TalkBack and VoiceOver: keys read their character (vowel signs and marks by name, e.g. "आ vowel sign", "Halanta"; Devanagari is spoken with a Hindi voice where no Nepali one is installed), the language key reads the current mode, and long-press actions are in the actions menu.
 - Emoji, clipboard history, English and Nepali app UI, light and dark themes.
 - **Privacy.** Password fields get plain English with no suggestions or voice. Nothing you type leaves the phone.
+
+## Platforms
+
+- **Android 7.0 or newer**, [on Google Play](https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard).
+- **iOS 17 or newer**, in progress and not on the App Store yet. The iOS keyboard has Romanized and traditional typing, smart suggestions, emoji, clipboard history, handwriting and VoiceOver support. It has no voice typing, because iOS doesn't let keyboards use the microphone, and no physical keyboard support, because iOS doesn't pass hardware key presses to third-party keyboards.
+
+On iOS, clipboard history and handwriting need **Allow Full Access** (iOS hides the pasteboard from keyboards without it, and handwriting downloads its model). Both are opt-in, and everything else works with Full Access off. The history stays on the phone and can be cleared from the app. The keyboard reads the pasteboard only when you tap Paste or open the clipboard panel, because reading a copy from another app makes iOS ask "Allow Paste".
 
 ## Building
 
@@ -29,20 +38,26 @@ Requirements: Android Studio (or the Gradle wrapper) and JDK 17.
 ./gradlew :shared:iosSimulatorArm64Test # shared tests on the iOS simulator (macOS only)
 ```
 
+Release builds need an upload key. Copy `keystore.properties.example` to `keystore.properties` and fill it in, or set `PLAY_STORE_STORE_FILE`, `PLAY_STORE_STORE_PASSWORD`, `PLAY_STORE_KEY_ALIAS` and `PLAY_STORE_KEY_PASSWORD`.
+
+### Romanized accuracy
+
+`RomanizedBenchmarkTest` (part of the unit tests) types every row of `app/src/test/resources/romanized_corpus.tsv`, 355 Romanized words with the Nepali they should give, and fails if accuracy drops below 91% for the word space commits or 95% for the top three suggestions. It writes a report per category and every miss to the test's output (`app/build/test-results/testDebugUnitTest/`). Run it after any change to the transliteration engine or the word list, and raise the floors in the test when your change improves them.
+
+```sh
+./gradlew :app:testDebugUnitTest --tests '*RomanizedBenchmarkTest'
+```
+
+### iOS
+
 The iOS app (one screen with setup steps, settings and a try-it field, plus the keyboard extension) is in `iosApp/`. Open `iosApp/NepaliKeyboard.xcodeproj` in Xcode 26 and run the `NepaliKeyboard` scheme; a build phase runs Gradle to build the shared Kotlin framework, so JDK 17 is needed here too. The project is generated from `iosApp/project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen): after editing that file, run `xcodegen generate` in `iosApp/`. New Swift files need no regeneration.
 
-On iOS, clipboard history and handwriting need **Allow Full Access** (iOS hides the pasteboard from keyboards without it, and handwriting downloads its model). Both are opt-in and everything else works with it off. The history is kept in the App Group (`clipboard.txt`), never leaves the phone, and can be cleared from the app. Reading a copy from another app makes iOS ask "Allow Paste" (Settings → Nepali Keyboard → Paste from Other Apps), so the keyboard reads the pasteboard only when you tap Paste or open the clipboard panel.
-
-Handwriting on iOS uses the same Google ML Kit digital ink model as Android, through [google-mlkit-swiftpm](https://github.com/d-date/google-mlkit-swiftpm) (Google ships ML Kit only as CocoaPods; that package republishes the same binaries as Swift packages, pinned to an exact version in `project.yml`). Swift packages can't carry resource bundles, so ML Kit's small `MLKitDigitalInkRecognition_resource.bundle` is checked in under `iosApp/Vendor/`. Xcode's first package resolve downloads every ML Kit binary in that package (a few hundred MB, cached afterwards). ML Kit downloads its model through a background `URLSession`, which iOS runs in an extension only with a shared container, so the keyboard adds the App Group to it (`MLKitHandwriting.swift`).
-
-The keyboard works with TalkBack and VoiceOver: keys read their character (Nepali vowel signs and marks by name, e.g. "आ vowel sign", "Halanta", Devanagari spoken with a Hindi voice where no Nepali one is installed), the language key reads the current mode, and what a long-press does (the corner character, the language menu, pinning or deleting a clipboard item) is in the actions menu.
+Handwriting uses Google ML Kit through [google-mlkit-swiftpm](https://github.com/d-date/google-mlkit-swiftpm), pinned in `project.yml`. Swift packages can't carry resource bundles, so ML Kit's `MLKitDigitalInkRecognition_resource.bundle` is checked in under `iosApp/Vendor/`. Xcode's first package resolve downloads a few hundred MB of ML Kit binaries.
 
 ```sh
 xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
-
-Release builds need an upload key. Copy `keystore.properties.example` to `keystore.properties` and fill it in, or set `PLAY_STORE_STORE_FILE`, `PLAY_STORE_STORE_PASSWORD`, `PLAY_STORE_KEY_ALIAS` and `PLAY_STORE_KEY_PASSWORD`.
 
 ## Project layout
 
