@@ -23,6 +23,8 @@ ALSO INCLUDED
 • Emoji panel with your recently used emoji first
 • Clipboard history: your recent copies and pinned items, kept on your phone
 • Three key heights: Short, Normal and Tall
+• Works with a physical keyboard: type Romanized or traditional Nepali, and Ctrl + Space switches the language
+• TalkBack reads out the keys and suggestions
 • Light and dark themes that follow your phone
 • Optional key vibration and key sound
 • App in English or Nepali
