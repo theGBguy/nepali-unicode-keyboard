@@ -127,7 +127,9 @@ object SoundKey {
     /**
      * How far apart two normalized spellings are. Differences the [looseKey] ignores (vowel
      * length, a skipped "a", chh/ch, sh/s, v/b) cost 0.25 each; other letters cost 1. Typing a
-     * long vowel the word doesn't have costs 1 more, since that's deliberate. A trailing inherent
+     * long vowel the word doesn't have in that place costs 5 more: it's deliberate, so it beats
+     * even a far more common word (`haaryo` is हार्‍यो, not हरायो, whose long vowel comes after
+     * the र; `paaryo` is पार्‍यो, not the much more common पर्‍यो). A trailing inherent
      * "a" on [candidate] is optional.
      */
     fun distance(typed: String, candidate: String): Double {
@@ -138,12 +140,18 @@ object SoundKey {
     private fun weighted(a: String, b: String): Double {
         val letters = levenshtein(looseKey(a), looseKey(b))
         val fine = (levenshtein(a, b) - letters).coerceAtLeast(0)
-        val missingLong = (longVowels(a) - longVowels(b)).coerceAtLeast(0)
-        return letters + 0.25 * fine + missingLong
+        val placed = longVowelPlaces(b)
+        val missingLong = longVowelPlaces(a).count { it !in placed }
+        return letters + 0.25 * fine + 5 * missingLong
     }
 
     private val longVowel = Regex("aa|ii|uu")
-    private fun longVowels(s: String) = longVowel.findAll(s).count()
+
+    /** Each long vowel as (how many consonants come before it, which vowel). */
+    private fun longVowelPlaces(s: String): List<Pair<Int, Char>> =
+        longVowel.findAll(s).map { m ->
+            looseKey(s.substring(0, m.range.first)).count { it !in "aeiou" } to m.value[0]
+        }.toList()
 
     private fun levenshtein(a: String, b: String): Int {
         var prev = IntArray(b.length + 1) { it }

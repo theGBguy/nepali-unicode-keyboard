@@ -69,7 +69,7 @@ class RomanizedBenchmarkTest {
 
     private companion object {
         /** Percent floors; set from the last measured run. */
-        const val TOP1_FLOOR = 90
+        const val TOP1_FLOOR = 91
         const val TOP3_FLOOR = 95
     }
 }
