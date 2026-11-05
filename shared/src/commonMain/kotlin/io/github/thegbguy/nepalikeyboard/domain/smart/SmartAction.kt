@@ -14,6 +14,9 @@ data class SmartAction(
     val replace: Int,
     val kind: Kind
 ) {
-    /** Picks the small icon in front of the label, so it reads as a conversion and not a word guess. */
-    enum class Kind { AMOUNT, DATE, UNIT }
+    /**
+     * Picks the small icon in front of the label, so it reads as a conversion and not a word guess.
+     * [PUNCTUATION] (the English full stop offered after ।) has no icon.
+     */
+    enum class Kind { AMOUNT, DATE, UNIT, PUNCTUATION }
 }

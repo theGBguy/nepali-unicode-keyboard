@@ -58,6 +58,12 @@ class HardwareKeyRouter(private val keyboard: () -> KeyboardController) {
                 return true
             }
             KeyEvent.KEYCODE_DEL -> return controller.onHardwareBackspace()
+            // Romanized "." is ।; Shift + "." is the English full stop, which the screen keys give
+            // with a long-press (a physical keyboard has none).
+            KeyEvent.KEYCODE_PERIOD -> if (shift && !altGr && mode == LanguageMode.TRANSLITERATION) {
+                controller.onKeyLongPress(".")
+                return true
+            }
         }
         val text = when (mode) {
             LanguageMode.NEPALI -> ISO_POSITIONS[keyCode]?.let { TraditionalHardwareLayout.output(it, shift, altGr) }

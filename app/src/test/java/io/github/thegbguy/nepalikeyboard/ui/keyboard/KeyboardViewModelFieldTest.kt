@@ -67,25 +67,23 @@ class KeyboardViewModelFieldTest {
     }
 
     @Test
-    fun `language key cycles English, Romanized, traditional`() {
+    fun `language key switches between English and the saved style`() {
         vm.onInputStarted(textField)
         vm.onKeyClick(globe)
         assertEquals(LanguageMode.TRANSLITERATION, language())
         vm.onKeyClick(globe)
-        assertEquals(LanguageMode.NEPALI, language())
-        assertEquals(LanguageMode.TRANSLITERATION, vm.prefs.nepaliStyle) // cycling keeps the saved style
+        assertEquals(LanguageMode.ENGLISH, language()) // traditional only from settings or the long-press menu
         vm.onKeyClick(globe)
-        assertEquals(LanguageMode.ENGLISH, language())
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+        assertEquals(LanguageMode.TRANSLITERATION, vm.prefs.nepaliStyle)
     }
 
     @Test
-    fun `the saved style comes first in the cycle`() {
+    fun `with traditional saved the language key switches English and traditional`() {
         vm.onInputStarted(textField)
         vm.setNepaliStyle(LanguageMode.NEPALI)
         assertEquals(LanguageMode.NEPALI, language())
         assertEquals(LanguageMode.NEPALI, vm.prefs.nepaliStyle)
-        vm.onKeyClick(globe)
-        assertEquals(LanguageMode.TRANSLITERATION, language())
         vm.onKeyClick(globe)
         assertEquals(LanguageMode.ENGLISH, language())
         vm.onKeyClick(globe)
@@ -120,7 +118,7 @@ class KeyboardViewModelFieldTest {
         "ram".forEach { vm.onKeyClick(KeyData(it.toString())) }
         vm.onKeyClick(globe)
         verify { ic.commitText(match<CharSequence> { it.isNotEmpty() && it.first() in 'ऀ'..'ॿ' }, 1) }
-        assertEquals(LanguageMode.NEPALI, language())
+        assertEquals(LanguageMode.ENGLISH, language())
     }
 
     @Test
@@ -262,7 +260,6 @@ class KeyboardViewModelFieldTest {
         vm.onInputStarted(textField)
         assertEquals(LanguageMode.TRANSLITERATION, language())
 
-        vm.onKeyClick(globe) // to traditional
         vm.onKeyClick(globe) // to English
         assertEquals(false, stored.typeNepali)
 

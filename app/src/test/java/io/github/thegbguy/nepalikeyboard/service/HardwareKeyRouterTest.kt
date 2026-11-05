@@ -120,14 +120,14 @@ class HardwareKeyRouterTest {
         assertTrue(router.onKeyDown(KeyEvent.KEYCODE_SPACE, ctrl, ' '.code, 0))
         assertTrue(router.onKeyDown(KeyEvent.KEYCODE_SPACE, ctrl, ' '.code, 1)) // held: no repeat switch
         assertTrue(router.onKeyUp(KeyEvent.KEYCODE_SPACE))
-        assertEquals(LanguageMode.NEPALI, keyboard.state.value.currentLanguage)
-        press(KeyEvent.KEYCODE_SPACE, ctrl, ' ')
         assertEquals(LanguageMode.ENGLISH, keyboard.state.value.currentLanguage)
+        press(KeyEvent.KEYCODE_SPACE, ctrl, ' ')
+        assertEquals(LanguageMode.TRANSLITERATION, keyboard.state.value.currentLanguage)
     }
 
     @Test
     fun `English mode leaves every key to the app`() {
-        keyboard.switchLanguage(); keyboard.switchLanguage()
+        keyboard.switchLanguage()
         assertEquals(LanguageMode.ENGLISH, keyboard.state.value.currentLanguage)
         assertFalse(press(KeyEvent.KEYCODE_A, char = 'a'))
         assertFalse(press(KeyEvent.KEYCODE_SPACE, char = ' '))
@@ -136,7 +136,7 @@ class HardwareKeyRouterTest {
 
     @Test
     fun `traditional mode types the Windows Nepali layout by key position`() {
-        keyboard.switchLanguage()
+        keyboard.setNepaliStyle(LanguageMode.NEPALI)
         assertEquals(LanguageMode.NEPALI, keyboard.state.value.currentLanguage)
         // On a QWERTY keyboard: K (प) S (क) shift-; (स्) T (त) . (।)
         press(KeyEvent.KEYCODE_K, char = 'k')
@@ -154,11 +154,37 @@ class HardwareKeyRouterTest {
 
     @Test
     fun `right alt is AltGr in traditional mode`() {
-        keyboard.switchLanguage()
+        keyboard.setNepaliStyle(LanguageMode.NEPALI)
         val altGr = KeyEvent.META_ALT_ON or KeyEvent.META_ALT_RIGHT_ON
         assertTrue(press(KeyEvent.KEYCODE_P, altGr))
         assertEquals("ऊ", field.shown)
         // Nothing on AltGr+W: the app gets it
         assertFalse(press(KeyEvent.KEYCODE_W, altGr))
+    }
+
+    @Test
+    fun `shift + period is the English full stop in Romanized`() {
+        typeLatin("ghar")
+        assertTrue(press(KeyEvent.KEYCODE_PERIOD, KeyEvent.META_SHIFT_ON, '>'))
+        assertEquals("घर.", field.shown)
+        assertTrue(press(KeyEvent.KEYCODE_PERIOD, char = '.'))
+        assertEquals("घर.।", field.shown)
+    }
+
+    @Test
+    fun `after a period the strip offers the English full stop until the next key`() {
+        typeLatin("ghar")
+        press(KeyEvent.KEYCODE_PERIOD, char = '.')
+        keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
+        val choice = keyboard.state.value.smartActions.single()
+        assertEquals(".", choice.text)
+        keyboard.onSmartActionClick(choice)
+        assertEquals("घर.", field.shown)
+        assertTrue(keyboard.state.value.smartActions.isEmpty())
+
+        press(KeyEvent.KEYCODE_PERIOD, char = '.')
+        press(KeyEvent.KEYCODE_SPACE, char = ' ')
+        keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
+        assertTrue(keyboard.state.value.smartActions.isEmpty())
     }
 }

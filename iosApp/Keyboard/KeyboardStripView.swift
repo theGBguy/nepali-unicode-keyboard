@@ -240,10 +240,12 @@ struct KeyboardStripView: View {
     private func smartSlot(_ action: SmartAction) -> some View {
         Button { model.smartAction(action) } label: {
             HStack(spacing: 4) {
-                Image(systemName: smartIcon(action.kind))
-                    .font(.system(size: 12))
-                    .foregroundStyle(colors.hint)
-                    .accessibilityHidden(true)
+                if let icon = smartIcon(action.kind) {
+                    Image(systemName: icon)
+                        .font(.system(size: 12))
+                        .foregroundStyle(colors.hint)
+                        .accessibilityHidden(true)
+                }
                 Text(action.label)
                     .font(.system(size: 16))
                     .foregroundStyle(colors.keyText)
@@ -257,10 +259,12 @@ struct KeyboardStripView: View {
         .buttonStyle(.plain)
     }
 
-    private func smartIcon(_ kind: SmartAction.Kind) -> String {
+    /** Nil for the English full stop offered after ।, which is plain text. */
+    private func smartIcon(_ kind: SmartAction.Kind) -> String? {
         switch kind {
         case .amount: return "123.rectangle"
         case .date: return "calendar"
+        case .punctuation: return nil
         default: return "ruler"
         }
     }
