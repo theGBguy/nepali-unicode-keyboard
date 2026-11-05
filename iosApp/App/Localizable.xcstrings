@@ -1,12 +1,72 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Added": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "थपिएको छ"
+          }
+        }
+      }
+    },
+    "App": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एप"
+          }
+        }
+      }
+    },
+    "App language": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "एपको भाषा"
+          }
+        }
+      }
+    },
+    "Bikram Sambat calendar": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "विक्रम संवत् पात्रो"
+          }
+        }
+      }
+    },
+    "Built with SwiftUI and Kotlin Multiplatform. Kotlin and google-mlkit-swiftpm (handwriting) are available under the Apache License 2.0; Google ML Kit is under Google’s ML Kit terms.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftUI र Kotlin Multiplatform प्रयोग गरी बनाइएको। Kotlin र google-mlkit-swiftpm (हस्तलिपि) Apache License 2.0 अन्तर्गत उपलब्ध छन्; Google ML Kit Google का ML Kit सर्तअन्तर्गत छ।"
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "रद्द गर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Choose how you type Nepali below, then type in the field.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तल नेपाली कसरी टाइप गर्ने छान्नुहोस्, अनि फिल्डमा टाइप गर्नुहोस्।"
           }
         }
       }
@@ -51,12 +111,52 @@
         }
       }
     },
+    "Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यसमा नेपाली विकिपिडिया (ne.wikipedia.org) बाट निकालिएको शब्द आवृत्ति समावेश छ, जुन Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) लाइसेन्सअन्तर्गत उपलब्ध छ।"
+          }
+        }
+      }
+    },
     "Dates, amounts and units as you type": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "टाइप गर्दा मिति, रकम र एकाइ"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भयो"
+          }
+        }
+      }
+    },
+    "Emoji list": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इमोजी सूची"
+          }
+        }
+      }
+    },
+    "Emoji list derived from Unicode emoji data, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your iPhone’s font.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इमोजी सूची Unicode इमोजी डेटाबाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको iPhone को फन्टले देखाउँछ।"
           }
         }
       }
@@ -77,6 +177,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "हस्तलिपि (Google प्रयोग गर्छ)"
+          }
+        }
+      }
+    },
+    "Help": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सहायता"
           }
         }
       }
@@ -131,6 +241,46 @@
         }
       }
     },
+    "Keyboard": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किबोर्ड"
+          }
+        }
+      }
+    },
+    "Legal": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कानुनी"
+          }
+        }
+      }
+    },
+    "Licences and credits": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लाइसेन्स र श्रेय"
+          }
+        }
+      }
+    },
+    "Month lengths for BS 2000–2090 from nepali-date-pro-max by l3lackcurtains, under the MIT licence.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वि.सं. २००० देखि २०९० सम्मका महिनाका दिन l3lackcurtains को nepali-date-pro-max बाट, MIT licence अन्तर्गत।"
+          }
+        }
+      }
+    },
     "Needs Full Access for the model download": {
       "localizations": {
         "ne": {
@@ -161,12 +311,32 @@
         }
       }
     },
+    "Nepali Keyboard feedback": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली किबोर्ड प्रतिक्रिया"
+          }
+        }
+      }
+    },
     "Nepali typing": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "नेपाली टाइपिङ"
+          }
+        }
+      }
+    },
+    "Nepali word list": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली शब्द सूची"
           }
         }
       }
@@ -191,12 +361,92 @@
         }
       }
     },
+    "Offline unless you turn on handwriting": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हस्तलिपि नखोलेसम्म अफलाइन"
+          }
+        }
+      }
+    },
     "Open Settings": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "सेटिङ खोल्नुहोस्"
+          }
+        }
+      }
+    },
+    "Open source on GitHub": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub मा खुला स्रोत"
+          }
+        }
+      }
+    },
+    "Open-source libraries": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "खुला स्रोत लाइब्रेरी"
+          }
+        }
+      }
+    },
+    "Password fields always use Apple’s keyboard, so this one never sees them.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड फिल्डमा सधैँ Apple को किबोर्ड चल्छ, त्यसैले यो किबोर्डले ती देख्दैन।"
+          }
+        }
+      }
+    },
+    "Password fields are off-limits": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड फिल्डमा केही हुँदैन"
+          }
+        }
+      }
+    },
+    "Privacy": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गोपनीयता"
+          }
+        }
+      }
+    },
+    "Privacy policy": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गोपनीयता नीति"
+          }
+        }
+      }
+    },
+    "Report a wrong word or a bug": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गलत शब्द वा समस्या रिपोर्ट गर्नुहोस्"
           }
         }
       }
@@ -221,12 +471,12 @@
         }
       }
     },
-    "Settings": {
+    "Send feedback": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "सेटिङ"
+            "value": "प्रतिक्रिया पठाउनुहोस्"
           }
         }
       }
@@ -311,6 +561,26 @@
         }
       }
     },
+    "Terms of use": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रयोगका सर्तहरू"
+          }
+        }
+      }
+    },
+    "The keyboard keeps your settings, recently used emoji and your clipboard history on this iPhone. It doesn’t save what you type. Clipboard history only holds text you copied, never items a password manager marks as secret, and you can turn it off in Settings.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किबोर्डले यो iPhone मा तपाईंका सेटिङ, हालै प्रयोग गरिएका इमोजी र क्लिपबोर्ड इतिहास राख्छ। तपाईंले टाइप गरेको सेभ गर्दैन। क्लिपबोर्ड इतिहासमा तपाईंले कपी गरेको टेक्स्ट मात्र हुन्छ, पासवर्ड म्यानेजरले गोप्य भनी चिनो लगाएको कहिल्यै होइन, र सेटिङमा गएर यसलाई बन्द गर्न सकिन्छ।"
+          }
+        }
+      }
+    },
     "The अ/A key switches between Nepali and English. Hold it to change this choice later.": {
       "localizations": {
         "ne": {
@@ -347,6 +617,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "चलाएर हेर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Try your settings here": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "आफ्ना सेटिङ यहाँ चलाएर हेर्नुहोस्"
           }
         }
       }
@@ -391,6 +671,16 @@
         }
       }
     },
+    "Type नमस्ते": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नमस्ते टाइप गर्नुहोस्"
+          }
+        }
+      }
+    },
     "Type “namaste” and press space": {
       "localizations": {
         "ne": {
@@ -401,12 +691,82 @@
         }
       }
     },
+    "Typing": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइपिङ"
+          }
+        }
+      }
+    },
+    "Typing, suggestions, clipboard and emoji work without the internet and send nothing. The keyboard uses the internet for handwriting only: turning it on downloads Google’s Nepali handwriting model, and Google’s ML Kit then sends usage diagnostics (phone model, app version, an install ID, timings). Your writing is recognised on the iPhone and isn’t sent.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइपिङ, सुझाव, क्लिपबोर्ड र इमोजी इन्टरनेटबिना चल्छन् र केही पठाउँदैनन्। किबोर्डले इन्टरनेट हस्तलिपिका लागि मात्र चलाउँछ: खोल्दा Google को नेपाली हस्तलिपि मोडेल डाउनलोड हुन्छ, अनि Google को ML Kit ले प्रयोग विवरण (फोनको मोडेल, एपको संस्करण, इन्स्टल ID, समय) पठाउँछ। तपाईंको लेखाइ iPhone मै पहिचान हुन्छ र पठाइँदैन।"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संस्करण %@"
+          }
+        }
+      }
+    },
     "Vibrate on key press": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "की थिच्दा कम्पन"
+          }
+        }
+      }
+    },
+    "What Full Access is for": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Access केका लागि"
+          }
+        }
+      }
+    },
+    "What the keyboard can and can’t do": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किबोर्डले के गर्छ र के गर्दैन"
+          }
+        }
+      }
+    },
+    "What this keyboard can and can’t do": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यो किबोर्डले के गर्छ र के गर्दैन"
+          }
+        }
+      }
+    },
+    "What you type never leaves the iPhone. Only handwriting, if you turn it on, connects to Google.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तपाईंले टाइप गरेको कुरा iPhone बाट बाहिर जाँदैन। हस्तलिपि खोल्नुभयो भने मात्र Google सँग जोडिन्छ।"
           }
         }
       }
@@ -427,6 +787,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "लेखाइ यही iPhone मा पहिचान हुन्छ। खोल्दा Google को नेपाली हस्तलिपि मोडेल (करिब १५ MB) एक पटक डाउनलोड हुन्छ, अनि Google को ML Kit ले फोनको मोडेल, एपको संस्करण जस्ता प्रयोग विवरण Google लाई पठाउँछ, तपाईंले लेखेको कुरा कहिल्यै होइन। यहाँ बन्द गर्दा मोडेल मेटिन्छ।"
+          }
+        }
+      }
+    },
+    "Your settings stay here": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तपाईंका सेटिङ यहीँ रहन्छन्"
+          }
+        }
+      }
+    },
+    "Your typing stays on this iPhone": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तपाईंले टाइप गरेको यही iPhone मा रहन्छ"
+          }
+        }
+      }
+    },
+    "iOS asks before a keyboard can read the clipboard or use the internet. This keyboard needs it only for clipboard history and the handwriting model download.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "किबोर्डले क्लिपबोर्ड पढ्न वा इन्टरनेट चलाउन पाउनुअघि iOS ले सोध्छ। यो किबोर्डलाई क्लिपबोर्ड इतिहास र हस्तलिपि मोडेल डाउनलोडका लागि मात्र यो चाहिन्छ।"
+          }
+        }
+      }
+    },
+    "iOS switches to Apple’s keyboard in password fields, so this keyboard never sees them.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पासवर्ड फिल्डमा iOS ले Apple को आफ्नै किबोर्ड देखाउँछ, त्यसैले यो किबोर्डले ती कहिल्यै देख्दैन।"
           }
         }
       }

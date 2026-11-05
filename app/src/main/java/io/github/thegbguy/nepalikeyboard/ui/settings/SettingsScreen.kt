@@ -69,7 +69,7 @@ private val ScreenPadding = 20.dp
 private val CardShape = RoundedCornerShape(20.dp)
 
 /** Everything a settings row can open; MainActivity turns these into intents and screens. */
-enum class SettingsLink { FIX_KEYBOARD, PRIVACY, FEEDBACK, RATE, PRIVACY_POLICY, TERMS, LICENCES }
+enum class SettingsLink { FIX_KEYBOARD, PRIVACY, FEEDBACK, RATE, PRIVACY_POLICY, TERMS, LICENCES, SOURCE }
 
 /**
  * The app's home once setup is done: keyboard status, typing settings with a field to try them,
@@ -151,18 +151,18 @@ fun SettingsScreen(
                     )
                 }
                 RowDivider(inset = 16.dp)
-                SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onVibrateChange)
+                SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onChange = onVibrateChange)
                 RowDivider()
-                SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onSoundChange)
+                SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onChange = onSoundChange)
                 RowDivider()
-                SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, onSmartSuggestionsChange)
+                SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, stringResource(R.string.settings_smart_sub), onSmartSuggestionsChange)
                 RowDivider()
                 // Turning it on first says what goes to Google; turning it off deletes the model.
                 SwitchRow(R.drawable.ic_ui_draw, stringResource(R.string.settings_handwriting), handwriting) { on ->
                     if (on) confirmHandwriting = true else onHandwritingChange(false)
                 }
                 RowDivider()
-                SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onClipboardHistoryChange)
+                SwitchRow(R.drawable.ic_ui_content_paste, stringResource(R.string.settings_clipboard), clipboardHistory, onChange = onClipboardHistoryChange)
                 RowDivider()
                 LinkRow(R.drawable.ic_ui_delete, stringResource(R.string.settings_clipboard_clear), null) { confirmClearClipboard = true }
             }
@@ -229,6 +229,8 @@ fun SettingsScreen(
                 LinkRow(R.drawable.ic_ui_gavel, stringResource(R.string.settings_terms), null) { onLink(SettingsLink.TERMS) }
                 RowDivider()
                 LinkRow(R.drawable.ic_ui_info, stringResource(R.string.settings_licences), stringResource(R.string.settings_version, versionName)) { onLink(SettingsLink.LICENCES) }
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_code, stringResource(R.string.settings_source), stringResource(R.string.settings_source_sub)) { onLink(SettingsLink.SOURCE) }
             }
             Spacer(Modifier.height(24.dp))
         }
@@ -339,7 +341,13 @@ private fun LinkRow(
 }
 
 @Composable
-private fun SwitchRow(@DrawableRes icon: Int, title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(
+    @DrawableRes icon: Int,
+    title: String,
+    checked: Boolean,
+    subtitle: String? = null,
+    onChange: (Boolean) -> Unit
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -349,7 +357,11 @@ private fun SwitchRow(@DrawableRes icon: Int, title: String, checked: Boolean, o
     ) {
         Icon(painterResource(icon), null, modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.width(16.dp))
-        Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        }
+        Spacer(Modifier.width(12.dp))
         Switch(
             checked = checked,
             onCheckedChange = null,

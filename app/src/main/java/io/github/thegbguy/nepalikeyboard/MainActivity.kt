@@ -112,6 +112,7 @@ class MainActivity : ComponentActivity() {
                                 SettingsLink.RATE -> openPlayStore()
                                 SettingsLink.PRIVACY_POLICY -> open(PRIVACY_POLICY_URL)
                                 SettingsLink.TERMS -> open(TERMS_URL)
+                                SettingsLink.SOURCE -> open(SOURCE_URL)
                             }
                         }
                     )
@@ -225,5 +226,6 @@ class MainActivity : ComponentActivity() {
         // Published from the site repo; must exist before release (Play requires a privacy policy).
         const val PRIVACY_POLICY_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html"
         const val TERMS_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/terms-of-service.html"
+        const val SOURCE_URL = "https://github.com/theGBguy/nepali-unicode-keyboard"
     }
 }
