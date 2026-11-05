@@ -26,8 +26,43 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Which jobs a pull request needs, from the files it changes. A job skipped by its `if` counts
+  # as passed for branch protection, so docs-only changes don't wait for builds. Workflow-level
+  # `paths:` can't be used: a required check that never starts stays pending forever. Every
+  # other event runs everything.
+  changes:
+    name: Changed files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      android: ${{ steps.filter.outputs.android }}
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The pull request merged into main, and main: HEAD^1 is the base
+          fetch-depth: 2
+      - id: filter
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" != pull_request ] || ! files=$(git diff --name-only HEAD^1 HEAD); then
+            echo "android=true" >> "$GITHUB_OUTPUT"
+            echo "ios=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "$files"
+          build='^(gradle/|gradlew|gradle\.properties|[^/]*\.gradle\.kts|\.github/workflows/ci\.yml)'
+          has() { grep -qE "$1" <<< "$files" && echo true || echo false; }
+          echo "android=$(has "$build|^(app|shared)/")" >> "$GITHUB_OUTPUT"
+          # The iOS app bundles the word list and emoji from the Android assets
+          echo "ios=$(has "$build|^(shared|iosApp|app/src/main/assets)/")" >> "$GITHUB_OUTPUT"
+
   test:
     name: Unit tests and debug build
+    needs: changes
+    # Also runs if the filter failed, so a broken filter can't skip a required check
+    if: always() && (needs.changes.result != 'success' || needs.changes.outputs.android == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -37,6 +72,10 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v6
+        with:
+          # Lets setup-gradle save and restore the configuration cache, which it encrypts
+          # because it can hold secrets. Without the secret (forks) it's simply not cached.
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - run: ./gradlew :app:testDebugUnitTest :shared:testAndroidHostTest :app:assembleDebug
       - if: failure()
         uses: actions/upload-artifact@v7
@@ -46,8 +85,10 @@ jobs:
             app/build/reports/tests/
             shared/build/reports/tests/
 
-  ios:
+  ios-test:
     name: Shared code on the iOS simulator
+    needs: changes
+    if: always() && (needs.changes.result != 'success' || needs.changes.outputs.ios == 'true')
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -57,6 +98,8 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       # Kotlin/Native's compiler, LLVM and sysroot (~/.konan) aren't part of the Gradle cache.
       # Keyed on the Kotlin version, so they're only downloaded again after a Kotlin bump.
       - id: kotlin
@@ -67,6 +110,41 @@ jobs:
           path: ~/.konan
           key: konan-${{ runner.os }}-${{ runner.arch }}-${{ steps.kotlin.outputs.version }}
       - run: ./gradlew :shared:iosSimulatorArm64Test
+      # Saved from main only, like the Gradle cache; pull requests restore it. Only this job
+      # saves it, so the two iOS jobs don't race for the same key.
+      - if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.konan
+          key: ${{ steps.konan.outputs.cache-primary-key }}
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-test-reports
+          path: shared/build/reports/tests/
+
+  # Runs alongside ios-test: both compile the shared code, but neither waits for the other
+  ios-build:
+    name: iOS app and keyboard build
+    needs: changes
+    if: always() && (needs.changes.result != 'success' || needs.changes.outputs.ios == 'true')
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+      - id: kotlin
+        run: echo "version=$(sed -n 's/^kotlin = "\(.*\)"/\1/p' gradle/libs.versions.toml)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v6
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ runner.arch }}-${{ steps.kotlin.outputs.version }}
       # The ML Kit package's binaries (~330 MB, all of them, though only handwriting is linked).
       # Keyed on Package.resolved, so they're only downloaded again after a package update.
       - id: spm
@@ -74,24 +152,14 @@ jobs:
         with:
           path: SourcePackages
           key: spm-${{ runner.os }}-${{ hashFiles('iosApp/NepaliKeyboard.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+      # The project's pre-build script runs Gradle for the shared framework. No code index on CI.
       - name: Build the iOS app and keyboard
         run: >
           xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard
           -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath SourcePackages
-          CODE_SIGNING_ALLOWED=NO build
-      # Saved from main only, like the Gradle cache; pull requests restore it
-      - if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: ~/.konan
-          key: ${{ steps.konan.outputs.cache-primary-key }}
+          CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO build
       - if: github.ref == 'refs/heads/main' && steps.spm.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: SourcePackages
           key: ${{ steps.spm.outputs.cache-primary-key }}
-      - if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ios-test-reports
-          path: shared/build/reports/tests/
