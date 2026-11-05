@@ -91,7 +91,13 @@ targets:
     dependencies:
       - package: GoogleMLKit
         product: MLKitDigitalInkRecognition
-    preBuildScripts:
+      # Static, so nothing is embedded; a target of its own so it builds alongside ML Kit's packages
+      - target: SharedKotlinFramework
+aggregateTargets:
+  # Builds the shared Kotlin framework with Gradle. Its own target with no dependencies, so Xcode
+  # runs it in parallel with the ML Kit package targets instead of after them.
+  SharedKotlinFramework:
+    buildScripts:
       - name: Build shared Kotlin framework
         basedOnDependencyAnalysis: false
         script: |
@@ -99,5 +105,8 @@ targets:
           if [ -z "$JAVA_HOME" ]; then
             export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)"
           fi
+          # The framework is static, so nothing is embedded, but the task still asks for the path
+          # an app target would embed into, which an aggregate target doesn't have
+          export FRAMEWORKS_FOLDER_PATH="${FRAMEWORKS_FOLDER_PATH:-Frameworks}"
           cd "$SRCROOT/.."
           ./gradlew :shared:embedAndSignAppleFrameworkForXcode
