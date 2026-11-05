@@ -47,18 +47,22 @@ class NepaliTransliterationEngine(
         // A consonant typed on its own is a half letter (b → ब्, yn → ञ्). A capital one is the
         // full letter first (N → ण, S → श), as capitals are typed for the letter itself.
         val half = RomanizedConverter.halfLetter(romanizedText)
+        // A letter or syllable typed on its own means the letter itself: its exact spelling goes
+        // first (i → इ, ka → क, tra → त्र, M → ं), then the words it could stand for.
+        val special = SPECIAL_SPELLINGS[romanizedText.lowercase()]
         val literal = when {
-            half == null -> listOf(converted)
+            half == null -> listOfNotNull(special, converted)
             romanizedText.any { it.isUpperCase() } -> listOf(converted, half)
             else -> listOf(half, converted)
         }
+        val syllable = half != null || special != null || RomanizedConverter.isSyllable(romanizedText)
         val words = index() ?: return candidates(romanizedText, literal, emptyList())
 
         val scores = LinkedHashMap<String, Double>()
-        val special = if (isStrict(romanizedText)) converted.filter { it in SPECIAL_LETTERS } else ""
+        val letters = if (isStrict(romanizedText)) converted.filter { it in SPECIAL_LETTERS } else ""
         // A typed chh is always छ: the sound key folds it with ch, so drop words with fewer छ (chhanda → छन्द, not चन्द)
         val chh = CHH.findAll(romanizedText.lowercase()).count()
-        val keeps = { word: String -> special.all(word::contains) && word.count { it == 'छ' } >= chh }
+        val keeps = { word: String -> letters.all(word::contains) && word.count { it == 'छ' } >= chh }
         // Typed capitals and yn/gy ask for those letters: drop words that don't have them (N → ण, not न)
         words.lookup(romanizedText).forEach { if (keeps(it.word)) scores[it.word] = it.score }
         // The literal conversion competes like a word typed exactly, with a small frequency floor
@@ -66,7 +70,13 @@ class NepaliTransliterationEngine(
         if (convertedScore > (scores[converted] ?: Double.NEGATIVE_INFINITY)) scores[converted] = convertedScore
 
         val ranked = scores.entries.sortedByDescending { it.value }.map { it.key }
-        val exact = if (half != null) literal + ranked else ranked
+        // A word: the likely word first, and the exact spelling never lower than second, so it
+        // can't drop out of the strip (shra → श्र, Sha → ष, ramro → राम्रो then रम्रो).
+        val exact = when {
+            syllable -> literal + ranked
+            ranked.indexOf(converted) <= 1 -> ranked
+            else -> (ranked - converted).let { it.take(1) + converted + it.drop(1) }
+        }
         val completions = words.completions(romanizedText).filter { it !in scores && keeps(it) }
         return candidates(romanizedText, exact, completions)
     }
@@ -108,6 +118,8 @@ class NepaliTransliterationEngine(
     private companion object {
         /** Frequency given to a converted word that isn't in the list (names, slang, typos). */
         const val UNKNOWN_WORD_FREQUENCY = 10
+        /** Letters the converter has no spelling for, typed the way people write them. */
+        val SPECIAL_SPELLINGS = mapOf("om" to "ॐ")
         /** Letters only an explicit spelling gives: retroflex, श/ष and ञ (also in ज्ञ). */
         const val SPECIAL_LETTERS = "टठडढणशषञ"
         val EYELASH_ENDING = Regex("र्य([ोौ][ंँ]?)$")
