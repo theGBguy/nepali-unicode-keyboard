@@ -18,11 +18,11 @@ struct SetupView: View {
     @AppStorage("setup_confirmed") private var setupConfirmed = false
     /** The user opened the steps again from the link at the bottom. */
     @State private var stepsReopened = false
+    @State private var showPrivacy = false
+    @AppStorage(SharedSettings.Key.nepaliStyle, store: SharedSettings.group)
+    private var style: NepaliStyle = .romanized
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
-
-    private static let sourceCode = URL(string: "https://github.com/theGBguy/nepali-unicode-keyboard")!
-    private static let privacyPolicy = URL(string: "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html")!
 
     private var setupDone: Bool {
         keyboardAdded ?? setupConfirmed
@@ -47,6 +47,8 @@ struct SetupView: View {
                         .padding(.top, 8)
                     steps
                         .padding(.top, 36)
+                    privacyPromise
+                        .padding(.top, 32)
                 } else {
                     Text("Nepali Keyboard")
                         .font(.largeTitle.weight(.bold))
@@ -54,23 +56,32 @@ struct SetupView: View {
                         .padding(.top, 32)
                 }
 
-                SettingsSection(onChange: reopenKeyboard)
+                // Same order as Android's Settings: status, Typing, try it, then App, Help, Legal
+                if keyboardAdded == true && !showSteps {
+                    status.padding(.top, 28)
+                }
+
+                TypingSettings(onChange: reopenKeyboard)
                     .padding(.top, showSteps ? 44 : 28)
 
                 tryIt
-                    .padding(.top, 36)
+                    .padding(.top, 12)
+
+                AboutSettings()
+                    .padding(.top, 28)
 
                 footer
-                    .padding(.top, 40)
+                    .padding(.top, 24)
                     .padding(.bottom, 24)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 20)
         }
+        .background(Color(uiColor: .systemGroupedBackground))
         .scrollDismissesKeyboard(.interactively)
         // There's no navigation bar, so give the status bar a background to scroll under
         .overlay(alignment: .top) {
-            Color(uiColor: .systemBackground).ignoresSafeArea(edges: .top).frame(height: 0)
+            Color(uiColor: .systemGroupedBackground).ignoresSafeArea(edges: .top).frame(height: 0)
         }
         // Make room for the keyboard ourselves: SwiftUI's own avoidance doesn't scroll this field
         // into view, and the Nepali keyboard is taller than Apple's
@@ -120,25 +131,20 @@ struct SetupView: View {
                         .padding(.top, 10)
                 }
             }
+            // Android's step 3 is its own screen; here the choice and the field are just below
+            step(3, title: "Try it",
+                 detail: "Choose how you type Nepali below, then type in the field.") { EmptyView() }
         }
     }
 
     private var tryIt: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Try it")
-                .font(.title3.weight(.semibold))
-                .accessibilityAddTraits(.isHeader)
-            Text("Type “namaste” and press space")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
-            TextField("", text: $tryText, axis: .vertical)
+            TextField(tryPlaceholder, text: $tryText, axis: .vertical)
                 .focused($tryFocused)
-                .accessibilityLabel(Text("Try it"))
-                .lineLimit(1...4)
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 10).stroke(Color(uiColor: .separator)))
-                .padding(.top, 12)
+                .lineLimit(2...4)
+                .padding(16)
+                .background(Color(uiColor: .secondarySystemGroupedBackground),
+                            in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             VStack(alignment: .leading, spacing: 4) {
                 if !showSteps {
                     Text("Not showing? Hold 🌐 and pick Nepali Keyboard.")
@@ -148,22 +154,63 @@ struct SetupView: View {
             .font(.footnote)
             .foregroundStyle(.secondary)
             .padding(.top, 8)
+            .padding(.horizontal, 16)
             .id(Self.tryHint)
         }
     }
 
-    private var footer: some View {
-        HStack(spacing: 6) {
-            if setupDone && !stepsReopened {
-                Button("Setup steps") { withAnimation { stepsReopened = true } }
-                Text(verbatim: "·").foregroundStyle(.tertiary).accessibilityHidden(true)
-            }
-            Button("How we handle your data") { openURL(Self.privacyPolicy) }
-            Text(verbatim: "·").foregroundStyle(.tertiary).accessibilityHidden(true)
-            Button("Source code") { openURL(Self.sourceCode) }
+    /** Android's setup hints while the steps show, its Settings hint after. */
+    private var tryPlaceholder: LocalizedStringKey {
+        guard showSteps else { return "Try your settings here" }
+        return style == .traditional ? "Type नमस्ते" : "Type “namaste” and press space"
+    }
+
+    /** The same promise as Android's setup screen, told for iOS, with the same link to the details. */
+    private var privacyPromise: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Your typing stays on this iPhone")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 2)
+            promiseLine("wifi.slash", "What you type never leaves the iPhone. Only handwriting, if you turn it on, connects to Google.")
+            promiseLine("lock", "Password fields always use Apple’s keyboard, so this one never sees them.")
+            Button("How we handle your data") { showPrivacy = true }
+                .font(.subheadline)
+                .tint(.secondary)
+                .padding(.top, 2)
         }
-        .font(.footnote)
-        .tint(.secondary)
+        .sheet(isPresented: $showPrivacy) { PrivacyView() }
+    }
+
+    private func promiseLine(_ icon: String, _ text: LocalizedStringKey) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: icon)
+                .font(.footnote)
+                .frame(width: 18)
+                .accessibilityHidden(true)
+            Text(text).font(.subheadline)
+        }
+    }
+
+    /** Like Android's status row: shown once iOS says the keyboard is added. */
+    private var status: some View {
+        SettingsGroup {
+            RowLabel(icon: "keyboard", title: "Keyboard", subtitle: "Added", subtitleColor: .green)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+        }
+    }
+
+    /** Privacy and source links live in Help and Legal; only the way back to the steps stays here. */
+    @ViewBuilder
+    private var footer: some View {
+        if setupDone && !stepsReopened {
+            Button("Setup steps") { withAnimation { stepsReopened = true } }
+                .font(.footnote)
+                .tint(.secondary)
+                .frame(maxWidth: .infinity)
+        }
     }
 
     /**
