@@ -1,0 +1,6 @@
+What's new in 1.3.1
+• Up to 6 suggestions while you type: swipe the strip for more
+• A letter typed on its own gives that letter: i इ, ka क, tra त्र, Sha ष, shra श्र, M ं, om ॐ
+• After । the strip offers an English full stop (Shift + . on a physical keyboard)
+• The अ/A key switches between English and your Nepali style
+• Bug fixes
