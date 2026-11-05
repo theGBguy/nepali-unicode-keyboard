@@ -186,4 +186,10 @@ class NepaliWordEngineTest {
         assertEquals("ञ्", commitBare("yn"))
         assertEquals("गर\u094D\u200Dयो", commitBare("garyo"))
     }
+
+    @Test
+    fun `a typed chh is always छ, never च`() {
+        check("chhanda" to "छन्द", "chhaandaa" to "छान्दा", "chha" to "छ", "chhora" to "छोरा", "chanda" to "चन्द")
+        assertTrue(type("chhanda").candidates.none { it.devanagari.startsWith("च") })
+    }
 }

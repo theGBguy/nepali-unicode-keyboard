@@ -56,15 +56,18 @@ class NepaliTransliterationEngine(
 
         val scores = LinkedHashMap<String, Double>()
         val special = if (isStrict(romanizedText)) converted.filter { it in SPECIAL_LETTERS } else ""
+        // A typed chh is always छ: the sound key folds it with ch, so drop words with fewer छ (chhanda → छन्द, not चन्द)
+        val chh = CHH.findAll(romanizedText.lowercase()).count()
+        val keeps = { word: String -> special.all(word::contains) && word.count { it == 'छ' } >= chh }
         // Typed capitals and yn/gy ask for those letters: drop words that don't have them (N → ण, not न)
-        words.lookup(romanizedText).forEach { if (special.all(it.word::contains)) scores[it.word] = it.score }
+        words.lookup(romanizedText).forEach { if (keeps(it.word)) scores[it.word] = it.score }
         // The literal conversion competes like a word typed exactly, with a small frequency floor
         val convertedScore = ln((words.frequency(converted) ?: UNKNOWN_WORD_FREQUENCY) + 1.0)
         if (convertedScore > (scores[converted] ?: Double.NEGATIVE_INFINITY)) scores[converted] = convertedScore
 
         val ranked = scores.entries.sortedByDescending { it.value }.map { it.key }
         val exact = if (half != null) literal + ranked else ranked
-        val completions = words.completions(romanizedText).filter { it !in scores && special.all(it::contains) }
+        val completions = words.completions(romanizedText).filter { it !in scores && keeps(it) }
         return candidates(romanizedText, exact, completions)
     }
 
@@ -109,6 +112,7 @@ class NepaliTransliterationEngine(
         const val SPECIAL_LETTERS = "टठडढणशषञ"
         val EYELASH_ENDING = Regex("र्य([ोौ][ंँ]?)$")
         val POLITE_ENDING = Regex("(nu|ho)s$")
+        val CHH = Regex("chh")
         const val MAX_EXACT = 4
         const val MAX_CANDIDATES = 6
     }
