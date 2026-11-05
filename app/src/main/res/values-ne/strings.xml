@@ -115,7 +115,8 @@
     <string name="settings_height_tall">अग्लो</string>
     <string name="settings_vibrate">की थिच्दा कम्पन</string>
     <string name="settings_sound">की थिच्दा आवाज</string>
-    <string name="settings_smart">स्मार्ट सुझाव (मिति, रकम, एकाइ)</string>
+    <string name="settings_smart">स्मार्ट सुझाव</string>
+    <string name="settings_smart_sub">टाइप गर्दा मिति, रकम र एकाइ</string>
     <string name="settings_clipboard">क्लिपबोर्ड इतिहास</string>
     <string name="settings_clipboard_clear">क्लिपबोर्ड इतिहास मेटाउनुहोस्</string>
     <string name="settings_clipboard_clear_title">क्लिपबोर्ड इतिहास मेटाउने?</string>
@@ -134,6 +135,8 @@
     <string name="settings_privacy_policy">गोपनीयता नीति</string>
     <string name="settings_terms">प्रयोगका सर्तहरू</string>
     <string name="settings_licences">लाइसेन्स र श्रेय</string>
+    <string name="settings_source">सोर्स कोड</string>
+    <string name="settings_source_sub">GitHub मा खुला स्रोत</string>
     <string name="settings_version">संस्करण %1$s</string>
     <string name="feedback_subject">नेपाली किबोर्ड प्रतिक्रिया</string>
     <string name="cancel">रद्द गर्नुहोस्</string>

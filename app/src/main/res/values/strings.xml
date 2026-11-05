@@ -119,7 +119,8 @@
     <string name="settings_height_tall">Tall</string>
     <string name="settings_vibrate">Vibrate on key press</string>
     <string name="settings_sound">Sound on key press</string>
-    <string name="settings_smart">Smart suggestions (dates, amounts, units)</string>
+    <string name="settings_smart">Smart suggestions</string>
+    <string name="settings_smart_sub">Dates, amounts and units as you type</string>
     <string name="settings_clipboard">Clipboard history</string>
     <string name="settings_clipboard_clear">Clear clipboard history</string>
     <string name="settings_clipboard_clear_title">Clear clipboard history?</string>
@@ -138,6 +139,8 @@
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_terms">Terms of use</string>
     <string name="settings_licences">Licences and credits</string>
+    <string name="settings_source">Source code</string>
+    <string name="settings_source_sub">Open source on GitHub</string>
     <string name="settings_version">Version %1$s</string>
     <string name="feedback_subject">Nepali Keyboard feedback</string>
     <string name="cancel">Cancel</string>
