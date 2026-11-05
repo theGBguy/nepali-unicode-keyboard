@@ -284,13 +284,15 @@ private fun SmartSlot(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center
     ) {
-        Icon(
-            painter = painterResource(smartIcon(action.kind)),
-            contentDescription = null,
-            tint = colors.hint,
-            modifier = Modifier.size(14.dp)
-        )
-        Spacer(Modifier.width(4.dp))
+        smartIcon(action.kind)?.let { icon ->
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = colors.hint,
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+        }
         Text(
             text = action.label,
             color = colors.keyText,
@@ -301,10 +303,11 @@ private fun SmartSlot(
     }
 }
 
-private fun smartIcon(kind: SmartAction.Kind): Int = when (kind) {
+private fun smartIcon(kind: SmartAction.Kind): Int? = when (kind) {
     SmartAction.Kind.AMOUNT -> R.drawable.ic_ui_123
     SmartAction.Kind.DATE -> R.drawable.ic_ui_calendar_today
     SmartAction.Kind.UNIT -> R.drawable.ic_ui_straighten
+    SmartAction.Kind.PUNCTUATION -> null
 }
 
 /** A fresh copy offered for pasting: a paste icon and the start of the text on one line. */

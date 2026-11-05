@@ -161,4 +161,30 @@ class HardwareKeyRouterTest {
         // Nothing on AltGr+W: the app gets it
         assertFalse(press(KeyEvent.KEYCODE_W, altGr))
     }
+
+    @Test
+    fun `shift + period is the English full stop in Romanized`() {
+        typeLatin("ghar")
+        assertTrue(press(KeyEvent.KEYCODE_PERIOD, KeyEvent.META_SHIFT_ON, '>'))
+        assertEquals("घर.", field.shown)
+        assertTrue(press(KeyEvent.KEYCODE_PERIOD, char = '.'))
+        assertEquals("घर.।", field.shown)
+    }
+
+    @Test
+    fun `after a period the strip offers the English full stop until the next key`() {
+        typeLatin("ghar")
+        press(KeyEvent.KEYCODE_PERIOD, char = '.')
+        keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
+        val choice = keyboard.state.value.smartActions.single()
+        assertEquals(".", choice.text)
+        keyboard.onSmartActionClick(choice)
+        assertEquals("घर.", field.shown)
+        assertTrue(keyboard.state.value.smartActions.isEmpty())
+
+        press(KeyEvent.KEYCODE_PERIOD, char = '.')
+        press(KeyEvent.KEYCODE_SPACE, char = ' ')
+        keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
+        assertTrue(keyboard.state.value.smartActions.isEmpty())
+    }
 }

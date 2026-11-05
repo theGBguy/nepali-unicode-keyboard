@@ -135,6 +135,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      */
     fun onKeyClick(key: KeyData) {
         if (_state.value.pasteSuggestion != null) _state.update { it.copy(pasteSuggestion = null) }
+        fullStopChoice = false
         // Keys that change the text drop smart suggestions; the cursor update that follows makes new ones.
         // Shift and the layout keys leave them.
         val editsText = key.keyType == KeyType.CHARACTER || key.keyType == KeyType.ACTION || key.primary == "⌫"
@@ -684,6 +685,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             commitTransliterationBuffer()
             inputConnection?.commitText(if (output == "." && !afterDigit) "।" else output)
             pendingPoint = afterDigit
+            fullStopChoice = output == "." && !afterDigit
         } else if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
             // Transliteration mode - buffer input and show romanized text
             val currentBuffer = _state.value.transliterationBuffer
@@ -820,6 +822,12 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      * becoming ।. If the next key isn't a digit, it was a full stop after all: turn it into ।.
      */
     private var pendingPoint = false
+
+    /**
+     * A Romanized "." just became ।. Until the next key the strip offers the English full stop
+     * instead, which a physical keyboard can't reach with a long-press.
+     */
+    private var fullStopChoice = false
 
     private fun endsWithDigit(): Boolean {
         val buffered = _state.value.transliterationBuffer.romanizedText
@@ -1117,7 +1125,11 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             if (text == null || !text.endsWith(composing)) emptyList()
             else smartSuggester.suggest(text.dropLast(composing.length), composing, st.currentLanguage, st.field)
         }
-        if (actions != st.smartActions) _state.update { it.copy(smartActions = actions) }
+        val choice = fullStopChoice && !hasSelection && st.currentLanguage == LanguageMode.TRANSLITERATION &&
+            st.transliterationBuffer.isEmpty() && inputConnection?.textBeforeCursor(1)?.toString() == "।"
+        if (!choice) fullStopChoice = false
+        val all = if (choice) listOf(FULL_STOP_ACTION) else actions
+        if (all != st.smartActions) _state.update { it.copy(smartActions = all) }
     }
 
     /**
@@ -1126,6 +1138,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      */
     fun onSmartActionClick(action: SmartAction) {
         val ic = inputConnection ?: return
+        fullStopChoice = false
         val composing = _state.value.currentLanguage == LanguageMode.TRANSLITERATION &&
             _state.value.transliterationBuffer.isNotEmpty()
         ic.beginBatchEdit()
@@ -1367,6 +1380,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
 
         /** How long after a copy the strip offers Paste. */
         const val PASTE_SUGGESTION_WINDOW_MS = 2 * 60 * 1000L
+        /** Swaps the । a Romanized "." just typed for an English full stop. */
+        val FULL_STOP_ACTION = SmartAction(label = "। → .", text = ".", replace = 1, kind = SmartAction.Kind.PUNCTUATION)
     }
 }
 
