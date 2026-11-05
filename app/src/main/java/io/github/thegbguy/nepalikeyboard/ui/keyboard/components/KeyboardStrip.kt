@@ -8,6 +8,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,15 +25,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,8 +50,8 @@ import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardColors
 
 /**
  * The 40dp row above the keys. Shows, in order of priority: the listening state, a voice error,
- * Romanized suggestions (best guess in bold, then a smart suggestion or the next guess, then the
- * Latin text as typed), smart suggestions, or the emoji and clipboard buttons (plus Paste right
+ * Romanized suggestions (best guess in bold, a smart suggestion, the other guesses scrolling
+ * sideways, then the Latin text as typed), smart suggestions, or the emoji and clipboard buttons (plus Paste right
  * after a copy). Settings sits on the right, and the mic too when the field allows voice.
  * It keeps its height when empty so the keyboard never jumps.
  */
@@ -102,9 +111,8 @@ fun KeyboardStrip(
                     colors = colors,
                     words = buildList {
                         if (primarySuggestion.isNotEmpty()) add(primarySuggestion)
-                        // A smart suggestion takes the second guess's slot.
-                        if (smartActions.isEmpty()) suggestions.filter { it != primarySuggestion }.take(1).forEach { add(it) }
-                    },
+                        suggestions.forEach { if (it !in this) add(it) }
+                    }.take(MAX_WORDS),
                     smartAction = smartActions.firstOrNull(),
                     latinText = latinText,
                     onSuggestionClick = onSuggestionClick,
@@ -158,6 +166,14 @@ fun KeyboardStrip(
     }
 }
 
+/** Word guesses the strip shows while typing; the rest scroll in from the right. */
+private const val MAX_WORDS = 6
+
+/**
+ * The best guess first (bold), then a smart suggestion, then the other guesses. Words take their
+ * natural width and scroll sideways; the next one is cut off at the edge and fades out, which
+ * says there's more. The Latin text stays pinned on the right so "keep English" is always one tap.
+ */
 @Composable
 private fun Suggestions(
     colors: KeyboardColors,
@@ -168,38 +184,72 @@ private fun Suggestions(
     onSmartActionClick: (SmartAction) -> Unit,
     onKeepLatin: () -> Unit
 ) {
+    val scroll = rememberScrollState()
+    // A new key gives new guesses: show them from the best one again.
+    LaunchedEffect(words, smartAction) { scroll.scrollTo(0) }
+    val fade = with(LocalDensity.current) { 28.dp.toPx() }
     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-        words.forEachIndexed { index, word ->
-            if (index > 0) Divider(colors)
-            Slot(
-                text = word,
-                color = colors.keyText,
-                bold = index == 0,
-                fontSize = 17.sp,
-                onClick = { onSuggestionClick(word) }
-            )
-        }
-        if (smartAction != null) {
-            if (words.isNotEmpty()) Divider(colors)
-            // Wider than a word slot (up to 2.5×) so dates and amounts in words stay readable.
-            SmartSlot(colors, smartAction, Modifier.weight((smartAction.label.length / 8f).coerceIn(1f, 2.5f))) { onSmartActionClick(smartAction) }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    // Fade the right edge while more words are off screen.
+                    if (scroll.canScrollForward) {
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                listOf(Color.Black, Color.Transparent),
+                                startX = size.width - fade,
+                                endX = size.width
+                            ),
+                            blendMode = BlendMode.DstIn
+                        )
+                    }
+                }
+                .horizontalScroll(scroll),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            words.forEachIndexed { index, word ->
+                if (index > 0) Divider(colors)
+                WordSlot(word, colors.keyText, bold = index == 0) { onSuggestionClick(word) }
+                if (index == 0 && smartAction != null) {
+                    Divider(colors)
+                    // Up to 2.5 word widths so dates and amounts in words stay readable.
+                    SmartSlot(colors, smartAction, Modifier.widthIn(max = 200.dp)) { onSmartActionClick(smartAction) }
+                }
+            }
+            if (words.isEmpty() && smartAction != null) {
+                SmartSlot(colors, smartAction, Modifier.widthIn(max = 200.dp)) { onSmartActionClick(smartAction) }
+            }
         }
         Divider(colors)
-        Slot(text = latinText, color = colors.hint, bold = false, fontSize = 15.sp, onClick = onKeepLatin)
+        Box(
+            modifier = Modifier
+                .widthIn(min = 56.dp, max = 120.dp)
+                .fillMaxHeight()
+                .clickable(onClick = onKeepLatin),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = latinText,
+                color = colors.hint,
+                fontSize = 15.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 10.dp)
+            )
+        }
     }
 }
 
+/** A word guess at its natural width (at least a comfortable tap target). */
 @Composable
-private fun androidx.compose.foundation.layout.RowScope.Slot(
-    text: String,
-    color: androidx.compose.ui.graphics.Color,
-    bold: Boolean,
-    fontSize: androidx.compose.ui.unit.TextUnit,
-    onClick: () -> Unit
-) {
+private fun WordSlot(text: String, color: Color, bold: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .weight(1f)
+            .widthIn(min = 56.dp)
             .fillMaxHeight()
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -207,12 +257,10 @@ private fun androidx.compose.foundation.layout.RowScope.Slot(
         Text(
             text = withNepaliSpeech(text),
             color = color,
-            fontSize = fontSize,
+            fontSize = 17.sp,
             fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 6.dp)
+            modifier = Modifier.padding(horizontal = 14.dp)
         )
     }
 }
