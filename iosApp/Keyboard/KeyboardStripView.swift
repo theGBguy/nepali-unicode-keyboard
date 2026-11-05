@@ -2,8 +2,8 @@ import SwiftUI
 import NepaliKeyboardShared
 
 /**
- * The 40 pt row above the keys. Shows Romanized suggestions (best guess in bold, then a smart
- * suggestion or the next guess, then the Latin text as typed) or smart suggestions. It keeps its
+ * The 40 pt row above the keys. Shows Romanized suggestions (best guess in bold, a smart
+ * suggestion, the other guesses scrolling sideways, then the Latin text as typed) or smart suggestions. It keeps its
  * height when empty so the keyboard never jumps; with nothing to suggest it shows the emoji button.
  */
 struct KeyboardStripView: View {
@@ -23,8 +23,10 @@ struct KeyboardStripView: View {
         let smart = state.smartActions
 
         GeometryReader { geometry in
-            let slots = slots(latin: latin, buffer: buffer, smart: smart)
-            if slots.isEmpty && showSettingsHint {
+            let slots = slots(smart: smart)
+            if !latin.isEmpty {
+                composing(latin: latin, buffer: buffer, smart: smart.first)
+            } else if slots.isEmpty && showSettingsHint {
                 Text("Settings are in the Nepali Keyboard app")
                     .font(.system(size: 15))
                     .foregroundStyle(colors.keyText)
@@ -105,9 +107,89 @@ struct KeyboardStripView: View {
         .buttonStyle(.plain)
     }
 
+    /** Word guesses the strip shows while typing; the rest scroll in from the right. */
+    private static let maxWords = 6
+
+    /** Right edge of the scrolling words in the strip's space, to fade the edge while more are off screen. */
+    @State private var wordsEnd: CGFloat = 0
+
+    private func words(_ buffer: TransliterationBuffer) -> [String] {
+        var list: [String] = []
+        let primary = buffer.primaryCandidate
+        if !primary.isEmpty { list.append(primary) }
+        for word in state.suggestions where !list.contains(word) { list.append(word) }
+        return Array(list.prefix(Self.maxWords))
+    }
+
+    /**
+     * Like Android: the best guess first (bold), then a smart suggestion, then the other guesses
+     * at their natural width, scrolling sideways. The next one is cut off and fades out at the
+     * edge, which says there's more. The Latin text stays pinned on the right.
+     */
+    private func composing(latin: String, buffer: TransliterationBuffer, smart: SmartAction?) -> some View {
+        let words = words(buffer)
+        return HStack(spacing: 0) {
+            GeometryReader { viewport in
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 0) {
+                            ForEach(Array(words.enumerated()), id: \.offset) { index, word in
+                                if index > 0 { divider }
+                                wordSlot(word, bold: index == 0)
+                                    .id(index)
+                                if index == 0, let action = smart {
+                                    divider
+                                    smartSlot(action).frame(maxWidth: 200)
+                                }
+                            }
+                            if words.isEmpty, let action = smart {
+                                smartSlot(action).frame(maxWidth: 200)
+                            }
+                        }
+                        .frame(maxHeight: .infinity)
+                        .background(GeometryReader { content in
+                            Color.clear.preference(key: WordsEndKey.self, value: content.frame(in: .named("words")).maxX)
+                        })
+                    }
+                    .coordinateSpace(name: "words")
+                    // A new key gives new guesses: show them from the best one again.
+                    .onChange(of: words) { _ in proxy.scrollTo(0, anchor: .leading) }
+                }
+                .onPreferenceChange(WordsEndKey.self) { wordsEnd = $0 }
+                .mask(
+                    HStack(spacing: 0) {
+                        Color.black
+                        if wordsEnd > viewport.size.width + 1 {
+                            LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                                .frame(width: 28)
+                        }
+                    }
+                )
+            }
+            divider
+            slot(latin, color: colors.hint, bold: false, size: 15) { model.keepLatin() }
+                .frame(minWidth: 56, maxWidth: 120)
+                .fixedSize(horizontal: true, vertical: false)
+                .accessibilityHint(Text("Keep as typed"))
+        }
+        .frame(maxHeight: .infinity)
+    }
+
+    /** A word guess at its natural width (at least a comfortable tap target). */
+    private func wordSlot(_ word: String, bold: Bool) -> some View {
+        Button { model.suggestion(word) } label: {
+            Text(word)
+                .font(.system(size: 17, weight: bold ? .semibold : .regular))
+                .foregroundStyle(colors.keyText)
+                .lineLimit(1)
+                .padding(.horizontal, 14)
+                .frame(minWidth: 56, maxHeight: .infinity)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     private enum Slot {
-        case word(String, bold: Bool)
-        case latin(String)
         case smart(SmartAction)
     }
 
@@ -117,23 +199,10 @@ struct KeyboardStripView: View {
     }
 
     /**
-     * Like Android: word guesses get one share each, a smart suggestion up to 2.5 so dates and
-     * amounts in words stay readable; two smart suggestions alone split 60/40 by length.
+     * Smart suggestions while nothing is being typed (the composing strip is [composing]):
+     * one fills the row, two split 60/40 by length like Android.
      */
-    private func slots(latin: String, buffer: TransliterationBuffer, smart: [SmartAction]) -> [WeightedSlot] {
-        if !latin.isEmpty {
-            let primary = buffer.primaryCandidate
-            var list: [WeightedSlot] = []
-            if !primary.isEmpty { list.append(WeightedSlot(slot: .word(primary, bold: true), weight: 1)) }
-            // A smart suggestion takes the second guess's slot
-            if let action = smart.first {
-                list.append(WeightedSlot(slot: .smart(action), weight: min(max(CGFloat(action.label.count) / 8, 1), 2.5)))
-            } else if let next = state.suggestions.first(where: { $0 != primary }) {
-                list.append(WeightedSlot(slot: .word(next, bold: false), weight: 1))
-            }
-            list.append(WeightedSlot(slot: .latin(latin), weight: 1))
-            return list
-        }
+    private func slots(smart: [SmartAction]) -> [WeightedSlot] {
         if smart.count == 1 { return [WeightedSlot(slot: .smart(smart[0]), weight: 1)] }
         let longest = smart.firstIndex { action in smart.allSatisfy { action.label.count >= $0.label.count } }
         return smart.enumerated().map { index, action in
@@ -144,11 +213,6 @@ struct KeyboardStripView: View {
     @ViewBuilder
     private func slotView(_ weighted: WeightedSlot) -> some View {
         switch weighted.slot {
-        case let .word(word, bold):
-            slot(word, color: colors.keyText, bold: bold, size: 17) { model.suggestion(word) }
-        case let .latin(text):
-            slot(text, color: colors.hint, bold: false, size: 15) { model.keepLatin() }
-                .accessibilityHint(Text("Keep as typed"))
         case let .smart(action):
             smartSlot(action)
         }
@@ -200,4 +264,9 @@ struct KeyboardStripView: View {
         default: return "ruler"
         }
     }
+}
+
+private struct WordsEndKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
 }
