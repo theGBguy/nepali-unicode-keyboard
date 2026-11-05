@@ -13,6 +13,7 @@ package io.github.thegbguy.nepalikeyboard.domain.transliteration
  *   as in Hamro Nepali and other Romanized keyboards, so both sibilants have a capital key.
  * - `ng` ङ, `yn` ञ, `gy` ज्ञ.
  * - `M` anusvara ं, `H` visarga ः, `~` or `^` chandrabindu ँ, `.` purna biram ।, digits → Nepali.
+ * - `ou` is औ like `au`.
  */
 object RomanizedConverter {
 
@@ -36,7 +37,7 @@ object RomanizedConverter {
     /** Vowels as (romanized, independent letter, vowel sign), longest first. */
     private val vowels: List<Triple<String, String, String>> = listOf(
         Triple("rri", "ऋ", "ृ"), Triple("Ri", "ऋ", "ृ"),
-        Triple("aa", "आ", "ा"), Triple("ai", "ऐ", "ै"), Triple("au", "औ", "ौ"),
+        Triple("aa", "आ", "ा"), Triple("ai", "ऐ", "ै"), Triple("au", "औ", "ौ"), Triple("ou", "औ", "ौ"),
         Triple("ii", "ई", "ी"), Triple("ee", "ई", "ी"), Triple("uu", "ऊ", "ू"), Triple("oo", "ऊ", "ू"),
         Triple("A", "आ", "ा"), Triple("I", "ई", "ी"), Triple("U", "ऊ", "ू"),
         Triple("a", "अ", ""), Triple("i", "इ", "ि"), Triple("u", "उ", "ु"),
@@ -53,6 +54,47 @@ object RomanizedConverter {
      */
     fun halfLetter(roman: String): String? =
         consonants.firstOrNull { it.first == roman }?.let { it.second + HALANT }
+
+    /**
+     * True when [roman] spells one letter or syllable: a vowel (`i`, `ai`), consonants with at
+     * most one single vowel after them (`ka`, `tra`, `shra`, `Sha`, not `dai`), or marks alone (`M` ं, `H` ः, `~` ँ),
+     * each optionally followed by marks (`kaM`). Typed on its own, that's almost always the letter
+     * itself, so its exact spelling goes first. A consonant after the vowel (`ghar`) makes a word.
+     */
+    fun isSyllable(roman: String): Boolean {
+        if (roman.isEmpty()) return false
+        var i = 0
+        var consonantsAllowed = true
+        var vowelSeen = false
+        var consonantSeen = false
+        while (i < roman.length) {
+            val vowel = vowels.firstOrNull { roman.startsWith(it.first, i) }
+            if (vowel != null) {
+                // ai/au/ou after a consonant is how people type two vowels (dai दाइ, lai लाई,
+                // bhau भाउ), so that's a word
+                if (vowelSeen || (consonantSeen && vowel.first in TWO_VOWELS)) return false
+                vowelSeen = true
+                consonantsAllowed = false
+                i += vowel.first.length
+                continue
+            }
+            val consonant = consonants.firstOrNull { roman.startsWith(it.first, i) }
+            if (consonant != null) {
+                if (!consonantsAllowed) return false
+                consonantSeen = true
+                i += consonant.first.length
+                continue
+            }
+            if (roman[i] !in SYLLABLE_MARKS) return false
+            consonantsAllowed = false
+            i++
+        }
+        return true
+    }
+
+    /** Marks that belong to a syllable (anusvara, visarga, chandrabindu), unlike `.` (।). */
+    private const val SYLLABLE_MARKS = "MH~^"
+    private val TWO_VOWELS = setOf("ai", "au", "ou")
 
     fun convert(roman: String): String {
         val out = StringBuilder()

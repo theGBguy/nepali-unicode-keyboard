@@ -68,8 +68,12 @@ class RomanizedBenchmarkTest {
     }
 
     private companion object {
-        /** Percent floors; set from the last measured run. */
+        /**
+         * Percent floors; set from the last measured run. Top-3 is 94: the exact spelling now
+         * always takes one of the first two places, which pushed स्याउ (syau) to 4th; the strip
+         * shows up to 6.
+         */
         const val TOP1_FLOOR = 91
-        const val TOP3_FLOOR = 95
+        const val TOP3_FLOOR = 94
     }
 }

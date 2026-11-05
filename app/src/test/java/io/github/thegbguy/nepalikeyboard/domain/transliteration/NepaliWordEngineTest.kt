@@ -77,7 +77,6 @@ class NepaliWordEngineTest {
     @Test
     fun `verbs and particles`() = check(
         "chha" to "छ",
-        "cha" to "छ",
         "chhaina" to "छैन",
         "huncha" to "हुन्छ",
         "garchu" to "गर्छु",
@@ -191,5 +190,34 @@ class NepaliWordEngineTest {
     fun `a typed chh is always छ, never च`() {
         check("chhanda" to "छन्द", "chhaandaa" to "छान्दा", "chha" to "छ", "chhora" to "छोरा", "chanda" to "चन्द")
         assertTrue(type("chhanda").candidates.none { it.devanagari.startsWith("च") })
+    }
+
+    @Test
+    fun `a letter typed on its own commits the letter, words come next`() {
+        check(
+            "a" to "अ", "aa" to "आ", "i" to "इ", "ii" to "ई", "u" to "उ", "uu" to "ऊ", "Ri" to "ऋ",
+            "e" to "ए", "ai" to "ऐ", "o" to "ओ", "au" to "औ", "ou" to "औ", "aH" to "अः",
+            "ka" to "क", "kaa" to "का", "cha" to "च", "chha" to "छ", "jha" to "झ", "Da" to "ड", "Dha" to "ढ",
+            "tha" to "थ", "pha" to "फ", "ba" to "ब", "ya" to "य", "wa" to "व", "sa" to "स", "sha" to "श",
+            "Sha" to "ष", "tra" to "त्र", "shra" to "श्र", "gya" to "ज्ञ", "xa" to "क्ष",
+            "M" to "ं", "H" to "ः", "~" to "ँ", "om" to "ॐ"
+        )
+        // The words the letter could stand for follow it in the strip
+        assertTrue(type("cha").candidates.map { it.devanagari }.indexOf("छ") == 1)
+        assertTrue(type("ka").candidates.map { it.devanagari }.indexOf("का") == 1)
+    }
+
+    @Test
+    fun `two vowels after a consonant are a word, not a letter`() =
+        check("dai" to "दाइ", "bhai" to "भाइ", "lai" to "लाई", "rai" to "राई")
+
+    @Test
+    fun `a word keeps its exact spelling second`() {
+        for (typed in listOf("ramro", "hami", "namaskar", "malai")) {
+            val shown = type(typed).candidates.map { it.devanagari }
+            val exact = RomanizedConverter.convert(typed)
+            assertTrue("$typed: $shown", shown.indexOf(exact) in 0..1)
+        }
+        check("ramro" to "राम्रो", "hami" to "हामी", "namaskar" to "नमस्कार")
     }
 }
