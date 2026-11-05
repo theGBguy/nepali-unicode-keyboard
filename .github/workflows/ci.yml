@@ -154,12 +154,13 @@ jobs:
           key: spm-${{ runner.os }}-${{ hashFiles('iosApp/NepaliKeyboard.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
       # The project's SharedKotlinFramework target runs Gradle alongside the ML Kit packages.
       # ARCHS=arm64: a generic simulator build would also compile the packages for x86_64 (the
-      # project's EXCLUDED_ARCHS doesn't reach package targets). No code index on CI.
+      # project's EXCLUDED_ARCHS doesn't reach package targets). No code index on CI, and no
+      # fetching package updates: the cached checkouts already match Package.resolved.
       - name: Build the iOS app and keyboard
         run: >
           xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard
           -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath SourcePackages
-          CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO ARCHS=arm64 build
+          -skipPackageUpdates CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO ARCHS=arm64 build
       - if: github.ref == 'refs/heads/main' && steps.spm.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
