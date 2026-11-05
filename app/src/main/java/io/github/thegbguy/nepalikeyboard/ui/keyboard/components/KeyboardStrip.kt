@@ -6,9 +6,12 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -47,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.domain.smart.SmartAction
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardColors
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardState
 
 /**
  * The 40dp row above the keys. Shows, in order of priority: the listening state, a voice error,
@@ -87,6 +92,8 @@ fun KeyboardStrip(
     /** With a physical keyboard: whether the keys are shown (the button hides them), else null. */
     keysShown: Boolean? = null,
     onToggleKeys: () -> Unit = {},
+    /** The word picked with Tab or the arrows on a physical keyboard (0 = the best guess). */
+    highlightedSuggestion: Int = 0,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -112,7 +119,8 @@ fun KeyboardStrip(
                     words = buildList {
                         if (primarySuggestion.isNotEmpty()) add(primarySuggestion)
                         suggestions.forEach { if (it !in this) add(it) }
-                    }.take(MAX_WORDS),
+                    }.take(KeyboardState.MAX_STRIP_WORDS),
+                    highlighted = highlightedSuggestion,
                     smartAction = smartActions.firstOrNull(),
                     latinText = latinText,
                     onSuggestionClick = onSuggestionClick,
@@ -166,9 +174,6 @@ fun KeyboardStrip(
     }
 }
 
-/** Word guesses the strip shows while typing; the rest scroll in from the right. */
-private const val MAX_WORDS = 6
-
 /**
  * The best guess first (bold), then a smart suggestion, then the other guesses. Words take their
  * natural width and scroll sideways; the next one is cut off at the edge and fades out, which
@@ -178,6 +183,7 @@ private const val MAX_WORDS = 6
 private fun Suggestions(
     colors: KeyboardColors,
     words: List<String>,
+    highlighted: Int,
     smartAction: SmartAction?,
     latinText: String,
     onSuggestionClick: (String) -> Unit,
@@ -213,7 +219,9 @@ private fun Suggestions(
         ) {
             words.forEachIndexed { index, word ->
                 if (index > 0) Divider(colors)
-                WordSlot(word, colors.keyText, bold = index == 0) { onSuggestionClick(word) }
+                WordSlot(word, colors, bold = index == 0, picked = index == highlighted && highlighted > 0) {
+                    onSuggestionClick(word)
+                }
                 if (index == 0 && smartAction != null) {
                     Divider(colors)
                     // Up to 2.5 word widths so dates and amounts in words stay readable.
@@ -245,18 +253,25 @@ private fun Suggestions(
 }
 
 /** A word guess at its natural width (at least a comfortable tap target). */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun WordSlot(text: String, color: Color, bold: Boolean, onClick: () -> Unit) {
+private fun WordSlot(text: String, colors: KeyboardColors, bold: Boolean, picked: Boolean, onClick: () -> Unit) {
+    // Keep the word picked from a physical keyboard on screen as the highlight moves.
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(picked) { if (picked) requester.bringIntoView() }
     Box(
         modifier = Modifier
             .widthIn(min = 56.dp)
             .fillMaxHeight()
+            .bringIntoViewRequester(requester)
+            .padding(vertical = 4.dp)
+            .then(if (picked) Modifier.clip(RoundedCornerShape(8.dp)).background(colors.key) else Modifier)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = withNepaliSpeech(text),
-            color = color,
+            color = colors.keyText,
             fontSize = 17.sp,
             fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 1,

@@ -52,6 +52,15 @@ class HardwareKeyRouter(private val keyboard: () -> KeyboardController) {
             controller.onHardwarePassThrough()
             return false
         }
+        // Picking another suggestion while a Romanized word is being typed (held keys repeat)
+        val pick = when (keyCode) {
+            KeyEvent.KEYCODE_TAB -> controller.onHardwareMoveSuggestion(if (shift) -1 else 1)
+            KeyEvent.KEYCODE_DPAD_RIGHT -> !shift && controller.onHardwareMoveSuggestion(1)
+            KeyEvent.KEYCODE_DPAD_LEFT -> !shift && controller.onHardwareMoveSuggestion(-1)
+            KeyEvent.KEYCODE_ESCAPE -> controller.onHardwareResetSuggestion()
+            else -> false
+        }
+        if (pick) return true
         when (keyCode) {
             KeyEvent.KEYCODE_SPACE -> {
                 controller.onHardwareSpace()
