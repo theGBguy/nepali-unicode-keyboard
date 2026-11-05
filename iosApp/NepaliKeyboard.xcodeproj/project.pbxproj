@@ -6,6 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		642F0689122FC2755709508E /* SharedKotlinFramework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = CB1D4C4AC45C8AB9FFC46224 /* Build configuration list for PBXAggregateTarget "SharedKotlinFramework" */;
+			buildPhases = (
+				5850726B05F60AF818A38E77 /* Build shared Kotlin framework */,
+			);
+			dependencies = (
+			);
+			name = SharedKotlinFramework;
+			packageProductDependencies = (
+			);
+			productName = SharedKotlinFramework;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		0FF371E31DB194E24F755ABC /* MLKitDigitalInkRecognition_resource.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 251D217EA4061AA6C5EE21D9 /* MLKitDigitalInkRecognition_resource.bundle */; };
 		17D57443FC2C66966F4E98D0 /* words_ne.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 3B84A07FE0645CB3CF19E15B /* words_ne.tsv */; };
@@ -21,6 +37,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3341BCD04EB7C99D3D639175;
 			remoteInfo = NepaliKeyboardExtension;
+		};
+		59E02F53EBB31BD7AFE3D035 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9228F6B56DA2F84CAF2B464F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 642F0689122FC2755709508E;
+			remoteInfo = SharedKotlinFramework;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -166,7 +189,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 285B73CBC69EE1F0CDEBAB0B /* Build configuration list for PBXNativeTarget "NepaliKeyboardExtension" */;
 			buildPhases = (
-				31C334E470C856C6B432D148 /* Build shared Kotlin framework */,
 				BA2159A0DBB6B78E9485EC5F /* Sources */,
 				46F83DA9F16B580A06B1432A /* Resources */,
 				E86912E5DBAD3543A61BDEBA /* Frameworks */,
@@ -174,6 +196,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BBA9B3635E9A29ED5F777E76 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2EE5DFAC972B8B81F46FE382 /* Keyboard */,
@@ -224,6 +247,10 @@
 						DevelopmentTeam = 2G9CN64MSN;
 						ProvisioningStyle = Automatic;
 					};
+					642F0689122FC2755709508E = {
+						DevelopmentTeam = 2G9CN64MSN;
+						ProvisioningStyle = Automatic;
+					};
 					A77B0934A88588838F3707D5 = {
 						DevelopmentTeam = 2G9CN64MSN;
 						ProvisioningStyle = Automatic;
@@ -249,6 +276,7 @@
 			targets = (
 				A77B0934A88588838F3707D5 /* NepaliKeyboard */,
 				3341BCD04EB7C99D3D639175 /* NepaliKeyboardExtension */,
+				642F0689122FC2755709508E /* SharedKotlinFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -274,7 +302,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		31C334E470C856C6B432D148 /* Build shared Kotlin framework */ = {
+		5850726B05F60AF818A38E77 /* Build shared Kotlin framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -291,7 +319,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Xcode's environment has no JAVA_HOME; Gradle needs JDK 17 or newer\nif [ -z \"$JAVA_HOME\" ]; then\n  export JAVA_HOME=\"$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)\"\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "# Xcode's environment has no JAVA_HOME; Gradle needs JDK 17 or newer\nif [ -z \"$JAVA_HOME\" ]; then\n  export JAVA_HOME=\"$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)\"\nfi\n# The framework is static, so nothing is embedded, but the task still asks for the path\n# an app target would embed into, which an aggregate target doesn't have\nexport FRAMEWORKS_FOLDER_PATH=\"${FRAMEWORKS_FOLDER_PATH:-Frameworks}\"\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -317,6 +345,11 @@
 			isa = PBXTargetDependency;
 			target = 3341BCD04EB7C99D3D639175 /* NepaliKeyboardExtension */;
 			targetProxy = 0A22C71FECAD0A80D678D842 /* PBXContainerItemProxy */;
+		};
+		BBA9B3635E9A29ED5F777E76 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 642F0689122FC2755709508E /* SharedKotlinFramework */;
+			targetProxy = 59E02F53EBB31BD7AFE3D035 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -404,6 +437,12 @@
 				PRODUCT_NAME = NepaliKeyboardExtension;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5F3FD76436B701922CBB8E55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 			};
 			name = Release;
 		};
@@ -544,6 +583,12 @@
 			};
 			name = Debug;
 		};
+		E2FCCF1EA007C192BE53561D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -561,6 +606,15 @@
 			buildConfigurations = (
 				C8DA256C913D1E2A8B9F00F1 /* Debug */,
 				7EF5A3169EE69B763AA8B547 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CB1D4C4AC45C8AB9FFC46224 /* Build configuration list for PBXAggregateTarget "SharedKotlinFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2FCCF1EA007C192BE53561D /* Debug */,
+				5F3FD76436B701922CBB8E55 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
