@@ -652,8 +652,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
             && _state.value.transliterationBuffer.isNotEmpty()
         ) {
-            val buffer = _state.value.transliterationBuffer
-            val output = transliterationEngine.commitBuffer(buffer)
+            val output = wordToCommit()
             // commitText replaces composing text
             inputConnection?.commitText(output)
 
@@ -696,7 +695,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 it.copy(
                     transliterationBuffer = newBuffer,
                     suggestions = newBuffer.candidates.map { candidate -> candidate.devanagari },
-                    showSuggestionBar = newBuffer.isNotEmpty()
+                    showSuggestionBar = newBuffer.isNotEmpty(),
+                    highlightedSuggestion = 0
                 )
             }
 
@@ -724,8 +724,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                     && _state.value.transliterationBuffer.isNotEmpty()
                 ) {
                     // Commit transliteration buffer
-                    val buffer = _state.value.transliterationBuffer
-                    val output = transliterationEngine.commitBuffer(buffer)
+                    val output = wordToCommit()
 
                     // commitText automatically replaces the composing text (romanized)
                     // with the Devanagari output, so no need to finishComposingText first
@@ -848,11 +847,45 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         ic.endBatchEdit()
     }
 
+    /**
+     * What ending the Romanized word commits: the suggestion picked with Tab or the arrows on a
+     * physical keyboard, otherwise the best guess.
+     */
+    private fun wordToCommit(): String {
+        val st = _state.value
+        return st.stripWords.getOrNull(st.highlightedSuggestion)?.takeIf { st.highlightedSuggestion > 0 }
+            ?: transliterationEngine.commitBuffer(st.transliterationBuffer)
+    }
+
+    /**
+     * Tab / Shift + Tab or → / ← on a physical keyboard while a Romanized word is being typed:
+     * moves the highlight across the strip's suggestions by [step]; ending the word then commits
+     * the highlighted one. Returns false when no word is being typed, so the key works as usual.
+     */
+    fun onHardwareMoveSuggestion(step: Int): Boolean {
+        val st = _state.value
+        if (st.currentLanguage != LanguageMode.TRANSLITERATION || st.transliterationBuffer.isEmpty()) return false
+        val last = (st.stripWords.size - 1).coerceAtLeast(0)
+        val next = (st.highlightedSuggestion + step).coerceIn(0, last)
+        if (next != st.highlightedSuggestion) _state.update { it.copy(highlightedSuggestion = next) }
+        return true
+    }
+
+    /** Esc on a physical keyboard: back to the best guess. False when nothing was picked. */
+    fun onHardwareResetSuggestion(): Boolean {
+        val st = _state.value
+        if (st.currentLanguage != LanguageMode.TRANSLITERATION || st.transliterationBuffer.isEmpty() ||
+            st.highlightedSuggestion == 0
+        ) return false
+        _state.update { it.copy(highlightedSuggestion = 0) }
+        return true
+    }
+
     /** Commits the Romanized word being typed as Devanagari, if there is one. */
     private fun commitTransliterationBuffer() {
         val buffer = _state.value.transliterationBuffer
         if (_state.value.currentLanguage != LanguageMode.TRANSLITERATION || buffer.isEmpty()) return
-        inputConnection?.commitText(transliterationEngine.commitBuffer(buffer))
+        inputConnection?.commitText(wordToCommit())
         _state.update {
             it.copy(
                 transliterationBuffer = TransliterationBuffer(),
@@ -921,7 +954,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                         it.copy(
                             transliterationBuffer = newBuffer,
                             suggestions = newBuffer.candidates.map { candidate -> candidate.devanagari },
-                            showSuggestionBar = newBuffer.isNotEmpty()
+                            showSuggestionBar = newBuffer.isNotEmpty(),
+                            highlightedSuggestion = 0
                         )
                     }
 
@@ -1319,8 +1353,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION
             && _state.value.transliterationBuffer.isNotEmpty()
         ) {
-            val buffer = _state.value.transliterationBuffer
-            val output = transliterationEngine.commitBuffer(buffer)
+            val output = wordToCommit()
             inputConnection?.commitText(output)
             _state.update {
                 it.copy(
@@ -1434,11 +1467,24 @@ data class KeyboardState(
     val suggestions: List<String> = emptyList(),
     val transliterationBuffer: TransliterationBuffer = TransliterationBuffer(),
     val showSuggestionBar: Boolean = false,
+    /** Index in [stripWords] picked with Tab or the arrows on a physical keyboard (0 = best guess). */
+    val highlightedSuggestion: Int = 0,
     // Voice typing state
     val isVoiceListening: Boolean = false,
     val voiceError: VoiceError? = null,
     val partialVoiceResult: String? = null
-)
+) {
+    /** The words the strip shows while typing, best guess first (at most [MAX_STRIP_WORDS]). */
+    val stripWords: List<String>
+        get() = buildList {
+            if (transliterationBuffer.primaryCandidate.isNotEmpty()) add(transliterationBuffer.primaryCandidate)
+            suggestions.forEach { if (it !in this) add(it) }
+        }.take(MAX_STRIP_WORDS)
+
+    companion object {
+        const val MAX_STRIP_WORDS = 6
+    }
+}
 
 /** What the handwriting panel shows. */
 enum class HandwritingPhase {

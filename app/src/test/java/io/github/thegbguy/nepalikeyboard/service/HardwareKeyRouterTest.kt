@@ -187,4 +187,63 @@ class HardwareKeyRouterTest {
         keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
         assertTrue(keyboard.state.value.smartActions.isEmpty())
     }
+
+    // Without the word list loaded, a lone consonant gives two suggestions: क् then क
+    @Test
+    fun `tab and the arrows pick another suggestion, space commits it`() {
+        typeLatin("k")
+        assertEquals(listOf("क्", "क"), keyboard.state.value.stripWords)
+        assertTrue(press(KeyEvent.KEYCODE_TAB))
+        assertEquals(1, keyboard.state.value.highlightedSuggestion)
+        assertTrue(press(KeyEvent.KEYCODE_DPAD_LEFT))
+        assertEquals(0, keyboard.state.value.highlightedSuggestion)
+        assertTrue(press(KeyEvent.KEYCODE_DPAD_RIGHT))
+        assertEquals("k", field.composing) // the word is still being typed
+        press(KeyEvent.KEYCODE_SPACE, char = ' ')
+        assertEquals("क ", field.shown)
+    }
+
+    @Test
+    fun `the highlight stops at both ends and resets on the next letter`() {
+        typeLatin("k")
+        repeat(5) { press(KeyEvent.KEYCODE_TAB) }
+        assertEquals(1, keyboard.state.value.highlightedSuggestion)
+        repeat(5) { press(KeyEvent.KEYCODE_TAB, KeyEvent.META_SHIFT_ON) }
+        assertEquals(0, keyboard.state.value.highlightedSuggestion)
+        press(KeyEvent.KEYCODE_TAB)
+        typeLatin("a")
+        assertEquals(0, keyboard.state.value.highlightedSuggestion)
+    }
+
+    @Test
+    fun `escape goes back to the best guess, enter and punctuation commit the pick`() {
+        typeLatin("k")
+        press(KeyEvent.KEYCODE_TAB)
+        assertTrue(press(KeyEvent.KEYCODE_ESCAPE))
+        assertEquals(0, keyboard.state.value.highlightedSuggestion)
+        // Nothing picked: Esc goes to the app
+        assertFalse(press(KeyEvent.KEYCODE_ESCAPE))
+        press(KeyEvent.KEYCODE_SPACE, char = ' ')
+        assertEquals("क् ", field.shown)
+
+        typeLatin("k")
+        press(KeyEvent.KEYCODE_TAB)
+        press(KeyEvent.KEYCODE_COMMA, char = ',')
+        assertEquals("क् क,", field.shown)
+
+        typeLatin("k")
+        press(KeyEvent.KEYCODE_TAB)
+        assertFalse(press(KeyEvent.KEYCODE_ENTER))
+        assertEquals("क् क,क", field.shown)
+    }
+
+    @Test
+    fun `with no word being typed tab and the arrows go to the app`() {
+        assertFalse(press(KeyEvent.KEYCODE_TAB))
+        assertFalse(press(KeyEvent.KEYCODE_DPAD_RIGHT))
+        assertFalse(press(KeyEvent.KEYCODE_DPAD_LEFT))
+        // Shift + arrow selects text in the app, even mid-word
+        typeLatin("k")
+        assertFalse(press(KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.META_SHIFT_ON))
+    }
 }
