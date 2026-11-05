@@ -519,20 +519,12 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     }
 
     /**
-     * The language key cycles English → the user's Nepali style → the other Nepali style → English.
-     * The saved style (settings, long-press menu) only sets which Nepali mode comes first; cycling
-     * doesn't change it. Where Romanized isn't allowed it's English ⇄ traditional.
+     * The language key switches between English and the user's Nepali style (Romanized or
+     * traditional, picked in settings or the long-press menu). Where Romanized isn't allowed it's
+     * English ⇄ traditional.
      */
     fun switchLanguage() {
-        val field = _state.value.field
-        val preferred = nepaliMode(field)
-        val other = if (preferred == LanguageMode.NEPALI) LanguageMode.TRANSLITERATION else LanguageMode.NEPALI
-        val otherAllowed = other != LanguageMode.TRANSLITERATION || field.allowsTransliteration
-        val next = when (_state.value.currentLanguage) {
-            LanguageMode.ENGLISH -> preferred
-            preferred -> if (otherAllowed) other else LanguageMode.ENGLISH
-            else -> LanguageMode.ENGLISH
-        }
+        val next = if (_state.value.currentLanguage == LanguageMode.ENGLISH) nepaliMode(_state.value.field) else LanguageMode.ENGLISH
         setLanguage(next)
     }
 
