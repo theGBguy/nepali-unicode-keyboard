@@ -159,6 +159,9 @@
     <string name="settings_source">सोर्स कोड</string>
     <string name="settings_source_sub">GitHub मा खुला स्रोत</string>
     <string name="settings_version">संस्करण %1$s</string>
+    <string name="update_downloading">अपडेट डाउनलोड हुँदै</string>
+    <string name="update_ready">अपडेट तयार छ</string>
+    <string name="update_restart">फेरि सुरु गर्नुहोस्</string>
     <string name="feedback_subject">नेपाली किबोर्ड प्रतिक्रिया</string>
     <string name="cancel">रद्द गर्नुहोस्</string>
     <string name="no_app_to_open">यो खोल्ने एप भेटिएन</string>

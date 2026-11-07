@@ -6,7 +6,8 @@ The source code is licensed under the GNU General Public License v3.0 (see LICEN
 Additional permission under GNU GPL version 3 section 7
 
 If you modify this program, or any covered work, by linking or combining it with
-Google ML Kit or Google Play services (or a modified version of those libraries),
+Google ML Kit, Google Play services or the Google Play Core libraries (such as
+Play In-App Updates), or a modified version of those libraries,
 containing parts covered by the terms of their respective licences, the licensors
 of this program grant you additional permission to convey the resulting work.
 

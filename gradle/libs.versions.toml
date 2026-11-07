@@ -37,6 +37,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 # Handwriting (on-device recognition; models downloaded from Google)
 mlkit-digital-ink = { group = "com.google.mlkit", name = "digital-ink-recognition", version.ref = "digitalInk" }
+play-app-update-ktx = { module = "com.google.android.play:app-update-ktx", version = "2.1.0" }
 # Testing
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

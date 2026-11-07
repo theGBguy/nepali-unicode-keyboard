@@ -1,5 +1,6 @@
 package io.github.thegbguy.nepalikeyboard.ui.settings
 
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -60,6 +61,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyHeight
+import io.github.thegbguy.nepalikeyboard.update.UpdateState
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardTheme
 import io.github.thegbguy.nepalikeyboard.ui.setup.ChoiceOption
 import io.github.thegbguy.nepalikeyboard.ui.setup.KeyboardStatus
@@ -84,6 +86,8 @@ fun SettingsScreen(
     feel: KeyFeel,
     appLanguage: String,
     versionName: String,
+    update: UpdateState,
+    onInstallUpdate: () -> Unit,
     tryText: String,
     onTryTextChange: (String) -> Unit,
     onStyleChange: (LanguageMode) -> Unit,
@@ -131,6 +135,10 @@ fun SettingsScreen(
                     subtitleColor = if (ready) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                     onClick = if (ready) null else ({ onLink(SettingsLink.FIX_KEYBOARD) })
                 )
+                if (update != UpdateState.None) {
+                    RowDivider()
+                    UpdateRow(update, onInstallUpdate)
+                }
             }
 
             Section(stringResource(R.string.settings_section_typing)) {
@@ -458,6 +466,47 @@ fun LicencesScreen(onBack: () -> Unit) {
                     Text(stringResource(body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+        }
+    }
+}
+
+/**
+ * A Play update in the status card: a download bar while it downloads, then "Update ready ·
+ * Restart". Restarting installs it (the keyboard closes and reopens with the new version).
+ */
+@Composable
+private fun UpdateRow(update: UpdateState, onInstall: () -> Unit) {
+    val ready = update == UpdateState.Ready
+    val progress = (update as? UpdateState.Downloading)?.progress
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .then(if (ready) Modifier.clickable(onClick = onInstall) else Modifier)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painterResource(if (ready) R.drawable.ic_ui_system_update else R.drawable.ic_ui_download),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = if (ready) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                stringResource(if (ready) R.string.update_ready else R.string.update_downloading),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            when {
+                ready -> Text(stringResource(R.string.update_restart), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                progress != null -> Text("${(progress * 100).toInt()}%", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        if (update is UpdateState.Downloading) {
+            if (progress != null) LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(), drawStopIndicator = {})
+            else LinearProgressIndicator(Modifier.fillMaxWidth())
         }
     }
 }

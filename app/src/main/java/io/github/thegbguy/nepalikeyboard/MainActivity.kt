@@ -12,6 +12,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,6 +37,7 @@ import io.github.thegbguy.nepalikeyboard.ui.setup.SetupPrefs
 import io.github.thegbguy.nepalikeyboard.ui.setup.SetupScreen
 import io.github.thegbguy.nepalikeyboard.ui.setup.WarningSheet
 import io.github.thegbguy.nepalikeyboard.ui.theme.NepaliKeyboardTheme
+import io.github.thegbguy.nepalikeyboard.update.AppUpdates
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -48,6 +51,9 @@ class MainActivity : ComponentActivity() {
     private var handwriting by mutableStateOf(false)
     private var appLanguage by mutableStateOf(AppLanguage.SYSTEM)
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
+    private lateinit var updates: AppUpdates
+    // Play's update dialogs report back here; the install state arrives through AppUpdates' listener.
+    private val updateLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { }
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLanguage.wrap(newBase))
@@ -58,8 +64,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setupDone = SetupPrefs.isDone(this)
         readPrefs()
+        // Debug builds: `adb shell am start -n <pkg>/io.github.thegbguy.nepalikeyboard.MainActivity --ez fake_update true`
+        val fakeUpdate = intent.getBooleanExtra(EXTRA_FAKE_UPDATE, false)
+        updates = AppUpdates.create(this, fakeUpdate).also { it.start() }
+        if (fakeUpdate) updates.simulateFlexibleUpdate(lifecycleScope, updateLauncher)
         setContent {
             NepaliKeyboardTheme {
+                val update by updates.state.collectAsState()
                 var screen by rememberSaveable { mutableStateOf(Screen.MAIN) }
                 var showWarning by rememberSaveable { mutableStateOf(false) }
                 var showLanguages by rememberSaveable { mutableStateOf(false) }
@@ -82,6 +93,8 @@ class MainActivity : ComponentActivity() {
                         feel = feel,
                         appLanguage = appLanguage,
                         versionName = versionName(),
+                        update = update,
+                        onInstallUpdate = updates::install,
                         tryText = tryText,
                         onTryTextChange = { tryText = it },
                         onStyleChange = onStyleChange,
@@ -168,6 +181,13 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         refreshStatus()
+        // Not during setup: Play's update dialog would get in the way of turning the keyboard on
+        if (setupDone) lifecycleScope.launch { updates.check(updateLauncher) }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        updates.stop()
     }
 
     // The keyboard picker is a dialog over this activity: focus returns here when it closes.
@@ -233,5 +253,6 @@ class MainActivity : ComponentActivity() {
         const val PRIVACY_POLICY_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html"
         const val TERMS_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/terms-of-service.html"
         const val SOURCE_URL = "https://github.com/theGBguy/nepali-unicode-keyboard"
+        const val EXTRA_FAKE_UPDATE = "fake_update"
     }
 }
