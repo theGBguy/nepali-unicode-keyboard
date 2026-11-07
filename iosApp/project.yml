@@ -20,7 +20,7 @@ settings:
     DEVELOPMENT_TEAM: 2G9CN64MSN
     CODE_SIGN_STYLE: Automatic
     MARKETING_VERSION: "1.4.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "2"
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
@@ -47,6 +47,9 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        # iPhone-only and portrait-only: without this, App Store upload rejects the build (90474)
+        # because iPhone apps also run on iPad, where multitasking needs every orientation
+        INFOPLIST_KEY_UIRequiresFullScreen: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         # No encryption beyond Apple's own HTTPS, so uploads skip the export-compliance question
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
