@@ -426,7 +426,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KeyboardInfo.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Keyboard";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Unicode Keyboard";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -453,7 +453,7 @@
 				CODE_SIGN_ENTITLEMENTS = NepaliKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Keyboard";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Unicode Keyboard";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -549,7 +549,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KeyboardInfo.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Keyboard";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Unicode Keyboard";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -570,7 +570,7 @@
 				CODE_SIGN_ENTITLEMENTS = NepaliKeyboard.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Keyboard";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepali Unicode Keyboard";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -63,7 +63,7 @@ struct HandwritingPanel: View {
     @ViewBuilder
     private var area: some View {
         if !model.hasFullAccess {
-            message(String(localized: "Handwriting needs Full Access to download Google’s Nepali handwriting model. Turn it on in Settings → Nepali Keyboard → Keyboards."))
+            message(String(localized: "Handwriting needs Full Access to download Google’s Nepali handwriting model. Turn it on in Settings → Nepali Unicode Keyboard → Keyboards."))
         } else {
             switch phase {
             case .ready:

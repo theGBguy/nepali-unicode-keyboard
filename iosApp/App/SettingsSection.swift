@@ -234,7 +234,7 @@ struct AboutSettings: View {
         mail.scheme = "mailto"
         mail.path = supportEmail
         mail.queryItems = [
-            URLQueryItem(name: "subject", value: String(localized: "Nepali Keyboard feedback")),
+            URLQueryItem(name: "subject", value: String(localized: "Nepali Unicode Keyboard feedback")),
             URLQueryItem(name: "body", value: "\n\n—\n\(String(localized: "Version \(version)")) · iOS \(UIDevice.current.systemVersion) · \(model)")
         ]
         return mail.url

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Nepali Keyboard</string>
+    <string name="app_name">Nepali Unicode Keyboard</string>
     <!-- Name in Android's keyboard list and picker; matches the Play title -->
     <string name="ime_name">Nepali Unicode Keyboard</string>
 
@@ -62,7 +62,7 @@
     <string name="setup_title">Type Nepali\nin any app</string>
     <string name="setup_lede">Romanized or traditional layout, plus voice typing. Takes about a minute to set up.</string>
     <string name="setup_title_almost">Nearly there</string>
-    <string name="setup_lede_almost">Now switch to the Nepali keyboard. You can switch back any time from the keyboard icon.</string>
+    <string name="setup_lede_almost">Now switch to Nepali Unicode Keyboard. You can switch back any time from the keyboard icon.</string>
     <string name="setup_step1">Turn on the keyboard</string>
     <string name="setup_step1_sub">In Android settings</string>
     <string name="setup_step2">Switch to it</string>
@@ -108,7 +108,7 @@
 
     <!-- Settings -->
     <string name="settings_section_typing">Typing</string>
-    <string name="settings_title">Nepali Keyboard settings</string>
+    <string name="settings_title">Nepali Unicode Keyboard settings</string>
     <string name="settings_section_app">App</string>
     <string name="settings_section_help">Help</string>
     <string name="settings_section_legal">Legal</string>
@@ -166,7 +166,7 @@
     <string name="update_downloading">Downloading update</string>
     <string name="update_ready">Update ready</string>
     <string name="update_restart">Restart</string>
-    <string name="feedback_subject">Nepali Keyboard feedback</string>
+    <string name="feedback_subject">Nepali Unicode Keyboard feedback</string>
     <string name="cancel">Cancel</string>
     <string name="no_app_to_open">No app found to open this</string>
     <string name="licences_words_title">Nepali word list</string>

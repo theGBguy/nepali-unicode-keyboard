@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">नेपाली किबोर्ड</string>
+    <string name="app_name">नेपाली युनिकोड किबोर्ड</string>
     <string name="ime_name">नेपाली युनिकोड किबोर्ड</string>
 
     <string name="mode_romanized">रोमनाइज्ड</string>
@@ -58,7 +58,7 @@
     <string name="setup_title">जुनसुकै एपमा\nनेपाली लेख्नुहोस्</string>
     <string name="setup_lede">रोमनाइज्ड वा परम्परागत लेआउट, साथै बोलेर टाइप। सेटअप गर्न करिब एक मिनेट लाग्छ।</string>
     <string name="setup_title_almost">लगभग भयो</string>
-    <string name="setup_lede_almost">अब नेपाली किबोर्डमा स्विच गर्नुहोस्। किबोर्ड आइकनबाट जुनसुकै बेला फर्कन सक्नुहुन्छ।</string>
+    <string name="setup_lede_almost">अब नेपाली युनिकोड किबोर्डमा स्विच गर्नुहोस्। किबोर्ड आइकनबाट जुनसुकै बेला फर्कन सक्नुहुन्छ।</string>
     <string name="setup_step1">किबोर्ड अन गर्नुहोस्</string>
     <string name="setup_step1_sub">Android सेटिङमा</string>
     <string name="setup_step2">यसमा स्विच गर्नुहोस्</string>
@@ -104,7 +104,7 @@
 
     <!-- सेटिङ -->
     <string name="settings_section_typing">टाइपिङ</string>
-    <string name="settings_title">नेपाली किबोर्ड सेटिङ</string>
+    <string name="settings_title">नेपाली युनिकोड किबोर्ड सेटिङ</string>
     <string name="settings_section_app">एप</string>
     <string name="settings_section_help">सहायता</string>
     <string name="settings_section_legal">कानुनी</string>
@@ -162,7 +162,7 @@
     <string name="update_downloading">अपडेट डाउनलोड हुँदै</string>
     <string name="update_ready">अपडेट तयार छ</string>
     <string name="update_restart">फेरि सुरु गर्नुहोस्</string>
-    <string name="feedback_subject">नेपाली किबोर्ड प्रतिक्रिया</string>
+    <string name="feedback_subject">नेपाली युनिकोड किबोर्ड प्रतिक्रिया</string>
     <string name="cancel">रद्द गर्नुहोस्</string>
     <string name="no_app_to_open">यो खोल्ने एप भेटिएन</string>
     <string name="licences_words_title">नेपाली शब्द सूची</string>

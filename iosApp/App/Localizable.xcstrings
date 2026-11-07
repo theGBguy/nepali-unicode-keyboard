@@ -261,22 +261,22 @@
         }
       }
     },
-    "In Settings, tap Keyboards and turn on Nepali Keyboard.": {
+    "In Settings, tap Keyboards and turn on Nepali Unicode Keyboard.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "सेटिङमा Keyboards थिच्नुहोस् र Nepali Keyboard अन गर्नुहोस्।"
+            "value": "सेटिङमा Keyboards थिच्नुहोस् र Nepali Unicode Keyboard अन गर्नुहोस्।"
           }
         }
       }
     },
-    "In any text field, hold 🌐 below the keyboard and pick Nepali Keyboard.": {
+    "In any text field, hold 🌐 below the keyboard and pick Nepali Unicode Keyboard.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "जुनसुकै टेक्स्ट फिल्डमा किबोर्डमुनिको 🌐 थिचिराख्नुहोस् र Nepali Keyboard छान्नुहोस्।"
+            "value": "जुनसुकै टेक्स्ट फिल्डमा किबोर्डमुनिको 🌐 थिचिराख्नुहोस् र Nepali Unicode Keyboard छान्नुहोस्।"
           }
         }
       }
@@ -421,22 +421,22 @@
         }
       }
     },
-    "Nepali Keyboard": {
+    "Nepali Unicode Keyboard": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "नेपाली किबोर्ड"
+            "value": "नेपाली युनिकोड किबोर्ड"
           }
         }
       }
     },
-    "Nepali Keyboard feedback": {
+    "Nepali Unicode Keyboard feedback": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "नेपाली किबोर्ड प्रतिक्रिया"
+            "value": "नेपाली युनिकोड किबोर्ड प्रतिक्रिया"
           }
         }
       }
@@ -471,12 +471,12 @@
         }
       }
     },
-    "Not showing? Hold 🌐 and pick Nepali Keyboard.": {
+    "Not showing? Hold 🌐 and pick Nepali Unicode Keyboard.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "देखिएन? 🌐 थिचिराख्नुहोस् र नेपाली किबोर्ड छान्नुहोस्।"
+            "value": "देखिएन? 🌐 थिचिराख्नुहोस् र Nepali Unicode Keyboard छान्नुहोस्।"
           }
         }
       }
