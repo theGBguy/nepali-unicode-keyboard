@@ -231,6 +231,16 @@
         }
       }
     },
+    "Helps other Nepali speakers find it": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अरू नेपालीभाषीलाई यो भेट्टाउन मद्दत गर्छ"
+          }
+        }
+      }
+    },
     "Himalaya": {
       "localizations": {
         "ne": {
@@ -567,6 +577,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "गोपनीयता नीति"
+          }
+        }
+      }
+    },
+    "Rate on the App Store": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Store मा रेटिङ दिनुहोस्"
           }
         }
       }

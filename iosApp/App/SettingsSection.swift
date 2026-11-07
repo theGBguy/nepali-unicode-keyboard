@@ -158,7 +158,7 @@ struct TypingSettings: View {
     }
 }
 
-/** App, Help and Legal: the same rows as Android's Settings, minus Rate until the app is on the App Store. */
+/** App, Help and Legal: the same rows as Android's Settings. */
 struct AboutSettings: View {
     @State private var page: InfoPage?
     @Environment(\.openURL) private var openURL
@@ -167,6 +167,8 @@ struct AboutSettings: View {
     static let privacyPolicy = URL(string: "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html")!
     static let terms = URL(string: "https://nepali-indie-dev.github.io/nepali-keyboard/terms-of-service.html")!
     static let sourceCode = URL(string: "https://github.com/theGBguy/nepali-unicode-keyboard")!
+    /** Opens the App Store's review page for this app. */
+    static let rate = URL(string: "https://apps.apple.com/app/id6831912584?action=write-review")!
 
     var body: some View {
         VStack(spacing: 0) {
@@ -181,6 +183,10 @@ struct AboutSettings: View {
                 RowDivider()
                 LinkRow(icon: "envelope", title: "Send feedback", subtitle: "Report a wrong word or a bug") {
                     if let url = Self.feedbackURL { openURL(url) }
+                }
+                RowDivider()
+                LinkRow(icon: "star", title: "Rate on the App Store", subtitle: "Helps other Nepali speakers find it") {
+                    openURL(Self.rate)
                 }
             }
             .padding(.top, 28)

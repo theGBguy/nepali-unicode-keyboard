@@ -19,7 +19,7 @@ settings:
   base:
     DEVELOPMENT_TEAM: 2G9CN64MSN
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.0"
+    MARKETING_VERSION: "1.4.0"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
@@ -48,6 +48,8 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        # No encryption beyond Apple's own HTTPS, so uploads skip the export-compliance question
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     # Settings live in the App Group's defaults so the keyboard reads what the app's Settings set
     entitlements:
