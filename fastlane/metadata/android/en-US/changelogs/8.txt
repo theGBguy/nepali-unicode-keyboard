@@ -1,0 +1,7 @@
+What's new in 1.4.0
+• Nine keyboard themes, and flat keys (Settings → Look)
+• The language key shows a flag: 🇳🇵 Nepali, 🇬🇧 English
+• Romanized typing guide: what to type for each letter
+• Up to 6 suggestions: swipe the strip for more
+• Physical keyboard: Tab or the arrow keys pick a suggestion
+• Bug fixes and enhancements
