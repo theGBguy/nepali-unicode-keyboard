@@ -25,7 +25,7 @@ A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for And
 ## Platforms
 
 - **Android 7.0 or newer**, [on Google Play](https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard).
-- **iOS 17 or newer**, in progress and not on the App Store yet. The iOS keyboard has Romanized and traditional typing, smart suggestions, emoji, clipboard history, handwriting and VoiceOver support. It has no voice typing, because iOS doesn't let keyboards use the microphone, and no physical keyboard support, because iOS doesn't pass hardware key presses to third-party keyboards.
+- **iOS 17 or newer**, coming to the [App Store](https://apps.apple.com/app/id6831912584) with 1.4.0. The iOS keyboard has Romanized and traditional typing, smart suggestions, emoji, clipboard history, handwriting and VoiceOver support. It has no voice typing, because iOS doesn't let keyboards use the microphone, and no physical keyboard support, because iOS doesn't pass hardware key presses to third-party keyboards.
 
 On iOS, clipboard history and handwriting need **Allow Full Access** (iOS hides the pasteboard from keyboards without it, and handwriting downloads its model). Both are opt-in, and everything else works with Full Access off. The history stays on the phone and can be cleared from the app. The keyboard reads the pasteboard only when you tap Paste or open the clipboard panel, because reading a copy from another app makes iOS ask "Allow Paste".
 
