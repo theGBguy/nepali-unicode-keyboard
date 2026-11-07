@@ -53,7 +53,9 @@ func keyVisual(_ key: KeyData, state: KeyboardState, colors: KeyboardColors) -> 
             description: state.isCapsLock ? String(localized: "Caps lock") : String(localized: "Shift")
         )
     case "🌐":
-        return KeyVisual(text: "अ/A", background: colors.functionKey, content: colors.keyText, fontSize: 15,
+        // The flag of the language being typed, like Hamro Keyboard.
+        return KeyVisual(text: state.currentLanguage == .english ? "🇬🇧" : "🇳🇵",
+                         background: colors.functionKey, content: colors.keyText, fontSize: 20,
                          description: String(localized: "Language"))
     case " ":
         let label: String
@@ -117,7 +119,7 @@ func languageName(_ language: LanguageMode) -> String {
 
 /**
  * One key. Taps fire on release; a long-press types the corner hint (or opens the language menu
- * on अ/A); backspace deletes on touch-down and repeats while held. Character keys show a preview
+ * on the flag key); backspace deletes on touch-down and repeats while held. Character keys show a preview
  * bubble above the finger.
  *
  * VoiceOver activates a key through its default action (the drag gesture never sees that tap);

@@ -581,12 +581,12 @@
         }
       }
     },
-    "The अ/A key switches between Nepali and English. Hold it to change this choice later.": {
+    "The flag key (🇳🇵 / 🇬🇧) switches between Nepali and English. Hold it to change this choice later.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "अ/A कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
+            "value": "🇳🇵 / 🇬🇧 झण्डा भएको कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
           }
         }
       }

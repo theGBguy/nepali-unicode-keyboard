@@ -501,8 +501,10 @@ private fun keyVisual(
             content = if (state.isShifted) colors.accent else colors.keyText,
             description = stringResource(if (state.isCapsLock) R.string.key_caps_lock else R.string.key_shift)
         )
+        // The flag of the language being typed, like Hamro Keyboard.
         "🌐" -> KeyVisual(
-            text = "अ/A", background = colors.functionKey, content = colors.keyText, fontSize = 15.sp,
+            text = if (state.currentLanguage == LanguageMode.ENGLISH) "🇬🇧" else "🇳🇵",
+            background = colors.functionKey, content = colors.keyText, fontSize = 20.sp,
             description = stringResource(R.string.key_language)
         )
         " " -> KeyVisual(

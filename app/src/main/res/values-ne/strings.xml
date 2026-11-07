@@ -73,7 +73,7 @@
     <string name="setup_try_title">तपाईं नेपाली कसरी टाइप गर्नुहुन्छ?</string>
     <string name="setup_try_hint_romanized">“namaste” टाइप गरी स्पेस थिच्नुहोस्</string>
     <string name="setup_try_hint_traditional">नमस्ते टाइप गर्नुहोस्</string>
-    <string name="setup_try_tip">अ/A कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।</string>
+    <string name="setup_try_tip">🇳🇵 / 🇬🇧 झण्डा भएको कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।</string>
     <string name="style_traditional">परम्परागत</string>
     <string name="style_romanized_example">namaste → नमस्ते</string>
     <string name="style_traditional_example">युनिकोड लेआउट</string>
