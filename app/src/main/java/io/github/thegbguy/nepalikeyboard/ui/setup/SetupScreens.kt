@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
+import io.github.thegbguy.nepalikeyboard.ui.guide.CompactGuide
 
 private val ScreenPadding = 22.dp
 
@@ -71,7 +72,8 @@ fun SetupScreen(
     onChooseKeyboard: () -> Unit,
     onStyleChange: (LanguageMode) -> Unit,
     onDone: () -> Unit,
-    onPrivacy: () -> Unit
+    onPrivacy: () -> Unit,
+    onGuide: () -> Unit
 ) {
     Column(
         Modifier
@@ -89,7 +91,7 @@ fun SetupScreen(
         ) {
             AppNameRow(Modifier.padding(top = 14.dp, bottom = 22.dp))
             when (status.step) {
-                2 -> TryItStep(nepaliStyle, tryText, onTryTextChange, onStyleChange)
+                2 -> TryItStep(nepaliStyle, tryText, onTryTextChange, onStyleChange, onGuide)
                 else -> {
                     Text(
                         text = stringResource(if (status.step == 0) R.string.setup_title else R.string.setup_title_almost),
@@ -230,7 +232,8 @@ private fun TryItStep(
     style: LanguageMode,
     text: String,
     onTextChange: (String) -> Unit,
-    onStyleChange: (LanguageMode) -> Unit
+    onStyleChange: (LanguageMode) -> Unit,
+    onGuide: () -> Unit
 ) {
     Text(stringResource(R.string.setup_try_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(16.dp))
@@ -251,6 +254,9 @@ private fun TryItStep(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
+    if (style == LanguageMode.TRANSLITERATION) {
+        CompactGuide(onOpenGuide = onGuide, modifier = Modifier.padding(top = 16.dp))
+    }
 }
 
 /** Romanized (with an example) or the traditional layout. */

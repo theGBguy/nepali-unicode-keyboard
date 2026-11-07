@@ -11,6 +11,7 @@ import UIKit
  */
 struct SetupView: View {
     @State private var tryText = ""
+    @State private var showGuide = false
     @FocusState private var tryFocused: Bool
     @State private var keyboardHeight: CGFloat = 0
     /** Nil when iOS doesn't say whether the keyboard is added. */
@@ -156,6 +157,11 @@ struct SetupView: View {
             .padding(.top, 8)
             .padding(.horizontal, 16)
             .id(Self.tryHint)
+            if showSteps && style == .romanized {
+                CompactGuide { showGuide = true }
+                    .padding(.top, 16)
+                    .sheet(isPresented: $showGuide) { TypingGuideView() }
+            }
         }
     }
 

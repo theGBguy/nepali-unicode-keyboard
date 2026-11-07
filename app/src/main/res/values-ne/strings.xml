@@ -123,6 +123,14 @@
     <string name="settings_clipboard_clear_body">पिन गरिएका सहित सबै सेभ गरिएका कुरा हट्छन्।</string>
     <string name="settings_clipboard_clear_confirm">मेटाउनुहोस्</string>
     <string name="settings_try_hint">आफ्ना सेटिङ यहाँ चलाएर हेर्नुहोस्</string>
+    <string name="guide_title">रोमनाइज्ड टाइपिङ गाइड</string>
+    <string name="guide_intro">शब्द जसरी बोलिन्छ त्यसरी नै टाइप गर्नुहोस्। ठूला अक्षरले ट ठ ड ढ ण र ष दिन्छन्। अरू हिज्जे सुझावमा देखिन्छन्।</string>
+    <string name="guide_vowels">स्वर</string>
+    <string name="guide_consonants">व्यञ्जन</string>
+    <string name="guide_signs">मात्रा र संयुक्त अक्षर</string>
+    <string name="guide_marks">चिह्न र अङ्क</string>
+    <string name="guide_open">पूरा टाइपिङ गाइड</string>
+    <string name="settings_guide_sub">हरेक अक्षरका लागि के टाइप गर्ने</string>
     <string name="settings_app_language">एपको भाषा</string>
     <string name="language_system">फोनको भाषा</string>
     <string name="language_english">English</string>

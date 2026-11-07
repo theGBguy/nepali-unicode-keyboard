@@ -28,6 +28,7 @@ struct TypingSettings: View {
     private var handwriting = false
     @State private var confirmHandwriting = false
     @State private var confirmClear = false
+    @State private var showGuide = false
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -42,6 +43,9 @@ struct TypingSettings: View {
                 .labelsHidden()
             }
             .padding(16)
+            RowDivider()
+            LinkRow(icon: "book", title: "Romanized typing guide", subtitle: "What to type for each letter") { showGuide = true }
+                .sheet(isPresented: $showGuide) { TypingGuideView() }
             RowDivider(inset: 16)
             VStack(alignment: .leading, spacing: 8) {
                 Text("Key height")

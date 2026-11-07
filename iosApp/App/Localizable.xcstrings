@@ -111,6 +111,16 @@
         }
       }
     },
+    "Consonants": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यञ्जन"
+          }
+        }
+      }
+    },
     "Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).": {
       "localizations": {
         "ne": {
@@ -167,6 +177,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Full Access"
+          }
+        }
+      }
+    },
+    "Full typing guide": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "पूरा टाइपिङ गाइड"
           }
         }
       }
@@ -267,6 +287,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "लाइसेन्स र श्रेय"
+          }
+        }
+      }
+    },
+    "Marks and numbers": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चिह्न र अङ्क"
           }
         }
       }
@@ -471,6 +501,16 @@
         }
       }
     },
+    "Romanized typing guide": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोमनाइज्ड टाइपिङ गाइड"
+          }
+        }
+      }
+    },
     "Send feedback": {
       "localizations": {
         "ne": {
@@ -671,6 +711,16 @@
         }
       }
     },
+    "Type how the word sounds. Capitals give ट ठ ड ढ ण and ष. Other spellings show in the suggestions.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शब्द जसरी बोलिन्छ त्यसरी नै टाइप गर्नुहोस्। ठूला अक्षरले ट ठ ड ढ ण र ष दिन्छन्। अरू हिज्जे सुझावमा देखिन्छन्।"
+          }
+        }
+      }
+    },
     "Type नमस्ते": {
       "localizations": {
         "ne": {
@@ -731,6 +781,26 @@
         }
       }
     },
+    "Vowel signs and joined letters": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मात्रा र संयुक्त अक्षर"
+          }
+        }
+      }
+    },
+    "Vowels": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वर"
+          }
+        }
+      }
+    },
     "What Full Access is for": {
       "localizations": {
         "ne": {
@@ -757,6 +827,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "यो किबोर्डले के गर्छ र के गर्दैन"
+          }
+        }
+      }
+    },
+    "What to type for each letter": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हरेक अक्षरका लागि के टाइप गर्ने"
           }
         }
       }

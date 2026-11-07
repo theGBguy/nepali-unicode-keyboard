@@ -22,6 +22,7 @@ import io.github.thegbguy.nepalikeyboard.data.handwriting.MlKitHandwriting
 import io.github.thegbguy.nepalikeyboard.data.clipboard.FileClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
+import io.github.thegbguy.nepalikeyboard.ui.guide.TypingGuideScreen
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.SharedKeyboardPrefs
 import io.github.thegbguy.nepalikeyboard.ui.settings.LanguageDialog
@@ -74,6 +75,7 @@ class MainActivity : ComponentActivity() {
                 when {
                     screen == Screen.PRIVACY -> PrivacyScreen(onBack = { screen = Screen.MAIN })
                     screen == Screen.LICENCES -> LicencesScreen(onBack = { screen = Screen.MAIN })
+                    screen == Screen.GUIDE -> TypingGuideScreen(onBack = { screen = Screen.MAIN })
                     setupDone -> SettingsScreen(
                         status = status,
                         nepaliStyle = nepaliStyle,
@@ -108,6 +110,7 @@ class MainActivity : ComponentActivity() {
                                 SettingsLink.FIX_KEYBOARD -> if (status.enabled) showKeyboardPicker() else showWarning = true
                                 SettingsLink.PRIVACY -> screen = Screen.PRIVACY
                                 SettingsLink.LICENCES -> screen = Screen.LICENCES
+                                SettingsLink.GUIDE -> screen = Screen.GUIDE
                                 SettingsLink.FEEDBACK -> sendFeedback()
                                 SettingsLink.RATE -> openPlayStore()
                                 SettingsLink.PRIVACY_POLICY -> open(PRIVACY_POLICY_URL)
@@ -128,7 +131,8 @@ class MainActivity : ComponentActivity() {
                             SetupPrefs.markDone(this)
                             setupDone = true
                         },
-                        onPrivacy = { screen = Screen.PRIVACY }
+                        onPrivacy = { screen = Screen.PRIVACY },
+                        onGuide = { screen = Screen.GUIDE }
                     )
                 }
                 if (showWarning) {
@@ -219,7 +223,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private enum class Screen { MAIN, PRIVACY, LICENCES }
+    private enum class Screen { MAIN, PRIVACY, LICENCES, GUIDE }
 
     private companion object {
         const val SUPPORT_EMAIL = "nepali.indie.dev@gmail.com"
