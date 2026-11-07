@@ -127,6 +127,14 @@
     <string name="settings_clipboard_clear_body">This removes every saved item, including pinned ones.</string>
     <string name="settings_clipboard_clear_confirm">Clear</string>
     <string name="settings_try_hint">Try your settings here</string>
+    <string name="guide_title">Romanized typing guide</string>
+    <string name="guide_intro">Type how the word sounds. Capitals give ट ठ ड ढ ण and ष. Other spellings show in the suggestions.</string>
+    <string name="guide_vowels">Vowels</string>
+    <string name="guide_consonants">Consonants</string>
+    <string name="guide_signs">Vowel signs and joined letters</string>
+    <string name="guide_marks">Marks and numbers</string>
+    <string name="guide_open">Full typing guide</string>
+    <string name="settings_guide_sub">What to type for each letter</string>
     <string name="settings_app_language">App language</string>
     <string name="language_system">Phone language</string>
     <string name="language_english">English</string>

@@ -69,7 +69,7 @@ private val ScreenPadding = 20.dp
 private val CardShape = RoundedCornerShape(20.dp)
 
 /** Everything a settings row can open; MainActivity turns these into intents and screens. */
-enum class SettingsLink { FIX_KEYBOARD, PRIVACY, FEEDBACK, RATE, PRIVACY_POLICY, TERMS, LICENCES, SOURCE }
+enum class SettingsLink { FIX_KEYBOARD, GUIDE, PRIVACY, FEEDBACK, RATE, PRIVACY_POLICY, TERMS, LICENCES, SOURCE }
 
 /**
  * The app's home once setup is done: keyboard status, typing settings with a field to try them,
@@ -136,6 +136,8 @@ fun SettingsScreen(
                     Spacer(Modifier.height(10.dp))
                     StyleChoice(nepaliStyle, onStyleChange)
                 }
+                RowDivider()
+                LinkRow(R.drawable.ic_ui_menu_book, stringResource(R.string.guide_title), stringResource(R.string.settings_guide_sub)) { onLink(SettingsLink.GUIDE) }
                 RowDivider(inset = 16.dp)
                 Column(Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.settings_key_height), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
