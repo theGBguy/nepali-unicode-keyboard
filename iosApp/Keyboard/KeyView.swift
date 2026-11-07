@@ -145,7 +145,7 @@ struct KeyView: View {
         let alternate = keyAlternate(key, isShifted: state.isShifted)
 
         RoundedRectangle(cornerRadius: KeyboardMetrics.keyRadius)
-            .fill(visual.background)
+            .fill(colors.face(visual.background))
             // The press tint mixes in the text colour: darker keys in light mode, lighter in dark
             .overlay(RoundedRectangle(cornerRadius: KeyboardMetrics.keyRadius).fill(colors.keyText.opacity(pressed ? 0.12 : 0)))
             .shadow(color: colors.keyShadow, radius: 0, x: 0, y: 0.5)

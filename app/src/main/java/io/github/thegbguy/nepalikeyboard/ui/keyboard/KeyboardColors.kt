@@ -6,8 +6,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * Keyboard colours. Warm neutrals with Nepal crimson as the only accent (Enter, active shift,
- * the mic while listening), following the system light/dark setting.
+ * Keyboard colours, built from the chosen [KeyboardTheme]'s shared [ThemePalette]. One accent per
+ * theme (Enter, active shift, the mic while listening). With [flatKeys] the keys draw no fill or
+ * shadow; panels still use [key] and [functionKey] for their tiles.
  */
 @Immutable
 data class KeyboardColors(
@@ -21,40 +22,33 @@ data class KeyboardColors(
     val divider: Color,
     val keyShadow: Color,
     val preview: Color,
-    val error: Color
+    val error: Color,
+    val dark: Boolean,
+    val flatKeys: Boolean = false
 )
 
 val Crimson = Color(0xFFB3122E)
-private val CrimsonDark = Color(0xFFC8263F)
 
-val LightKeyboardColors = KeyboardColors(
-    background = Color(0xFFECEAE7),
-    key = Color(0xFFFFFFFF),
-    functionKey = Color(0xFFD6D3CF),
-    keyText = Color(0xFF1C1B1A),
-    hint = Color(0xFF8D8883),
-    accent = Crimson,
-    onAccent = Color.White,
-    divider = Color(0x338D8883),
-    keyShadow = Color(0x1F000000),
-    preview = Color(0xFFFFFFFF),
-    error = Color(0xFFB3261E)
+fun keyboardColors(palette: ThemePalette, flatKeys: Boolean = false): KeyboardColors = KeyboardColors(
+    background = Color(palette.background),
+    key = Color(palette.key),
+    functionKey = Color(palette.functionKey),
+    keyText = Color(palette.keyText),
+    hint = Color(palette.hint),
+    accent = Color(palette.accent),
+    onAccent = Color(palette.onAccent),
+    divider = Color(palette.hint).copy(alpha = 0.2f),
+    keyShadow = if (palette.dark || flatKeys) Color.Transparent else Color(0x1F000000),
+    preview = Color(palette.preview),
+    error = if (palette.dark) Color(0xFFFFB4AB) else Color(0xFFB3261E),
+    dark = palette.dark,
+    flatKeys = flatKeys
 )
 
-val DarkKeyboardColors = KeyboardColors(
-    background = Color(0xFF161514),
-    key = Color(0xFF34312F),
-    functionKey = Color(0xFF262423),
-    keyText = Color(0xFFEEECE9),
-    hint = Color(0xFF9A948E),
-    accent = CrimsonDark,
-    onAccent = Color.White,
-    divider = Color(0x339A948E),
-    keyShadow = Color.Transparent,
-    preview = Color(0xFF45413E),
-    error = Color(0xFFFFB4AB)
-)
+val LightKeyboardColors = keyboardColors(KeyboardThemes.LIGHT)
+val DarkKeyboardColors = keyboardColors(KeyboardThemes.DARK)
 
+/** The colours for the user's theme and key-border setting; System follows the phone. */
 @Composable
-fun keyboardColors(dark: Boolean = isSystemInDarkTheme()): KeyboardColors =
-    if (dark) DarkKeyboardColors else LightKeyboardColors
+fun keyboardColors(feel: KeyFeel = KeyFeel(), systemDark: Boolean = isSystemInDarkTheme()): KeyboardColors =
+    keyboardColors(KeyboardThemes.palette(feel.theme, systemDark), flatKeys = !feel.keyBorders)

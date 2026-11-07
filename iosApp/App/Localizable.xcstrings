@@ -131,6 +131,16 @@
         }
       }
     },
+    "Dark": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अँध्यारो"
+          }
+        }
+      }
+    },
     "Dates, amounts and units as you type": {
       "localizations": {
         "ne": {
@@ -147,6 +157,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "भयो"
+          }
+        }
+      }
+    },
+    "Dusk": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "साँझ"
           }
         }
       }
@@ -211,6 +231,16 @@
         }
       }
     },
+    "Himalaya": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हिमालय"
+          }
+        }
+      }
+    },
     "How we handle your data": {
       "localizations": {
         "ne": {
@@ -251,6 +281,16 @@
         }
       }
     },
+    "Key borders": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कीको किनारा"
+          }
+        }
+      }
+    },
     "Key height": {
       "localizations": {
         "ne": {
@@ -267,6 +307,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "किबोर्ड"
+          }
+        }
+      }
+    },
+    "Lali Gurans": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लालीगुराँस"
           }
         }
       }
@@ -291,12 +341,42 @@
         }
       }
     },
+    "Light": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "उज्यालो"
+          }
+        }
+      }
+    },
+    "Look": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रूप"
+          }
+        }
+      }
+    },
     "Marks and numbers": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "चिह्न र अङ्क"
+          }
+        }
+      }
+    },
+    "Midnight": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मध्यरात"
           }
         }
       }
@@ -391,6 +471,16 @@
         }
       }
     },
+    "Off gives flat keys": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "बन्द गर्दा की समतल देखिन्छन्"
+          }
+        }
+      }
+    },
     "Offline unless you turn on handwriting": {
       "localizations": {
         "ne": {
@@ -427,6 +517,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "खुला स्रोत लाइब्रेरी"
+          }
+        }
+      }
+    },
+    "Paper": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कागज"
           }
         }
       }
@@ -591,12 +691,32 @@
         }
       }
     },
+    "System": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "फोन अनुसार"
+          }
+        }
+      }
+    },
     "Tall": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
             "value": "अग्लो"
+          }
+        }
+      }
+    },
+    "Terai": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "तराई"
           }
         }
       }
@@ -611,6 +731,16 @@
         }
       }
     },
+    "The flag key (🇳🇵 / 🇬🇧) switches between Nepali and English. Hold it to change this choice later.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🇳🇵 / 🇬🇧 झण्डा भएको कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
+          }
+        }
+      }
+    },
     "The keyboard keeps your settings, recently used emoji and your clipboard history on this iPhone. It doesn’t save what you type. Clipboard history only holds text you copied, never items a password manager marks as secret, and you can turn it off in Settings.": {
       "localizations": {
         "ne": {
@@ -621,12 +751,12 @@
         }
       }
     },
-    "The flag key (🇳🇵 / 🇬🇧) switches between Nepali and English. Hold it to change this choice later.": {
+    "Theme": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "🇳🇵 / 🇬🇧 झण्डा भएको कीले नेपाली र अंग्रेजी बीच बदल्छ। यो छनोट पछि बदल्न त्यसलाई थिचिराख्नुहोस्।"
+            "value": "थिम"
           }
         }
       }

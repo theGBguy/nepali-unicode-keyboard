@@ -5,7 +5,7 @@ import NepaliKeyboardShared
  * Keyboard settings. The app's Settings write to the App Group, which the keyboard can only read
  * without Full Access: its writes are dropped silently, though this process's defaults cache
  * still shows them. So:
- * - key height, smart suggestions, sound, vibration and clipboard history come from the group;
+ * - key height, theme, key borders, smart suggestions, sound, vibration and clipboard history come from the group;
  * - Nepali style is set in two places (the app's Settings and the keyboard's language menu). Each
  *   copy has a timestamp and the newer one wins. With Full Access the keyboard also writes the
  *   group, so the app shows the keyboard's choice;
@@ -59,6 +59,17 @@ final class DefaultsKeyboardPrefs: NSObject, KeyboardPrefs {
         set { if canWriteGroup() { group.set(newValue.name, forKey: SharedSettings.Key.keyHeight) } }
     }
 
+    /** Set in the app; follows light/dark mode by default. */
+    var theme: KeyboardTheme {
+        get { KeyboardTheme.companion.fromName(name: group.string(forKey: SharedSettings.Key.theme)) }
+        set { if canWriteGroup() { group.set(newValue.name, forKey: SharedSettings.Key.theme) } }
+    }
+
+    var keyBorders: Bool {
+        get { group.object(forKey: SharedSettings.Key.keyBorders) as? Bool ?? true }
+        set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.keyBorders) } }
+    }
+
     var smartSuggestions: Bool {
         get { group.object(forKey: SharedSettings.Key.smartSuggestions) as? Bool ?? true }
         set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.smartSuggestions) } }
@@ -102,6 +113,6 @@ final class DefaultsKeyboardPrefs: NSObject, KeyboardPrefs {
     }
 
     var feel: KeyFeel {
-        KeyFeel(height: keyHeight, vibrate: vibrate, sound: sound)
+        KeyFeel(height: keyHeight, vibrate: vibrate, sound: sound, theme: theme, keyBorders: keyBorders)
     }
 }

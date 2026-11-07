@@ -38,8 +38,9 @@ enum KeyboardMetrics {
 }
 
 /**
- * Android's palette: warm neutrals with Nepal crimson as the only accent (Enter, active shift),
- * following light and dark mode.
+ * Keyboard colours from the shared theme palette (`KeyboardThemes`), the same as Android's.
+ * System follows light and dark mode. With [flatKeys] the keys draw no fill or shadow; panels
+ * still use [key] and [functionKey] for their tiles.
  */
 struct KeyboardColors {
     let background: Color
@@ -52,35 +53,34 @@ struct KeyboardColors {
     let divider: Color
     let keyShadow: Color
     let preview: Color
+    let dark: Bool
+    var flatKeys = false
 
-    static let light = KeyboardColors(
-        background: Color(hex: 0xECEAE7),
-        key: .white,
-        functionKey: Color(hex: 0xD6D3CF),
-        keyText: Color(hex: 0x1C1B1A),
-        hint: Color(hex: 0x8D8883),
-        accent: Color(hex: 0xB3122E),
-        onAccent: .white,
-        divider: Color(hex: 0x8D8883).opacity(0.2),
-        keyShadow: Color.black.opacity(0.12),
-        preview: .white
-    )
+    init(_ palette: ThemePalette, flatKeys: Bool = false) {
+        func color(_ argb: Int64) -> Color { Color(hex: UInt32(truncatingIfNeeded: argb)) }
+        background = color(palette.background)
+        key = color(palette.key)
+        functionKey = color(palette.functionKey)
+        keyText = color(palette.keyText)
+        hint = color(palette.hint)
+        accent = color(palette.accent)
+        onAccent = color(palette.onAccent)
+        divider = color(palette.hint).opacity(0.2)
+        keyShadow = palette.dark || flatKeys ? .clear : Color.black.opacity(0.12)
+        preview = color(palette.preview)
+        dark = palette.dark
+        self.flatKeys = flatKeys
+    }
 
-    static let dark = KeyboardColors(
-        background: Color(hex: 0x161514),
-        key: Color(hex: 0x34312F),
-        functionKey: Color(hex: 0x262423),
-        keyText: Color(hex: 0xEEECE9),
-        hint: Color(hex: 0x9A948E),
-        accent: Color(hex: 0xC8263F),
-        onAccent: .white,
-        divider: Color(hex: 0x9A948E).opacity(0.2),
-        keyShadow: .clear,
-        preview: Color(hex: 0x45413E)
-    )
 
-    static func of(_ scheme: ColorScheme) -> KeyboardColors {
-        scheme == .dark ? dark : light
+    static func of(_ feel: KeyFeel, _ scheme: ColorScheme) -> KeyboardColors {
+        KeyboardColors(KeyboardThemes.shared.palette(theme: feel.theme, systemDark: scheme == .dark),
+                       flatKeys: !feel.keyBorders)
+    }
+
+    /** What a key draws at rest: nothing for flat keys, except Enter's accent. */
+    func face(_ background: Color) -> Color {
+        flatKeys && background != accent ? .clear : background
     }
 }
 

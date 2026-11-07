@@ -16,6 +16,10 @@ struct TypingSettings: View {
     private var style: NepaliStyle = .romanized
     @AppStorage(SharedSettings.Key.keyHeight, store: SharedSettings.group)
     private var keySize: KeySize = .normal
+    @AppStorage(SharedSettings.Key.theme, store: SharedSettings.group)
+    private var theme: KeyboardThemeChoice = .system
+    @AppStorage(SharedSettings.Key.keyBorders, store: SharedSettings.group)
+    private var keyBorders = true
     @AppStorage(SharedSettings.Key.smartSuggestions, store: SharedSettings.group)
     private var smartSuggestions = true
     @AppStorage(SharedSettings.Key.sound, store: SharedSettings.group)
@@ -32,47 +36,62 @@ struct TypingSettings: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        SettingsGroup("Typing") {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Nepali typing")
-                Picker("Nepali typing", selection: styleBinding) {
-                    Text("Romanized").tag(NepaliStyle.romanized)
-                    Text("Traditional").tag(NepaliStyle.traditional)
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsGroup("Typing") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Nepali typing")
+                    Picker("Nepali typing", selection: styleBinding) {
+                        Text("Romanized").tag(NepaliStyle.romanized)
+                        Text("Traditional").tag(NepaliStyle.traditional)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+                .padding(16)
+                RowDivider()
+                LinkRow(icon: "book", title: "Romanized typing guide", subtitle: "What to type for each letter") { showGuide = true }
+                    .sheet(isPresented: $showGuide) { TypingGuideView() }
+                RowDivider()
+                SwitchRow(icon: "iphone.radiowaves.left.and.right", title: "Vibrate on key press", isOn: $vibrate)
+                RowDivider()
+                // playInputClick() is silent unless the system setting is on as well
+                SwitchRow(icon: "speaker.wave.2", title: "Sound on key press",
+                          subtitle: "When keyboard sound is on in iPhone Settings", isOn: $sound)
+                RowDivider()
+                SwitchRow(icon: "lightbulb", title: "Smart suggestions",
+                          subtitle: "Dates, amounts and units as you type", isOn: $smartSuggestions)
+                RowDivider()
+                handwritingRow
+                RowDivider()
+                clipboard
             }
-            .padding(16)
-            RowDivider()
-            LinkRow(icon: "book", title: "Romanized typing guide", subtitle: "What to type for each letter") { showGuide = true }
-                .sheet(isPresented: $showGuide) { TypingGuideView() }
-            RowDivider(inset: 16)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Key height")
-                Picker("Key height", selection: $keySize) {
-                    Text("Short").tag(KeySize.short)
-                    Text("Normal").tag(KeySize.normal)
-                    Text("Tall").tag(KeySize.tall)
+            // Like Android: how the keyboard looks, right above the try-it field
+            SettingsGroup("Look") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Key height")
+                    Picker("Key height", selection: $keySize) {
+                        Text("Short").tag(KeySize.short)
+                        Text("Normal").tag(KeySize.normal)
+                        Text("Tall").tag(KeySize.tall)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+                .padding(16)
+                RowDivider(inset: 16)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Theme")
+                    ThemePicker(selection: $theme, keyBorders: keyBorders)
+                }
+                .padding(16)
+                RowDivider(inset: 16)
+                SwitchRow(icon: "square.dashed", title: "Key borders", subtitle: "Off gives flat keys", isOn: $keyBorders)
             }
-            .padding(16)
-            RowDivider(inset: 16)
-            SwitchRow(icon: "iphone.radiowaves.left.and.right", title: "Vibrate on key press", isOn: $vibrate)
-            RowDivider()
-            // playInputClick() is silent unless the system setting is on as well
-            SwitchRow(icon: "speaker.wave.2", title: "Sound on key press",
-                      subtitle: "When keyboard sound is on in iPhone Settings", isOn: $sound)
-            RowDivider()
-            SwitchRow(icon: "lightbulb", title: "Smart suggestions",
-                      subtitle: "Dates, amounts and units as you type", isOn: $smartSuggestions)
-            RowDivider()
-            handwritingRow
-            RowDivider()
-            clipboard
+            .padding(.top, 28)
+            .onChange(of: keySize) { _ in onChange() }
+            .onChange(of: theme) { _ in onChange() }
+            .onChange(of: keyBorders) { _ in onChange() }
         }
-        .onChange(of: keySize) { _ in onChange() }
         .onChange(of: smartSuggestions) { _ in onChange() }
         .onChange(of: sound) { _ in onChange() }
         .onChange(of: vibrate) { _ in onChange() }

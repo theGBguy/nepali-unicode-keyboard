@@ -25,7 +25,7 @@ ALSO INCLUDED
 • Three key heights: Short, Normal and Tall
 • Works with a physical keyboard: type Romanized or traditional Nepali, and Ctrl + Space switches the language
 • TalkBack reads out the keys and suggestions
-• Light and dark themes that follow your phone
+• Nine themes, including Himalaya, Lali Gurans and Midnight, or System to follow your phone's light/dark setting; turn off key borders for flat keys
 • Optional key vibration and key sound
 • App in English or Nepali
 
