@@ -104,6 +104,47 @@ class KeyboardControllerTest {
         assertEquals("नमस्ते।", field.shown)
     }
 
+    private fun cursorMoved() = keyboard.onCursorMoved(stillComposing = false, hasComposing = false, hasSelection = false)
+
+    private fun stripLabels() = keyboard.state.value.smartActions.map { it.label }
+
+    @Test
+    fun `the English full stop stays on offer through the following space`() {
+        keyboard.onKeyClick(globe)
+        type("ho.")
+        cursorMoved()
+        assertEquals(listOf("। → ."), stripLabels())
+        keyboard.onKeyClick(space)
+        cursorMoved()
+        assertEquals(listOf("। → ."), stripLabels())
+        keyboard.onSmartActionClick(keyboard.state.value.smartActions.single())
+        assertEquals("हो. ", field.shown)
+    }
+
+    @Test
+    fun `a decimal point that becomes a danda on space offers the full stop`() {
+        keyboard.onKeyClick(globe)
+        type("1.")
+        keyboard.onKeyClick(space)
+        cursorMoved()
+        assertEquals("१। ", field.shown)
+        keyboard.onSmartActionClick(keyboard.state.value.smartActions.single())
+        assertEquals("१. ", field.shown)
+    }
+
+    @Test
+    fun `the full stop offer ends with the next word`() {
+        keyboard.onKeyClick(globe)
+        type("ho.")
+        keyboard.onKeyClick(space)
+        type("k")
+        cursorMoved()
+        assertTrue(keyboard.state.value.smartActions.none { it.label == "। → ." })
+        keyboard.onKeyClick(space)
+        cursorMoved()
+        assertTrue(stripLabels().isEmpty())
+    }
+
     @Test
     fun `a vowel sign after अ becomes the vowel letter`() {
         keyboard.prefs.nepaliStyle = LanguageMode.NEPALI

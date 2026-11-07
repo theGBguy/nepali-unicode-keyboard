@@ -135,6 +135,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      */
     fun onKeyClick(key: KeyData) {
         if (_state.value.pasteSuggestion != null) _state.update { it.copy(pasteSuggestion = null) }
+        // The English full stop stays on offer through the space typed after the ।.
+        val keepStopChoice = fullStopChoice && key.keyType == KeyType.ACTION && key.primary == " "
         fullStopChoice = false
         // Keys that change the text drop smart suggestions; the cursor update that follows makes new ones.
         // Shift and the layout keys leave them.
@@ -147,6 +149,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             KeyType.FUNCTION -> handleFunctionKey(key)
             KeyType.SPACER -> { /* Do nothing */ }
         }
+        if (keepStopChoice) fullStopChoice = true
     }
 
     /**
@@ -677,14 +680,15 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
 
     private fun handleCharacterKey(key: KeyData) {
         val output = key.getOutput(_state.value.isShifted)
-        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) settlePendingPoint(output)
+        val settled = _state.value.currentLanguage == LanguageMode.TRANSLITERATION && settlePendingPoint(output)
+        if (settled) fullStopChoice = true
         if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION && endsRomanizedWord(output)) {
             // Punctuation ends the word: "huncha," must commit हुन्छ, not look up "huncha,".
             val afterDigit = output == "." && endsWithDigit()
             commitTransliterationBuffer()
             inputConnection?.commitText(if (output == "." && !afterDigit) "।" else output)
             pendingPoint = afterDigit
-            fullStopChoice = output == "." && !afterDigit
+            fullStopChoice = settled || (output == "." && !afterDigit)
         } else if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) {
             // Transliteration mode - buffer input and show romanized text
             val currentBuffer = _state.value.transliterationBuffer
@@ -716,7 +720,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     }
 
     private fun handleActionKey(key: KeyData) {
-        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION) settlePendingPoint(key.primary)
+        if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION && settlePendingPoint(key.primary)) {
+            fullStopChoice = true
+        }
         when (key.primary) {
             " " -> {
                 // Space key
@@ -823,8 +829,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     private var pendingPoint = false
 
     /**
-     * A Romanized "." just became ।. Until the next key the strip offers the English full stop
-     * instead, which a physical keyboard can't reach with a long-press.
+     * A Romanized "." just became । (straight away, or on the next key after a digit). Until the
+     * next key other than one space, the strip offers the English full stop instead: people need
+     * both, and a physical keyboard can't reach "." with a long-press.
      */
     private var fullStopChoice = false
 
@@ -835,16 +842,18 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         return before in '0'..'9' || before in '०'..'९'
     }
 
-    private fun settlePendingPoint(next: String) {
-        if (!pendingPoint) return
+    /** Returns true when the pending "." became ।. */
+    private fun settlePendingPoint(next: String): Boolean {
+        if (!pendingPoint) return false
         pendingPoint = false
-        if (next.length == 1 && (next[0] in '0'..'9')) return
-        val ic = inputConnection ?: return
-        if (ic.textBeforeCursor(1) != ".") return
+        if (next.length == 1 && (next[0] in '0'..'9')) return false
+        val ic = inputConnection ?: return false
+        if (ic.textBeforeCursor(1) != ".") return false
         ic.beginBatchEdit()
         ic.deleteBeforeCursor(1)
         ic.commitText("।")
         ic.endBatchEdit()
+        return true
     }
 
     /**
@@ -1159,10 +1168,11 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             if (text == null || !text.endsWith(composing)) emptyList()
             else smartSuggester.suggest(text.dropLast(composing.length), composing, st.currentLanguage, st.field)
         }
-        val choice = fullStopChoice && !hasSelection && st.currentLanguage == LanguageMode.TRANSLITERATION &&
-            st.transliterationBuffer.isEmpty() && inputConnection?.textBeforeCursor(1)?.toString() == "।"
-        if (!choice) fullStopChoice = false
-        val all = if (choice) listOf(FULL_STOP_ACTION) else actions
+        val stopAction = if (fullStopChoice && !hasSelection && st.currentLanguage == LanguageMode.TRANSLITERATION &&
+            st.transliterationBuffer.isEmpty()
+        ) fullStopAction(inputConnection?.textBeforeCursor(2)?.toString().orEmpty()) else null
+        if (stopAction == null) fullStopChoice = false
+        val all = if (stopAction != null) listOf(stopAction) else actions
         if (all != st.smartActions) _state.update { it.copy(smartActions = all) }
     }
 
@@ -1415,6 +1425,16 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         const val PASTE_SUGGESTION_WINDOW_MS = 2 * 60 * 1000L
         /** Swaps the । a Romanized "." just typed for an English full stop. */
         val FULL_STOP_ACTION = SmartAction(label = "। → .", text = ".", replace = 1, kind = SmartAction.Kind.PUNCTUATION)
+
+        /** The same swap once a space follows the ।: "। " becomes ". ". */
+        val FULL_STOP_SPACE_ACTION = FULL_STOP_ACTION.copy(text = ". ", replace = 2)
+
+        /** The full-stop swap for the text before the cursor, if it still ends with the ।. */
+        fun fullStopAction(before: String): SmartAction? = when {
+            before.endsWith("।") -> FULL_STOP_ACTION
+            before.endsWith("। ") -> FULL_STOP_SPACE_ACTION
+            else -> null
+        }
     }
 }
 
