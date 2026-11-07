@@ -9,7 +9,10 @@ enum class KeyHeight(val dp: Int) { SHORT(36), NORMAL(42), TALL(48) }
 data class KeyFeel(
     val height: KeyHeight = KeyHeight.NORMAL,
     val vibrate: Boolean = true,
-    val sound: Boolean = false
+    val sound: Boolean = false,
+    val theme: KeyboardTheme = KeyboardTheme.SYSTEM,
+    /** Off draws flat keys: no key fill or shadow, the letters straight on the background. */
+    val keyBorders: Boolean = true
 )
 
 /** Keyboard settings the view model reads and writes. */
@@ -23,6 +26,8 @@ interface KeyboardPrefs {
     var keyHeight: KeyHeight
     var vibrate: Boolean
     var sound: Boolean
+    var theme: KeyboardTheme
+    var keyBorders: Boolean
 
     /** Recently used emoji, most recent first. */
     var emojiRecents: List<String>
@@ -34,7 +39,7 @@ interface KeyboardPrefs {
     /** The user agreed to handwriting (Google model download and ML Kit diagnostics). */
     var handwriting: Boolean
 
-    val feel: KeyFeel get() = KeyFeel(keyHeight, vibrate, sound)
+    val feel: KeyFeel get() = KeyFeel(keyHeight, vibrate, sound, theme, keyBorders)
 }
 
 /** Used by tests and until the IME service supplies the stored settings. */
@@ -47,5 +52,7 @@ class InMemoryKeyboardPrefs(
     override var emojiRecents: List<String> = emptyList(),
     override var clipboardHistory: Boolean = true,
     override var smartSuggestions: Boolean = true,
-    override var handwriting: Boolean = false
+    override var handwriting: Boolean = false,
+    override var theme: KeyboardTheme = KeyboardTheme.SYSTEM,
+    override var keyBorders: Boolean = true
 ) : KeyboardPrefs

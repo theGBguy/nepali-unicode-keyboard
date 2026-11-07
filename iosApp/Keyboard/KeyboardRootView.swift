@@ -29,7 +29,7 @@ struct KeyboardRootView: View {
 
     var body: some View {
         let state = model.state
-        let colors = KeyboardColors.of(scheme)
+        let colors = KeyboardColors.of(state.feel, scheme)
         let keyHeight = KeyboardMetrics.keyHeight(state)
 
         ZStack(alignment: .bottomLeading) {
@@ -125,7 +125,7 @@ private struct NextKeyboardKey: View {
     var body: some View {
         Button(action: action) {
             RoundedRectangle(cornerRadius: KeyboardMetrics.keyRadius)
-                .fill(colors.functionKey)
+                .fill(colors.face(colors.functionKey))
                 .overlay(Image(systemName: "globe").font(.system(size: 18)).foregroundStyle(colors.keyText))
                 .shadow(color: colors.keyShadow, radius: 0, x: 0, y: 0.5)
         }

@@ -86,6 +86,8 @@ class MainActivity : ComponentActivity() {
                         onTryTextChange = { tryText = it },
                         onStyleChange = onStyleChange,
                         onHeightChange = { keyboardPrefs.keyHeight = it; feel = keyboardPrefs.feel },
+                        onThemeChange = { keyboardPrefs.theme = it; feel = keyboardPrefs.feel },
+                        onKeyBordersChange = { keyboardPrefs.keyBorders = it; feel = keyboardPrefs.feel },
                         onVibrateChange = { keyboardPrefs.vibrate = it; feel = keyboardPrefs.feel },
                         onSoundChange = { keyboardPrefs.sound = it; feel = keyboardPrefs.feel },
                         smartSuggestions = smartSuggestions,

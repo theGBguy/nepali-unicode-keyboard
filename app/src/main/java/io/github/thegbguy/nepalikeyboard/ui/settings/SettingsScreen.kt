@@ -60,6 +60,7 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyHeight
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardTheme
 import io.github.thegbguy.nepalikeyboard.ui.setup.ChoiceOption
 import io.github.thegbguy.nepalikeyboard.ui.setup.KeyboardStatus
 import io.github.thegbguy.nepalikeyboard.ui.setup.SegmentedChoice
@@ -87,6 +88,8 @@ fun SettingsScreen(
     onTryTextChange: (String) -> Unit,
     onStyleChange: (LanguageMode) -> Unit,
     onHeightChange: (KeyHeight) -> Unit,
+    onThemeChange: (KeyboardTheme) -> Unit,
+    onKeyBordersChange: (Boolean) -> Unit,
     onVibrateChange: (Boolean) -> Unit,
     onSoundChange: (Boolean) -> Unit,
     smartSuggestions: Boolean,
@@ -138,21 +141,7 @@ fun SettingsScreen(
                 }
                 RowDivider()
                 LinkRow(R.drawable.ic_ui_menu_book, stringResource(R.string.guide_title), stringResource(R.string.settings_guide_sub)) { onLink(SettingsLink.GUIDE) }
-                RowDivider(inset = 16.dp)
-                Column(Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.settings_key_height), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                    Spacer(Modifier.height(10.dp))
-                    SegmentedChoice(
-                        options = listOf(
-                            ChoiceOption(KeyHeight.SHORT, stringResource(R.string.settings_height_short)),
-                            ChoiceOption(KeyHeight.NORMAL, stringResource(R.string.settings_height_normal)),
-                            ChoiceOption(KeyHeight.TALL, stringResource(R.string.settings_height_tall))
-                        ),
-                        selected = feel.height,
-                        onSelect = onHeightChange
-                    )
-                }
-                RowDivider(inset = 16.dp)
+                RowDivider()
                 SwitchRow(R.drawable.ic_ui_vibration, stringResource(R.string.settings_vibrate), feel.vibrate, onChange = onVibrateChange)
                 RowDivider()
                 SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onChange = onSoundChange)
@@ -197,6 +186,30 @@ fun SettingsScreen(
                         TextButton(onClick = { confirmClearClipboard = false }) { Text(stringResource(R.string.cancel)) }
                     }
                 )
+            }
+
+            Section(stringResource(R.string.settings_section_look)) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(stringResource(R.string.settings_key_height), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(10.dp))
+                    SegmentedChoice(
+                        options = listOf(
+                            ChoiceOption(KeyHeight.SHORT, stringResource(R.string.settings_height_short)),
+                            ChoiceOption(KeyHeight.NORMAL, stringResource(R.string.settings_height_normal)),
+                            ChoiceOption(KeyHeight.TALL, stringResource(R.string.settings_height_tall))
+                        ),
+                        selected = feel.height,
+                        onSelect = onHeightChange
+                    )
+                }
+                RowDivider(inset = 16.dp)
+                Column(Modifier.padding(16.dp)) {
+                    Text(stringResource(R.string.settings_theme), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(12.dp))
+                    ThemePicker(feel.theme, feel.keyBorders, onThemeChange)
+                }
+                RowDivider(inset = 16.dp)
+                SwitchRow(R.drawable.ic_ui_border_outer, stringResource(R.string.settings_key_borders), feel.keyBorders, stringResource(R.string.settings_key_borders_sub), onKeyBordersChange)
             }
 
             Spacer(Modifier.height(12.dp))

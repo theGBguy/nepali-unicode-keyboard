@@ -52,6 +52,15 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         get() = prefs.getBoolean(KEY_SOUND, false)
         set(value) = prefs.edit { putBoolean(KEY_SOUND, value) }
 
+    /** Follows the phone's light/dark setting by default. */
+    override var theme: KeyboardTheme
+        get() = KeyboardTheme.fromName(prefs.getString(KEY_THEME, null))
+        set(value) = prefs.edit { putString(KEY_THEME, value.name) }
+
+    override var keyBorders: Boolean
+        get() = prefs.getBoolean(KEY_KEY_BORDERS, true)
+        set(value) = prefs.edit { putBoolean(KEY_KEY_BORDERS, value) }
+
     override var emojiRecents: List<String>
         get() = EmojiRecents.decode(prefs.getString(KEY_EMOJI_RECENTS, null))
         set(value) = prefs.edit { putString(KEY_EMOJI_RECENTS, EmojiRecents.encode(value)) }
@@ -72,6 +81,8 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         set(value) = prefs.edit { putBoolean(KEY_HANDWRITING, value) }
 
     private companion object {
+        const val KEY_THEME = "theme"
+        const val KEY_KEY_BORDERS = "key_borders"
         const val KEY_CLIPBOARD_HISTORY = "clipboard_history"
         const val KEY_SMART_SUGGESTIONS = "smart_suggestions"
         const val KEY_HANDWRITING = "handwriting"

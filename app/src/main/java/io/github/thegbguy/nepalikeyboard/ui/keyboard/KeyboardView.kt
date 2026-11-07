@@ -70,6 +70,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.SideEffect
+import androidx.core.view.WindowCompat
+import android.content.ContextWrapper
+import android.inputmethodservice.InputMethodService
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -129,7 +133,8 @@ fun KeyboardView(
     onInsetsChange: (visibleTop: Int, extraTop: Int) -> Unit = { _, _ -> }
 ) {
     val state by keyboard.state.collectAsState()
-    val colors = keyboardColors()
+    val colors = keyboardColors(state.feel)
+    LightNavigationButtons(!colors.dark)
     val enterLabel = enterKeyLabel(state.field)
     val spaceLabel = stringResource(
         when (state.currentLanguage) {
@@ -605,8 +610,15 @@ private fun Key(
     val hasLongPress = onLongPress != null
     // Press feedback: a quick tint (in fast, out slower) and a slight shrink that springs back.
     // The tint mixes in the text colour, so it darkens keys in light mode and lightens them in dark.
+    // Flat keys (key borders off) have no fill at rest, only the press tint; Enter keeps its accent.
+    val flat = colors.flatKeys && visual.background != colors.accent
+    val face = if (flat) colors.background else visual.background
     val background by animateColorAsState(
-        targetValue = if (pressed) lerp(visual.background, colors.keyText, PressTint) else visual.background,
+        targetValue = when {
+            pressed -> lerp(face, colors.keyText, PressTint)
+            flat -> colors.background.copy(alpha = 0f)
+            else -> visual.background
+        },
         animationSpec = tween(if (pressed) 60 else 150),
         label = "keyBackground"
     )
@@ -761,3 +773,18 @@ fun enterKeyLabel(field: FieldInfo): EnterKeyLabel = when (field.enterAction) {
  */
 private val keyboardBottomInsets: WindowInsets
     @Composable get() = WindowInsets.navigationBars.union(WindowInsets.captionBar)
+
+/**
+ * The keyboard draws behind the navigation bar, so the bar's buttons must suit the theme's
+ * background, not the phone's light/dark setting (a dark theme on a light phone).
+ */
+@Composable
+private fun LightNavigationButtons(light: Boolean) {
+    val view = LocalView.current
+    SideEffect {
+        var context = view.context
+        while (context !is InputMethodService && context is ContextWrapper) context = context.baseContext
+        val window = (context as? InputMethodService)?.window?.window ?: return@SideEffect
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = light
+    }
+}

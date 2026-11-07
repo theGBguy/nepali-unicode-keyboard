@@ -19,6 +19,8 @@ enum SharedSettings {
         /** When [nepaliStyle] was last set, in seconds since 1970, so the newer of two copies wins. */
         static let nepaliStyleTime = "nepali_style_time"
         static let keyHeight = "key_height"
+        static let theme = "theme"
+        static let keyBorders = "key_borders"
         static let smartSuggestions = "smart_suggestions"
         static let sound = "sound"
         static let vibrate = "vibrate"
