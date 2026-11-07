@@ -172,7 +172,7 @@ class HardwareKeyRouterTest {
     }
 
     @Test
-    fun `after a period the strip offers the English full stop until the next key`() {
+    fun `after a period the strip offers the English full stop until the next word`() {
         typeLatin("ghar")
         press(KeyEvent.KEYCODE_PERIOD, char = '.')
         keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
@@ -183,6 +183,10 @@ class HardwareKeyRouterTest {
         assertTrue(keyboard.state.value.smartActions.isEmpty())
 
         press(KeyEvent.KEYCODE_PERIOD, char = '.')
+        press(KeyEvent.KEYCODE_SPACE, char = ' ')
+        keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
+        assertEquals(". ", keyboard.state.value.smartActions.single().text)
+
         press(KeyEvent.KEYCODE_SPACE, char = ' ')
         keyboard.onSelectionChanged(field.shown.length, field.shown.length, -1, -1)
         assertTrue(keyboard.state.value.smartActions.isEmpty())
