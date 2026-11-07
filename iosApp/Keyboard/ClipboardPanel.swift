@@ -67,7 +67,7 @@ struct ClipboardPanel: View {
             if model.hasFullAccess && state.clipboardOff {
                 offCard
             } else if !model.hasFullAccess || tiles.isEmpty {
-                Text(model.hasFullAccess ? "Copy text in any app and it shows here." : "Turn on Full Access in the Nepali Keyboard app")
+                Text(model.hasFullAccess ? "Copy text in any app and it shows here." : "Turn on Full Access in the Nepali Unicode Keyboard app")
                     .font(.system(size: 14))
                     .foregroundStyle(colors.hint)
                     .multilineTextAlignment(.center)

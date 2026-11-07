@@ -27,7 +27,7 @@ struct KeyboardStripView: View {
             if !latin.isEmpty {
                 composing(latin: latin, buffer: buffer, smart: smart.first)
             } else if slots.isEmpty && showSettingsHint {
-                Text("Settings are in the Nepali Keyboard app")
+                Text("Settings are in the Nepali Unicode Keyboard app")
                     .font(.system(size: 15))
                     .foregroundStyle(colors.keyText)
                     .lineLimit(1)
@@ -35,7 +35,7 @@ struct KeyboardStripView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
                     .onTapGesture { showSettingsHint = false }
-                    .onAppear { UIAccessibility.post(notification: .announcement, argument: String(localized: "Settings are in the Nepali Keyboard app")) }
+                    .onAppear { UIAccessibility.post(notification: .announcement, argument: String(localized: "Settings are in the Nepali Unicode Keyboard app")) }
                     .task {
                         try? await Task.sleep(nanoseconds: 3_000_000_000)
                         if !Task.isCancelled { showSettingsHint = false }

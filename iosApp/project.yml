@@ -43,7 +43,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.nepalikeyboard
         PRODUCT_NAME: NepaliKeyboard
-        INFOPLIST_KEY_CFBundleDisplayName: Nepali Keyboard
+        INFOPLIST_KEY_CFBundleDisplayName: Nepali Unicode Keyboard
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
@@ -84,7 +84,7 @@ targets:
         PRODUCT_NAME: NepaliKeyboardExtension
         INFOPLIST_FILE: KeyboardInfo.plist
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Nepali Keyboard
+        INFOPLIST_KEY_CFBundleDisplayName: Nepali Unicode Keyboard
         # The shared Kotlin code (KeyboardController, transliteration, layouts), built by Gradle
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         # -ObjC: ML Kit registers its classes through Objective-C categories the linker would drop

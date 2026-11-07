@@ -51,7 +51,7 @@ struct SetupView: View {
                     privacyPromise
                         .padding(.top, 32)
                 } else {
-                    Text("Nepali Keyboard")
+                    Text("Nepali Unicode Keyboard")
                         .font(.largeTitle.weight(.bold))
                         .accessibilityAddTraits(.isHeader)
                         .padding(.top, 32)
@@ -114,7 +114,7 @@ struct SetupView: View {
     private var steps: some View {
         VStack(alignment: .leading, spacing: 24) {
             step(1, title: "Turn on the keyboard",
-                 detail: "In Settings, tap Keyboards and turn on Nepali Keyboard.") {
+                 detail: "In Settings, tap Keyboards and turn on Nepali Unicode Keyboard.") {
                 Button("Open Settings") {
                     if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
                 }
@@ -123,7 +123,7 @@ struct SetupView: View {
                 .padding(.top, 10)
             }
             step(2, title: "Switch to it",
-                 detail: "In any text field, hold 🌐 below the keyboard and pick Nepali Keyboard.") {
+                 detail: "In any text field, hold 🌐 below the keyboard and pick Nepali Unicode Keyboard.") {
                 // Only when iOS can't tell us: otherwise the steps hide by themselves
                 if keyboardAdded == nil && !setupConfirmed {
                     Button("I’ve set it up") { withAnimation { setupConfirmed = true } }
@@ -148,7 +148,7 @@ struct SetupView: View {
                             in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             VStack(alignment: .leading, spacing: 4) {
                 if !showSteps {
-                    Text("Not showing? Hold 🌐 and pick Nepali Keyboard.")
+                    Text("Not showing? Hold 🌐 and pick Nepali Unicode Keyboard.")
                 }
                 Text("The flag key (🇳🇵 / 🇬🇧) switches between Nepali and English. Hold it to change this choice later.")
             }
