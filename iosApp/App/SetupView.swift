@@ -150,7 +150,7 @@ struct SetupView: View {
                 if !showSteps {
                     Text("Not showing? Hold 🌐 and pick Nepali Keyboard.")
                 }
-                Text("The अ/A key switches between Nepali and English. Hold it to change this choice later.")
+                Text("The flag key (🇳🇵 / 🇬🇧) switches between Nepali and English. Hold it to change this choice later.")
             }
             .font(.footnote)
             .foregroundStyle(.secondary)
