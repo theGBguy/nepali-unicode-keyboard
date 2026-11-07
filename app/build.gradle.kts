@@ -66,6 +66,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // BuildConfig.DEBUG gates the fake in-app update, so R8 strips it from release builds
+        buildConfig = true
     }
     androidResources {
         // Only the app's own languages; drops library translations for languages we don't support.
@@ -176,6 +178,8 @@ dependencies {
 
     // Handwriting
     implementation(libs.mlkit.digital.ink)
+    // Play in-app updates (talks to the Play Store app on the phone; no network access of its own)
+    implementation(libs.play.app.update.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)
