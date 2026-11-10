@@ -3,13 +3,25 @@
 A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for Android and on the App Store for iPhone and iPad. It runs offline and doesn't send or store what you type.
 
 <p>
-  <a href="https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard"><img src=".github/badges/google-play.png" height="60" alt="Get it on Google Play"></a>
+  <a href="https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard"><img src=".github/badges/google-play.png" height="40" alt="Get it on Google Play"></a>
   <a href="https://apps.apple.com/us/app/nepali-unicode-keyboard/id6831912584"><img src=".github/badges/app-store.svg" height="40" alt="Download on the App Store"></a>
 </p>
 
-| Android | iPhone |
-| :-: | :-: |
-| <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="160" alt="Romanized typing on Android"> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="160" alt="Traditional layout on Android"> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="160" alt="Voice typing on Android"> | <img src="fastlane/metadata/ios/en-US/images/01.png" width="130" alt="Romanized typing on iPhone"> <img src="fastlane/metadata/ios/en-US/images/02.png" width="130" alt="Traditional layout on iPhone"> <img src="fastlane/metadata/ios/en-US/images/03.png" width="130" alt="Emoji on iPhone"> |
+**Android**
+
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="180" alt="Romanized typing on Android">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="180" alt="Traditional layout on Android">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="180" alt="Voice typing on Android">
+</p>
+
+**iPhone**
+
+<p>
+  <img src="fastlane/metadata/ios/en-US/images/01.png" width="148" alt="Romanized typing on iPhone">
+  <img src="fastlane/metadata/ios/en-US/images/02.png" width="148" alt="Traditional layout on iPhone">
+  <img src="fastlane/metadata/ios/en-US/images/03.png" width="148" alt="Emoji on iPhone">
+</p>
 
 ## Features
 
