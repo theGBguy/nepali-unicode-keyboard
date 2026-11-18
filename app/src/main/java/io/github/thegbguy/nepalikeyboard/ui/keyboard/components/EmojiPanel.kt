@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -49,12 +51,17 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.thegbguy.nepalikeyboard.R
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiCategory
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiData
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.EmojiSearch
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyFeel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardColors
 import kotlinx.coroutines.launch
@@ -75,6 +82,7 @@ fun EmojiPanel(
     onBackspace: () -> Unit,
     onBackspaceRepeatStart: () -> Unit,
     onBackspaceRepeatEnd: () -> Unit,
+    onSearch: () -> Unit,
     onClose: () -> Unit
 ) {
     val data by EmojiData.categories.collectAsState()
@@ -102,6 +110,9 @@ fun EmojiPanel(
     val paneLabel = stringResource(R.string.emoji_open)
 
     Column(Modifier.fillMaxWidth().height(height).semantics { paneTitle = paneLabel }) {
+        SearchPill(colors, Modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp, bottom = 2.dp), onClick = onSearch) {
+            Text(stringResource(R.string.emoji_search), color = colors.hint, fontSize = 14.sp)
+        }
         LazyVerticalGrid(
             columns = GridCells.Adaptive(44.dp),
             state = gridState,
@@ -191,6 +202,99 @@ fun EmojiPanel(
 }
 
 /** Deletes on press and repeats while held, like the keyboard's own backspace. */
+/** The rounded search field: a magnifier, then [content]. Tappable when [onClick] is set; the ripple stays inside the pill. */
+@Composable
+private fun SearchPill(
+    colors: KeyboardColors,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(34.dp)
+            .clip(RoundedCornerShape(17.dp))
+            .background(colors.key)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(painterResource(R.drawable.ic_ui_search), contentDescription = null, tint = colors.hint, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        content()
+    }
+}
+
+/**
+ * Emoji search in place of the strip: back to the grid, then the box with what's typed (the
+ * Romanized word being typed underlined) and a caret.
+ */
+@Composable
+fun EmojiSearchBar(colors: KeyboardColors, search: EmojiSearch, height: Dp, onBack: () -> Unit) {
+    val back = stringResource(R.string.emoji_search_back)
+    val hint = stringResource(R.string.emoji_search)
+    Row(Modifier.fillMaxWidth().height(height), verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onBack)
+                .semantics { contentDescription = back },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(painterResource(R.drawable.ic_ui_arrow_back), contentDescription = null, tint = colors.keyText, modifier = Modifier.size(22.dp))
+        }
+        SearchPill(colors, Modifier.padding(end = 4.dp).semantics { contentDescription = search.text + search.composing; paneTitle = hint }) {
+            if (search.text.isEmpty() && search.composing.isEmpty()) {
+                Text(hint, color = colors.hint, fontSize = 14.sp)
+            } else {
+                Text(
+                    buildAnnotatedString {
+                        append(search.text)
+                        withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) { append(search.composing) }
+                    },
+                    color = colors.keyText,
+                    fontSize = 15.sp,
+                    maxLines = 1
+                )
+            }
+            Box(Modifier.padding(start = 1.dp).width(1.5.dp).height(18.dp).background(colors.accent))
+        }
+    }
+}
+
+/** What search found, in one scrolling row in place of the number row; a tap types the emoji. */
+@Composable
+fun EmojiResults(colors: KeyboardColors, feel: KeyFeel, search: EmojiSearch, height: Dp, onEmoji: (String) -> Unit) {
+    val view = LocalView.current
+    if (search.results.isEmpty()) {
+        Box(Modifier.fillMaxWidth().height(height).padding(start = 14.dp), contentAlignment = Alignment.CenterStart) {
+            if (search.text.isNotBlank() || search.composing.isNotEmpty()) {
+                Text(stringResource(R.string.emoji_search_none), color = colors.hint, fontSize = 13.sp)
+            }
+        }
+        return
+    }
+    LazyRow(Modifier.fillMaxWidth().height(height), verticalAlignment = Alignment.CenterVertically) {
+        items(search.results, key = { it }) { emoji ->
+            Box(
+                Modifier
+                    .width(44.dp)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable {
+                        if (feel.vibrate) view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        onEmoji(emoji)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(emoji, fontSize = 27.sp, color = colors.keyText)
+            }
+        }
+    }
+}
+
 @Composable
 internal fun BackspaceKey(
     colors: KeyboardColors,

@@ -153,6 +153,15 @@ final class KeyboardModel: ObservableObject {
         controller.onEmojiClick(emoji: emoji)
     }
 
+    func openEmojiSearch() {
+        EmojiCatalog.shared.whenKeywordsLoaded { [weak self] in self?.controller.emojiKeywords = $0 }
+        controller.openEmojiSearch()
+    }
+
+    func closeEmojiSearch() {
+        controller.closeEmojiSearch()
+    }
+
     // MARK: Handwriting
 
     /** Made on first use; nothing in ML Kit runs until the user agrees to the download. */

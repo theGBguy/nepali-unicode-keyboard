@@ -34,7 +34,7 @@ struct KeyboardRootView: View {
 
         ZStack(alignment: .bottomLeading) {
             VStack(spacing: 0) {
-                if state.showEmoji {
+                if state.showEmoji && state.emojiSearch == nil {
                     // In place of the strip and rows, at their height
                     EmojiPanel(model: model, state: state, colors: colors,
                                height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
@@ -45,11 +45,24 @@ struct KeyboardRootView: View {
                     HandwritingPanel(model: model, state: state, phase: phase, colors: colors,
                                      height: KeyboardMetrics.panelHeight(of: state), keyHeight: keyHeight)
                 } else {
-                    KeyboardStripView(model: model, state: state, colors: colors)
-                        .frame(height: KeyboardMetrics.stripHeight)
+                    // Searching emoji: the box takes the strip's place, the results the number row's
+                    let search = state.emojiSearch
+                    let resultsRow = search == nil ? nil : state.currentLayout.rows.firstIndex(where: KeyboardMetrics.isNumberRow)
+                    if let search {
+                        EmojiSearchBar(model: model, search: search, colors: colors)
+                            .frame(height: KeyboardMetrics.stripHeight)
+                    } else {
+                        KeyboardStripView(model: model, state: state, colors: colors)
+                            .frame(height: KeyboardMetrics.stripHeight)
+                    }
                     VStack(spacing: KeyboardMetrics.rowGap) {
-                        ForEach(Array(state.currentLayout.rows.enumerated()), id: \.offset) { _, row in
-                            KeyRow(model: model, state: state, row: row, colors: colors, keyHeight: keyHeight)
+                        ForEach(Array(state.currentLayout.rows.enumerated()), id: \.offset) { index, row in
+                            if index == resultsRow, let search {
+                                EmojiResultsRow(model: model, search: search, colors: colors)
+                                    .frame(height: KeyboardMetrics.rowHeight(row, keyHeight: keyHeight))
+                            } else {
+                                KeyRow(model: model, state: state, row: row, colors: colors, keyHeight: keyHeight)
+                            }
                         }
                     }
                 }

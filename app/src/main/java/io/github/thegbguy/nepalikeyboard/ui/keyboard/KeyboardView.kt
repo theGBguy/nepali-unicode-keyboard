@@ -104,7 +104,10 @@ import io.github.thegbguy.nepalikeyboard.domain.model.LanguageMode
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.SymbolLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.ClipboardPanel
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.HandwritingPanel
+import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiData
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiPanel
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiResults
+import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.EmojiSearchBar
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.components.KeyboardStrip
 
 private val KeyGap = 5.dp
@@ -148,6 +151,9 @@ fun KeyboardView(
     // jumping: keys grow or shrink smoothly, and the keyboard's outline follows with a spring.
     // On a short screen (landscape) keys shrink so strip and rows take at most 60% of the height
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    // Emoji search words load in the background with the emoji list
+    val emojiWords by EmojiData.keywords.collectAsState()
+    LaunchedEffect(emojiWords) { keyboard.emojiKeywords = emojiWords }
     val tallestRows = NepaliLayout.getLayout().rows.size
     val fittingKeyHeight = ((screenHeight * 0.6f - StripHeight) / tallestRows - RowGap).coerceAtLeast(MinKeyHeight)
     val targetKeyHeight = minOf(state.feel.height.dp.dp, fittingKeyHeight)
@@ -196,7 +202,8 @@ fun KeyboardView(
             .windowInsetsPadding(keyboardBottomInsets)
             .padding(start = 3.dp, end = 3.dp, bottom = 4.dp)
     ) {
-        if (state.showEmoji) {
+        val search = state.emojiSearch
+        if (state.showEmoji && search == null) {
             // Same height as the strip and keys it replaces
             val rowsHeight = state.currentLayout.rows.fold(0.dp) { sum, row -> sum + rowHeight(row, keyHeight, numberRowKeyHeight) + RowGap }
             EmojiPanel(
@@ -209,6 +216,7 @@ fun KeyboardView(
                 onBackspace = { keyboard.onEmojiBackspace() },
                 onBackspaceRepeatStart = { keyboard.onBackspaceLongPressStart() },
                 onBackspaceRepeatEnd = { keyboard.onBackspaceLongPressEnd() },
+                onSearch = { keyboard.openEmojiSearch() },
                 onClose = { keyboard.closeEmoji() }
             )
             Spacer(Modifier.height(RowGap))
@@ -259,7 +267,9 @@ fun KeyboardView(
             Spacer(Modifier.height(RowGap))
         } else {
         val buffer = state.transliterationBuffer
-        KeyboardStrip(
+        // Searching emoji: the box takes the strip's place, the results the number row's
+        if (search != null) EmojiSearchBar(colors, search, StripHeight) { keyboard.closeEmojiSearch() }
+        else KeyboardStrip(
             colors = colors,
             suggestions = if (state.showSuggestionBar) state.suggestions else emptyList(),
             primarySuggestion = buffer.primaryCandidate,
@@ -305,7 +315,14 @@ fun KeyboardView(
                     layout(constraints.maxWidth, placeable.height) { placeable.place(-extra / 2, 0) }
                 }
         ) {
+        val resultsRow = if (search != null) state.currentLayout.rows.firstOrNull { isNumberRow(it) } else null
         if (!stripOnly || rowsHeight > 0.dp) state.currentLayout.rows.forEach { row ->
+            if (row === resultsRow && search != null) {
+                Box(Modifier.fillMaxWidth().padding(bottom = RowGap)) {
+                    EmojiResults(colors, state.feel, search, numberRowKeyHeight) { keyboard.onEmojiClick(it) }
+                }
+                return@forEach
+            }
             val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
             val isNumberRow = isNumberRow(row)
             // Indent short letter rows (the 9-key home row) by half a key on each side

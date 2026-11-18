@@ -33,7 +33,7 @@ struct LicencesView: View {
                 ("Nepali word list",
                  "Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0)."),
                 ("Emoji list",
-                 "Emoji list derived from Unicode emoji data, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your iPhone’s font."),
+                 "Emoji list and search words derived from Unicode emoji data and CLDR, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your iPhone’s font."),
                 ("Bikram Sambat calendar",
                  "Month lengths for BS 2000–2090 from nepali-date-pro-max by l3lackcurtains, under the MIT licence."),
                 ("Open-source libraries",

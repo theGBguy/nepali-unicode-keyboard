@@ -204,6 +204,9 @@
     <string name="keyboard_show_keys">किबोर्ड देखाउनुहोस्</string>
     <string name="keyboard_hide_keys">किबोर्ड लुकाउनुहोस्</string>
     <string name="emoji_recent">हालै प्रयोग गरिएका</string>
+    <string name="emoji_search">इमोजी खोज्नुहोस्</string>
+    <string name="emoji_search_back">इमोजीमा फर्कनुहोस्</string>
+    <string name="emoji_search_none">कुनै इमोजी भेटिएन</string>
     <string name="emoji_smileys">अनुहार र मानिस</string>
     <string name="emoji_animals">जनावर र प्रकृति</string>
     <string name="emoji_food">खाना र पेय</string>
@@ -213,7 +216,7 @@
     <string name="emoji_symbols">चिह्न</string>
     <string name="emoji_flags">झन्डा</string>
     <string name="licences_emoji_title">इमोजी सूची</string>
-    <string name="licences_emoji_body">इमोजी सूची Unicode इमोजी डेटाबाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको फोनको फन्टले देखाउँछ।</string>
+    <string name="licences_emoji_body">इमोजी सूची र खोज शब्दहरू Unicode इमोजी डेटा र CLDR बाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको फोनको फन्टले देखाउँछ।</string>
     <string name="licences_calendar_title">विक्रम संवत् पात्रो</string>
     <string name="licences_calendar_body">वि.सं. २००० देखि २०९० सम्मका महिनाका दिन l3lackcurtains को nepali-date-pro-max बाट, MIT licence अन्तर्गत।</string>
 </resources>
