@@ -31,6 +31,16 @@ class FieldInfoTest {
     }
 
     @Test
+    fun `capitals follow the app's cap flags in text fields only`() {
+        assertEquals(CapsMode.NONE, FieldInfo.classify(text, 0).capsMode)
+        assertEquals(CapsMode.SENTENCES, FieldInfo.classify(text or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 0).capsMode)
+        assertEquals(CapsMode.WORDS, FieldInfo.classify(text or InputType.TYPE_TEXT_FLAG_CAP_WORDS or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 0).capsMode)
+        assertEquals(CapsMode.CHARACTERS, FieldInfo.classify(text or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS, 0).capsMode)
+        assertEquals(CapsMode.NONE, FieldInfo.classify(text or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 0).capsMode)
+        assertEquals(CapsMode.NONE, FieldInfo.classify(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 0).capsMode)
+    }
+
+    @Test
     fun `plain text allows everything`() {
         val f = FieldInfo.classify(text, EditorInfo.IME_ACTION_UNSPECIFIED)
         assertEquals(FieldKind.TEXT, f.kind)

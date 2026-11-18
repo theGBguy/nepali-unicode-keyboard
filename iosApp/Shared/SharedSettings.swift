@@ -22,6 +22,7 @@ enum SharedSettings {
         static let theme = "theme"
         static let keyBorders = "key_borders"
         static let smartSuggestions = "smart_suggestions"
+        static let autoCapitalise = "auto_capitalise"
         static let sound = "sound"
         static let vibrate = "vibrate"
         static let clipboardHistory = "clipboard_history"

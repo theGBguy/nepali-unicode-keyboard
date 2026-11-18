@@ -4,6 +4,15 @@ import android.annotation.SuppressLint
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 
+/** The app's `TYPE_TEXT_FLAG_CAP_*` request; the strongest wins, like `TextUtils.getCapsMode`. */
+private fun capsMode(inputType: Int, kind: FieldKind): CapsMode = when {
+    kind != FieldKind.TEXT || (inputType and InputType.TYPE_MASK_CLASS) != InputType.TYPE_CLASS_TEXT -> CapsMode.NONE
+    (inputType and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) != 0 -> CapsMode.CHARACTERS
+    (inputType and InputType.TYPE_TEXT_FLAG_CAP_WORDS) != 0 -> CapsMode.WORDS
+    (inputType and InputType.TYPE_TEXT_FLAG_CAP_SENTENCES) != 0 -> CapsMode.SENTENCES
+    else -> CapsMode.NONE
+}
+
 /** [FieldInfo] for the field Android's [EditorInfo] describes. */
 fun FieldInfo.Companion.from(info: EditorInfo?): FieldInfo =
     if (info == null) FieldInfo()
@@ -65,6 +74,7 @@ fun FieldInfo.Companion.classify(
         enterAction = enterAction,
         imeActionId = if (enterAction == EnterAction.CUSTOM) actionId else action,
         actionLabel = if (enterAction == EnterAction.CUSTOM) label else null,
-        sendsKeyEvents = inputType == InputType.TYPE_NULL
+        sendsKeyEvents = inputType == InputType.TYPE_NULL,
+        capsMode = capsMode(inputType, kind)
     )
 }

@@ -36,6 +36,8 @@ interface KeyboardPrefs {
     var clipboardHistory: Boolean
     /** Whether the strip offers conversions of what's typed (amounts, dates, units). */
     var smartSuggestions: Boolean
+    /** Whether English starts a capital where the field asks for one (a new sentence, by default). */
+    var autoCapitalise: Boolean
     /** The user agreed to handwriting (Google model download and ML Kit diagnostics). */
     var handwriting: Boolean
 
@@ -52,6 +54,7 @@ class InMemoryKeyboardPrefs(
     override var emojiRecents: List<String> = emptyList(),
     override var clipboardHistory: Boolean = true,
     override var smartSuggestions: Boolean = true,
+    override var autoCapitalise: Boolean = true,
     override var handwriting: Boolean = false,
     override var theme: KeyboardTheme = KeyboardTheme.SYSTEM,
     override var keyBorders: Boolean = true

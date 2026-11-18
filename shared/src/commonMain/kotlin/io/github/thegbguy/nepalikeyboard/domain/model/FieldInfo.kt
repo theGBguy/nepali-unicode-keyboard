@@ -3,6 +3,9 @@ package io.github.thegbguy.nepalikeyboard.domain.model
 /** What kind of text the focused field expects. */
 enum class FieldKind { TEXT, PASSWORD, NUMBER, PHONE, EMAIL, URI }
 
+/** Which letters the field asks to start with a capital (Android `TYPE_TEXT_FLAG_CAP_*`, iOS `autocapitalizationType`). */
+enum class CapsMode { NONE, SENTENCES, WORDS, CHARACTERS }
+
 /** What the Enter key does in the focused field. */
 enum class EnterAction { NEWLINE, DONE, GO, SEARCH, SEND, NEXT, PREVIOUS, CUSTOM }
 
@@ -16,6 +19,7 @@ enum class EnterAction { NEWLINE, DONE, GO, SEARCH, SEND, NEXT, PREVIOUS, CUSTOM
  *   remember what's typed. Voice is off too, because it sends audio to Google.
  * @property sendsKeyEvents The field has no editor behind it (TYPE_NULL, e.g. a terminal), so
  *   Enter must be sent as a key event instead of committed text.
+ * @property capsMode Where English letters start as capitals; see [CapsMode].
  */
 data class FieldInfo(
     val kind: FieldKind = FieldKind.TEXT,
@@ -24,7 +28,8 @@ data class FieldInfo(
     val enterAction: EnterAction = EnterAction.NEWLINE,
     val imeActionId: Int = IME_ACTION_NONE,
     val actionLabel: String? = null,
-    val sendsKeyEvents: Boolean = false
+    val sendsKeyEvents: Boolean = false,
+    val capsMode: CapsMode = CapsMode.NONE
 ) {
     /** Romanized typing and its suggestions are allowed here. */
     val allowsTransliteration: Boolean get() = !isPrivate

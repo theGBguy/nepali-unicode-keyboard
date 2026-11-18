@@ -22,6 +22,8 @@ struct TypingSettings: View {
     private var keyBorders = true
     @AppStorage(SharedSettings.Key.smartSuggestions, store: SharedSettings.group)
     private var smartSuggestions = true
+    @AppStorage(SharedSettings.Key.autoCapitalise, store: SharedSettings.group)
+    private var autoCapitalise = true
     @AppStorage(SharedSettings.Key.sound, store: SharedSettings.group)
     private var sound = SharedSettings.defaultSound
     @AppStorage(SharedSettings.Key.vibrate, store: SharedSettings.group)
@@ -61,6 +63,9 @@ struct TypingSettings: View {
                 SwitchRow(icon: "lightbulb", title: "Smart suggestions",
                           subtitle: "Dates, amounts and units as you type", isOn: $smartSuggestions)
                 RowDivider()
+                SwitchRow(icon: "shift", title: "Auto-capitalisation",
+                          subtitle: "Start English sentences with a capital", isOn: $autoCapitalise)
+                RowDivider()
                 handwritingRow
                 RowDivider()
                 clipboard
@@ -93,6 +98,7 @@ struct TypingSettings: View {
             .onChange(of: keyBorders) { _ in onChange() }
         }
         .onChange(of: smartSuggestions) { _ in onChange() }
+        .onChange(of: autoCapitalise) { _ in onChange() }
         .onChange(of: sound) { _ in onChange() }
         .onChange(of: vibrate) { _ in onChange() }
         .onChange(of: clipboardHistory) { _ in onChange() }

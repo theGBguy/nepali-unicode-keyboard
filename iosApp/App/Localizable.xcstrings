@@ -31,6 +31,16 @@
         }
       }
     },
+    "Auto-capitalisation": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वतः ठूलो अक्षर"
+          }
+        }
+      }
+    },
     "Bikram Sambat calendar": {
       "localizations": {
         "ne": {
@@ -687,6 +697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "सोर्स कोड"
+          }
+        }
+      }
+    },
+    "Start English sentences with a capital": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अङ्ग्रेजी वाक्य ठूलो अक्षरबाट सुरु गर्ने"
           }
         }
       }
