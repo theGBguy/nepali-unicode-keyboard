@@ -320,18 +320,22 @@ fun KeyboardView(
                     val alternate = keyAlternate(key, state.isShifted)
                     val isBackspace = key.primary == "⌫"
                     val isLanguageKey = key.primary == "🌐"
+                    val isShiftKey = key.primary == "⇧"
                     val visual = keyVisual(key, state, enterLabel, spaceLabel, colors)
                     val alternateLabel = alternate?.let { stringResource(R.string.key_type_alternate, spokenCharacter(it)) }
                     val languageOptions = stringResource(R.string.key_language_options)
+                    val capsLock = stringResource(R.string.key_caps_lock)
                     Key(
                         key = key,
                         visual = visual,
                         a11y = KeyA11y(
                             label = visual.description ?: spokenCharacter(visual.text ?: key.primary),
                             state = if (isLanguageKey) languageName(state.currentLanguage) else null,
-                            selected = key.primary == "⇧" && state.isShifted,
+                            selected = isShiftKey && state.isShifted,
                             actions = when {
                                 isLanguageKey -> listOf(CustomAccessibilityAction(languageOptions) { keyboard.onLanguageLongPress(); true })
+                                isShiftKey && state.currentLanguage == LanguageMode.ENGLISH && !state.isCapsLock ->
+                                    listOf(CustomAccessibilityAction(capsLock) { keyboard.onShiftLongPress(); true })
                                 alternate != null && alternateLabel != null -> listOf(CustomAccessibilityAction(alternateLabel) { keyboard.onKeyLongPress(alternate); true })
                                 else -> emptyList()
                             }
@@ -342,6 +346,7 @@ fun KeyboardView(
                         onTap = { keyboard.onKeyClick(key) },
                         onLongPress = when {
                             isLanguageKey -> ({ keyboard.onLanguageLongPress() })
+                            isShiftKey -> ({ keyboard.onShiftLongPress() })
                             alternate != null -> ({ keyboard.onKeyLongPress(alternate) })
                             else -> null
                         },

@@ -86,7 +86,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     /** Smart suggestions (amounts, dates, units); replaced in tests. */
     var smartSuggester = SmartSuggester()
 
-    /** Wall-clock time for clipboard items; replaced in tests. */
+    /** Wall-clock time for clipboard items and the Shift double-tap; replaced in tests. */
     var clock: () -> Long = ::nowMillis
 
     /** The copy last pasted from the strip's Paste suggestion, so it isn't offered again. */
@@ -114,7 +114,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
 
     // Track last shift press time for double-tap caps lock detection
     private var lastShiftPressTime: Long = 0
-    private val DOUBLE_TAP_TIMEOUT_MS = 300L // Time window for double-tap detection
+    private val DOUBLE_TAP_TIMEOUT_MS = 450L // Time window for double-tap detection (300 ms was too quick on a phone)
 
     // Transliteration engine for romanized to Devanagari conversion
     private val transliterationEngine: TransliterationEngine = NepaliTransliterationEngine()
@@ -635,9 +635,13 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         val field = _state.value.field
         // A choice made in an email/URL/password field applies to that field only
         if (!field.prefersEnglish) prefs.typeNepali = mode != LanguageMode.ENGLISH
+        // Shift and caps lock are English-only state; don't carry them into the other layout
+        lastShiftPressTime = 0
         _state.update {
             it.copy(
                 currentLanguage = mode,
+                isShifted = false,
+                isCapsLock = false,
                 smartActions = emptyList(),
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
@@ -908,7 +912,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         when (key.primary) {
             "⇧" -> {
                 // Shift key - handle single tap, double tap (caps lock), and caps lock toggle
-                val currentTime = nowMillis()
+                val currentTime = clock()
                 val currentState = _state.value
 
                 when {
@@ -922,8 +926,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                         }
                         lastShiftPressTime = 0 // Reset double-tap detection
                     }
-                    // If shift was pressed recently (double-tap), enable caps lock
-                    currentState.isShifted && (currentTime - lastShiftPressTime) <= DOUBLE_TAP_TIMEOUT_MS -> {
+                    // If shift was pressed recently (double-tap), enable caps lock (English only)
+                    currentState.currentLanguage == LanguageMode.ENGLISH && currentState.isShifted
+                        && (currentTime - lastShiftPressTime) <= DOUBLE_TAP_TIMEOUT_MS -> {
                         _state.update {
                             it.copy(
                                 isShifted = true,
@@ -945,6 +950,19 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 }
             }
         }
+    }
+
+    /**
+     * Long-press on Shift: locks caps in English. Caps lock never applies to Nepali, so there it
+     * acts as a tap and the press isn't lost.
+     */
+    fun onShiftLongPress() {
+        if (_state.value.currentLanguage != LanguageMode.ENGLISH) {
+            onKeyClick(KeyData("⇧", keyType = KeyType.MODIFIER))
+            return
+        }
+        _state.update { it.copy(isShifted = true, isCapsLock = true) }
+        lastShiftPressTime = 0
     }
 
     private fun handleFunctionKey(key: KeyData) {
