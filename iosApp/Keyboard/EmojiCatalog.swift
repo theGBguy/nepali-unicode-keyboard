@@ -17,6 +17,9 @@ final class EmojiCatalog: ObservableObject {
     }
 
     @Published private(set) var sections: [Section] = []
+    /** Search words (`emoji_keywords.tsv`), loaded right after the list. */
+    private(set) var keywords: EmojiKeywords?
+    private var waitingForKeywords: [(EmojiKeywords) -> Void] = []
     private var started = false
 
     func loadIfNeeded() {
@@ -31,7 +34,21 @@ final class EmojiCatalog: ObservableObject {
                 parsed[category].flatMap { $0.isEmpty ? nil : Section(category: category, emoji: $0) }
             }
             DispatchQueue.main.async { self.sections = sections }
+            guard let wordsUrl = Bundle.main.url(forResource: "emoji_keywords", withExtension: "tsv"),
+                  let words = try? String(contentsOf: wordsUrl, encoding: .utf8) else { return }
+            let keywords = EmojiKeywords.companion.parse(text: words) { KotlinBoolean(bool: Self.canDraw($0, font: font)) }
+            DispatchQueue.main.async {
+                self.keywords = keywords
+                self.waitingForKeywords.forEach { $0(keywords) }
+                self.waitingForKeywords = []
+            }
         }
+    }
+
+    /** Calls [use] with the search words now, or once they've loaded. */
+    func whenKeywordsLoaded(_ use: @escaping (EmojiKeywords) -> Void) {
+        loadIfNeeded()
+        if let keywords { use(keywords) } else { waitingForKeywords.append(use) }
     }
 
     /**

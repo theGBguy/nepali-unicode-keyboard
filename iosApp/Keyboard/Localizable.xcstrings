@@ -41,6 +41,16 @@
         }
       }
     },
+    "Back to emoji": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इमोजीमा फर्कनुहोस्"
+          }
+        }
+      }
+    },
     "Capital %@": {
       "localizations": {
         "ne": {
@@ -351,6 +361,16 @@
         }
       }
     },
+    "No emoji found": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कुनै इमोजी भेटिएन"
+          }
+        }
+      }
+    },
     "Not now": {
       "localizations": {
         "ne": {
@@ -457,6 +477,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "खोज्नुहोस्"
+          }
+        }
+      }
+    },
+    "Search emoji": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "इमोजी खोज्नुहोस्"
           }
         }
       }

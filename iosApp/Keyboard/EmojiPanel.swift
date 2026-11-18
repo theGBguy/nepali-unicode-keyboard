@@ -38,6 +38,15 @@ struct EmojiPanel: View {
     var body: some View {
         let sections = sections
         VStack(spacing: 0) {
+            Button { model.openEmojiSearch() } label: {
+                EmojiSearchPill(colors: colors) {
+                    Text("Search emoji").font(.system(size: 15)).foregroundStyle(colors.hint)
+                }
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 4)
+            .padding(.top, 8)
+            .padding(.bottom, 2)
             EmojiGridView(
                 sections: sections.map { .init(id: $0.id, title: label($0.category), emoji: $0.emoji) },
                 labelColor: UIColor(colors.hint),

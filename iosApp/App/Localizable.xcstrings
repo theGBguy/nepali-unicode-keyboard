@@ -191,12 +191,12 @@
         }
       }
     },
-    "Emoji list derived from Unicode emoji data, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your iPhone’s font.": {
+    "Emoji list and search words derived from Unicode emoji data and CLDR, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your iPhone’s font.": {
       "localizations": {
         "ne": {
           "stringUnit": {
             "state": "translated",
-            "value": "इमोजी सूची Unicode इमोजी डेटाबाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको iPhone को फन्टले देखाउँछ।"
+            "value": "इमोजी सूची र खोज शब्दहरू Unicode इमोजी डेटा र CLDR बाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको iPhone को फन्टले देखाउँछ।"
           }
         }
       }

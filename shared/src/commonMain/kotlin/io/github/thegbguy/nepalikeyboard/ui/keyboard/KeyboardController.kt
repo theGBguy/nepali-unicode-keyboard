@@ -1,5 +1,6 @@
 package io.github.thegbguy.nepalikeyboard.ui.keyboard
 
+import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiKeywords
 import io.github.thegbguy.nepalikeyboard.data.emoji.EmojiRecents
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipItem
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardHistory
@@ -70,7 +71,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      * so it must never be cached.
      */
     var editor: () -> EditorConnection? = { null }
-    private val inputConnection: EditorConnection? get() = editor()
+    // While emoji search is open the keys type into its box instead of the app's field
+    private var searchBox: SearchBox? = null
+    private val inputConnection: EditorConnection? get() = searchBox ?: editor()
 
     /** Stored settings (Nepali style). The platform replaces this with the on-device store. */
     var prefs: KeyboardPrefs = InMemoryKeyboardPrefs()
@@ -380,15 +383,84 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     }
 
     fun closeEmoji() {
+        endEmojiSearch()
         _state.update { it.copy(showEmoji = false) }
     }
 
     /**
+     * Words for emoji search, loaded by the platform in the background. Search shows nothing until
+     * they arrive, then catches up.
+     */
+    var emojiKeywords: EmojiKeywords? = null
+        set(value) {
+            field = value
+            refreshEmojiSearch()
+        }
+
+    /** Opens emoji search: the letter keys come back and type into the search box. */
+    fun openEmojiSearch() {
+        if (searchBox != null) return
+        searchBox = SearchBox { refreshEmojiSearch() }
+        _state.update {
+            it.copy(
+                emojiSearch = EmojiSearch(results = it.emojiRecents),
+                isShifted = false,
+                isCapsLock = false,
+                showingNumbers = false,
+                showingSymbols = false,
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
+        autoShifted = false
+        updateLayout()
+    }
+
+    /** Back from search to the emoji grid. */
+    fun closeEmojiSearch() = endEmojiSearch()
+
+    private fun endEmojiSearch() {
+        if (searchBox == null) return
+        searchBox = null
+        _state.update {
+            it.copy(
+                emojiSearch = null,
+                isShifted = false,
+                isCapsLock = false,
+                transliterationBuffer = TransliterationBuffer(),
+                suggestions = emptyList(),
+                showSuggestionBar = false
+            )
+        }
+    }
+
+    /**
+     * New results for what's in the search box: the typed text in English, and in Romanized
+     * mode also each Devanagari reading of the word being typed. An empty box shows recents.
+     */
+    private fun refreshEmojiSearch() {
+        val box = searchBox ?: return
+        val typed = box.text + box.composing
+        val results = when {
+            typed.isBlank() -> _state.value.emojiRecents
+            else -> {
+                val readings = if (_state.value.currentLanguage == LanguageMode.TRANSLITERATION && box.composing.isNotEmpty())
+                    _state.value.transliterationBuffer.candidates.map { box.text + it.devanagari }
+                else emptyList()
+                emojiKeywords?.search(listOf(typed) + readings).orEmpty()
+            }
+        }
+        _state.update { it.copy(emojiSearch = EmojiSearch(box.text, box.composing, results)) }
+    }
+
+    /**
      * Types [emoji] and remembers it in recents, unless the field asks for no learning. The panel
-     * keeps showing the recents it opened with, so nothing moves under the finger.
+     * keeps showing the recents it opened with, so nothing moves under the finger. Search stays
+     * open with its query, so several can be picked.
      */
     fun onEmojiClick(emoji: String) {
-        inputConnection?.commitText(emoji)
+        editor()?.commitText(emoji)
         val field = _state.value.field
         if (field.isPrivate || field.noLearning) return
         prefs.emojiRecents = EmojiRecents.add(prefs.emojiRecents, emoji)
@@ -767,7 +839,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                     inputConnection?.commitText(" ")
                 }
             }
-            "↵" -> handleEnter()
+            "↵" -> if (searchBox != null) closeEmoji() else handleEnter()
         }
     }
 
@@ -989,7 +1061,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     /** Auto-capitalisation is on for this field and language: English, the setting on, and the field asking for it. */
     private fun autoCapsApplies(): Boolean {
         val st = _state.value
-        return st.currentLanguage == LanguageMode.ENGLISH && prefs.autoCapitalise
+        return searchBox == null && st.currentLanguage == LanguageMode.ENGLISH && prefs.autoCapitalise
             && st.field.capsMode != CapsMode.NONE && !st.field.isPrivate
     }
 
@@ -1154,6 +1226,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         pendingPoint = false
         autoShifted = false
         shiftTappedAt = null
+        endEmojiSearch()
         // Reset state when new input field is focused
         _state.update {
             it.copy(
@@ -1206,6 +1279,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      * shows it as composing text.
      */
     fun onCursorMoved(stillComposing: Boolean, hasComposing: Boolean, hasSelection: Boolean) {
+        // The app's field moved (an emoji was typed into it); the word being searched isn't there
+        if (searchBox != null) return
         if (_state.value.transliterationBuffer.isNotEmpty() && !stillComposing) {
             if (hasComposing) inputConnection?.finishComposingText()
             _state.update {
@@ -1533,6 +1608,8 @@ data class KeyboardState(
     val showEmoji: Boolean = false,
     /** Recents as they were when the panel opened. */
     val emojiRecents: List<String> = emptyList(),
+    /** Emoji search is open: the letter keys show and type into its box. */
+    val emojiSearch: EmojiSearch? = null,
     /** The clipboard panel replaces the keys. */
     val showClipboard: Boolean = false,
     /** Clipboard history is off: the panel offers to turn it on instead of listing items. */
@@ -1587,6 +1664,16 @@ data class KeyboardState(
 }
 
 /** What the handwriting panel shows. */
+/**
+ * The emoji search box and what it found. [composing] is the Romanized word being typed (shown
+ * underlined after [text]); [results] are recents while the box is empty.
+ */
+data class EmojiSearch(
+    val text: String = "",
+    val composing: String = "",
+    val results: List<String> = emptyList()
+)
+
 enum class HandwritingPhase {
     /** What turning it on means, with Download / Not now. */
     CONSENT,
