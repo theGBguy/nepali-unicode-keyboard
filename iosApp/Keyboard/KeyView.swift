@@ -142,6 +142,7 @@ struct KeyView: View {
         let visual = keyVisual(key, state: state, colors: colors)
         let isBackspace = key.primary == "⌫"
         let isLanguageKey = key.primary == "🌐"
+        let isShiftKey = key.primary == "⇧"
         let alternate = keyAlternate(key, isShifted: state.isShifted)
 
         RoundedRectangle(cornerRadius: KeyboardMetrics.keyRadius)
@@ -183,7 +184,7 @@ struct KeyView: View {
                         model.keyDown()
                         longPressed = false
                         if isBackspace { model.tap(key) }
-                        if isBackspace || isLanguageKey || alternate != nil {
+                        if isBackspace || isLanguageKey || isShiftKey || alternate != nil {
                             longPressTask = Task { @MainActor in
                                 try? await Task.sleep(nanoseconds: Self.longPressDelay)
                                 guard !Task.isCancelled, pressed else { return }
@@ -193,6 +194,8 @@ struct KeyView: View {
                                     model.backspaceRepeat(true)
                                 } else if isLanguageKey {
                                     model.controller.onLanguageLongPress()
+                                } else if isShiftKey {
+                                    model.controller.onShiftLongPress()
                                 } else if let alternate {
                                     model.longPress(alternate: alternate)
                                 }
@@ -224,6 +227,8 @@ struct KeyView: View {
             .accessibilityActions {
                 if isLanguageKey {
                     Button("Language options") { model.controller.onLanguageLongPress() }
+                } else if isShiftKey && state.currentLanguage == .english && !state.isCapsLock {
+                    Button(String(localized: "Caps lock")) { model.controller.onShiftLongPress() }
                 } else if let alternate {
                     Button(String(localized: "Type \(spokenCharacter(alternate))")) { model.longPress(alternate: alternate) }
                 }

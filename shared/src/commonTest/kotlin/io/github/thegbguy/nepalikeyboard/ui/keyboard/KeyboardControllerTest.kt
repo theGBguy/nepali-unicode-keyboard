@@ -36,6 +36,8 @@ class KeyboardControllerTest {
     private val enter = KeyData("↵", keyType = KeyType.ACTION)
     private val backspace = KeyData("⌫", keyType = KeyType.FUNCTION)
     private val globe = KeyData("🌐", keyType = KeyType.FUNCTION)
+    private val shift = KeyData("⇧", keyType = KeyType.MODIFIER)
+    private var now = 1_000L
 
     @BeforeTest
     fun setUp() {
@@ -43,6 +45,7 @@ class KeyboardControllerTest {
         keyboard = KeyboardController().also {
             it.editor = { field }
             it.prefs = InMemoryKeyboardPrefs(typeNepali = false)
+            it.clock = { now }
         }
         keyboard.onInputStarted(FieldInfo())
     }
@@ -282,6 +285,85 @@ class KeyboardControllerTest {
         watched.onKeyClick(globe)
         runCurrent()
         assertEquals(listOf(LanguageMode.ENGLISH, LanguageMode.TRANSLITERATION), seen)
+    }
+
+    /** Taps Shift twice, [gap] ms apart. */
+    private fun doubleTapShift(gap: Long) {
+        keyboard.onKeyClick(shift)
+        now += gap
+        keyboard.onKeyClick(shift)
+    }
+
+    /** Types [text] with the keys of the layout on screen, so Shift gives their capitals. */
+    private fun typeKeys(text: String) = text.forEach { c ->
+        keyboard.onKeyClick(keyboard.state.value.currentLayout.rows.flatten().first { it.primary == c.toString() })
+    }
+
+    @Test
+    fun `a double tap on Shift at phone speed locks caps`() {
+        doubleTapShift(350)
+        assertTrue(keyboard.state.value.isCapsLock)
+    }
+
+    @Test
+    fun `a slow second tap on Shift turns it off instead of locking`() {
+        doubleTapShift(500)
+        assertFalse(keyboard.state.value.isCapsLock)
+        assertFalse(keyboard.state.value.isShifted)
+    }
+
+    @Test
+    fun `holding Shift locks caps`() {
+        keyboard.onShiftLongPress()
+        assertTrue(keyboard.state.value.isCapsLock)
+        assertTrue(keyboard.state.value.isShifted)
+    }
+
+    @Test
+    fun `a single Shift tap capitalises one letter`() {
+        keyboard.onKeyClick(shift)
+        typeKeys("hi")
+        assertEquals("Hi", field.shown)
+    }
+
+    @Test
+    fun `letters stay capital while caps is locked`() {
+        keyboard.onShiftLongPress()
+        typeKeys("nepal")
+        assertEquals("NEPAL", field.shown)
+        assertTrue(keyboard.state.value.isCapsLock)
+    }
+
+    @Test
+    fun `a tap on Shift while locked unlocks caps`() {
+        doubleTapShift(350)
+        now += 2_000
+        keyboard.onKeyClick(shift)
+        assertFalse(keyboard.state.value.isCapsLock)
+        assertFalse(keyboard.state.value.isShifted)
+        typeKeys("ok")
+        assertEquals("ok", field.shown)
+    }
+
+    @Test
+    fun `switching language clears caps lock`() {
+        keyboard.onShiftLongPress()
+        keyboard.onKeyClick(globe)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+        assertFalse(keyboard.state.value.isCapsLock)
+        assertFalse(keyboard.state.value.isShifted)
+        typeKeys("namaste")
+        assertEquals("namaste", field.composing)
+    }
+
+    @Test
+    fun `caps can't be locked while typing Nepali`() {
+        keyboard.onKeyClick(globe)
+        doubleTapShift(100)
+        assertFalse(keyboard.state.value.isCapsLock)
+        keyboard.onShiftLongPress()
+        assertFalse(keyboard.state.value.isCapsLock)
+        assertTrue(keyboard.state.value.isShifted) // the hold still counts as a Shift tap
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
