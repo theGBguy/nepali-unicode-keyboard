@@ -16,6 +16,14 @@ extension FieldInfo {
         default: kind = .text
         }
         let isPrivate = traits.isSecureTextEntry ?? false
+        // UIKit's default is sentences; only plain text fields capitalise (not email, URL or numbers)
+        let caps: CapsMode
+        switch kind == .text ? traits.autocapitalizationType ?? .sentences : .none {
+        case .allCharacters: caps = .characters
+        case .words: caps = .words
+        case .sentences: caps = .sentences
+        default: caps = .none
+        }
         let enter: EnterAction
         switch traits.returnKeyType ?? .default {
         case .go, .route, .join: enter = .go
@@ -32,7 +40,8 @@ extension FieldInfo {
             enterAction: enter,
             imeActionId: FieldInfo.companion.IME_ACTION_NONE,
             actionLabel: nil,
-            sendsKeyEvents: false
+            sendsKeyEvents: false,
+            capsMode: caps
         )
     }
 }

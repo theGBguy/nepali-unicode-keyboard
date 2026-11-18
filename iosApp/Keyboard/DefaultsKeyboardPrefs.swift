@@ -75,6 +75,11 @@ final class DefaultsKeyboardPrefs: NSObject, KeyboardPrefs {
         set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.smartSuggestions) } }
     }
 
+    var autoCapitalise: Bool {
+        get { group.object(forKey: SharedSettings.Key.autoCapitalise) as? Bool ?? true }
+        set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.autoCapitalise) } }
+    }
+
     var sound: Bool {
         get { group.object(forKey: SharedSettings.Key.sound) as? Bool ?? SharedSettings.defaultSound }
         set { if canWriteGroup() { group.set(newValue, forKey: SharedSettings.Key.sound) } }

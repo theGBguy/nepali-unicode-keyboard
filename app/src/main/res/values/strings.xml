@@ -134,6 +134,8 @@
     <string name="settings_sound">Sound on key press</string>
     <string name="settings_smart">Smart suggestions</string>
     <string name="settings_smart_sub">Dates, amounts and units as you type</string>
+    <string name="settings_auto_caps">Auto-capitalisation</string>
+    <string name="settings_auto_caps_sub">Start English sentences with a capital</string>
     <string name="settings_clipboard">Clipboard history</string>
     <string name="settings_clipboard_clear">Clear clipboard history</string>
     <string name="settings_clipboard_clear_title">Clear clipboard history?</string>

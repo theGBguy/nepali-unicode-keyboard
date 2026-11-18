@@ -28,6 +28,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -54,6 +55,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.thegbguy.nepalikeyboard.R
@@ -98,6 +100,8 @@ fun SettingsScreen(
     onSoundChange: (Boolean) -> Unit,
     smartSuggestions: Boolean,
     onSmartSuggestionsChange: (Boolean) -> Unit,
+    autoCapitalise: Boolean,
+    onAutoCapitaliseChange: (Boolean) -> Unit,
     handwriting: Boolean,
     onHandwritingChange: (Boolean) -> Unit,
     clipboardHistory: Boolean,
@@ -155,6 +159,8 @@ fun SettingsScreen(
                 SwitchRow(R.drawable.ic_ui_volume_up, stringResource(R.string.settings_sound), feel.sound, onChange = onSoundChange)
                 RowDivider()
                 SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, stringResource(R.string.settings_smart_sub), onSmartSuggestionsChange)
+                RowDivider()
+                SwitchRow(R.drawable.ic_ui_shift, stringResource(R.string.settings_auto_caps), autoCapitalise, stringResource(R.string.settings_auto_caps_sub), onAutoCapitaliseChange)
                 RowDivider()
                 // Turning it on first says what goes to Google; turning it off deletes the model.
                 SwitchRow(R.drawable.ic_ui_draw, stringResource(R.string.settings_handwriting), handwriting) { on ->
@@ -226,6 +232,8 @@ fun SettingsScreen(
                 onValueChange = onTryTextChange,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
                 placeholder = { Text(stringResource(R.string.settings_try_hint)) },
+                // Like a messaging app (and iOS's default), so auto-capitalisation can be tried here
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 shape = RoundedCornerShape(14.dp)
             )
 

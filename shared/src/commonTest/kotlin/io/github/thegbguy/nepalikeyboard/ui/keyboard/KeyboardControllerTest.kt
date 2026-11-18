@@ -4,6 +4,7 @@ import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipItem
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardSource
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.CopiedText
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.InMemoryClipboardStorage
+import io.github.thegbguy.nepalikeyboard.domain.model.CapsMode
 import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldKind
@@ -364,6 +365,116 @@ class KeyboardControllerTest {
         keyboard.onShiftLongPress()
         assertFalse(keyboard.state.value.isCapsLock)
         assertTrue(keyboard.state.value.isShifted) // the hold still counts as a Shift tap
+    }
+
+    /** Starts a field that asks for [mode], like a message box asking for sentence capitals. */
+    private fun startField(mode: CapsMode = CapsMode.SENTENCES) = keyboard.onInputStarted(FieldInfo(capsMode = mode))
+
+    /** Types [text] with the on-screen keys: letters from the layout (so Shift applies), the rest as is. */
+    private fun typeText(text: String) = text.forEach { c ->
+        val key = if (c == ' ') space
+        else keyboard.state.value.currentLayout.rows.flatten().firstOrNull { it.primary == c.toString() } ?: KeyData(c.toString())
+        keyboard.onKeyClick(key)
+    }
+
+    @Test
+    fun `a sentence field starts with a capital`() {
+        startField()
+        assertTrue(keyboard.state.value.isShifted)
+        typeText("hi there")
+        assertEquals("Hi there", field.shown)
+    }
+
+    @Test
+    fun `a new sentence after a full stop and a space gets a capital`() {
+        startField()
+        typeText("hi. how are you? fine")
+        assertEquals("Hi. How are you? Fine", field.shown)
+    }
+
+    @Test
+    fun `deleting back to the start of a sentence turns Shift on again`() {
+        startField()
+        typeText("ok. y")
+        assertFalse(keyboard.state.value.isShifted)
+        keyboard.onKeyClick(backspace)
+        assertTrue(keyboard.state.value.isShifted)
+    }
+
+    @Test
+    fun `turning Shift off at the start of a sentence sticks until the text changes`() {
+        startField()
+        keyboard.onKeyClick(shift)
+        assertFalse(keyboard.state.value.isShifted)
+        keyboard.onCursorMoved(stillComposing = true, hasComposing = false, hasSelection = false) // iOS reports every tap
+        assertFalse(keyboard.state.value.isShifted)
+        typeText("iphone. a")
+        assertEquals("iphone. A", field.shown)
+    }
+
+    @Test
+    fun `a double tap at the start of a sentence locks caps`() {
+        startField()
+        doubleTapShift(300)
+        assertTrue(keyboard.state.value.isCapsLock)
+        typeText("ok")
+        assertEquals("OK", field.shown)
+    }
+
+    @Test
+    fun `Shift then a letter then Shift is not a double tap`() {
+        keyboard.onKeyClick(shift)
+        typeText("i")
+        now += 200
+        keyboard.onKeyClick(shift)
+        assertFalse(keyboard.state.value.isCapsLock)
+        assertTrue(keyboard.state.value.isShifted)
+    }
+
+    @Test
+    fun `no capitals when the setting is off`() {
+        keyboard.prefs = InMemoryKeyboardPrefs(typeNepali = false, autoCapitalise = false)
+        startField()
+        assertFalse(keyboard.state.value.isShifted)
+        typeText("hi. there")
+        assertEquals("hi. there", field.shown)
+    }
+
+    @Test
+    fun `no capitals where the field doesn't ask for them`() {
+        startField(CapsMode.NONE)
+        typeText("hi. there")
+        assertEquals("hi. there", field.shown)
+    }
+
+    @Test
+    fun `Romanized typing is never capitalised`() {
+        startField()
+        keyboard.onKeyClick(globe)
+        assertEquals(LanguageMode.TRANSLITERATION, language())
+        assertFalse(keyboard.state.value.isShifted)
+        typeText("namaste")
+        assertEquals("namaste", field.composing)
+        keyboard.onKeyClick(space)
+        keyboard.onKeyClick(globe)
+        assertFalse(keyboard.state.value.isShifted) // back in English, mid-sentence after नमस्ते
+        typeText(". ")
+        assertTrue(keyboard.state.value.isShifted)
+    }
+
+    @Test
+    fun `a name field capitalises each word`() {
+        startField(CapsMode.WORDS)
+        typeText("ram bahadur")
+        assertEquals("Ram Bahadur", field.shown)
+    }
+
+    @Test
+    fun `an all-capitals field types capitals`() {
+        startField(CapsMode.CHARACTERS)
+        typeText("ba 1")
+        assertEquals("BA 1", field.shown)
+        assertFalse(keyboard.state.value.isCapsLock)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

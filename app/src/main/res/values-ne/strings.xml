@@ -130,6 +130,8 @@
     <string name="settings_sound">की थिच्दा आवाज</string>
     <string name="settings_smart">स्मार्ट सुझाव</string>
     <string name="settings_smart_sub">टाइप गर्दा मिति, रकम र एकाइ</string>
+    <string name="settings_auto_caps">स्वतः ठूलो अक्षर</string>
+    <string name="settings_auto_caps_sub">अङ्ग्रेजी वाक्य ठूलो अक्षरबाट सुरु गर्ने</string>
     <string name="settings_clipboard">क्लिपबोर्ड इतिहास</string>
     <string name="settings_clipboard_clear">क्लिपबोर्ड इतिहास मेटाउनुहोस्</string>
     <string name="settings_clipboard_clear_title">क्लिपबोर्ड इतिहास मेटाउने?</string>

@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
     private var feel by mutableStateOf(KeyFeel())
     private var clipboardHistory by mutableStateOf(true)
     private var smartSuggestions by mutableStateOf(true)
+    private var autoCapitalise by mutableStateOf(true)
     private var handwriting by mutableStateOf(false)
     private var appLanguage by mutableStateOf(AppLanguage.SYSTEM)
     private val keyboardPrefs by lazy { SharedKeyboardPrefs(this) }
@@ -105,6 +106,8 @@ class MainActivity : ComponentActivity() {
                         onSoundChange = { keyboardPrefs.sound = it; feel = keyboardPrefs.feel },
                         smartSuggestions = smartSuggestions,
                         onSmartSuggestionsChange = { keyboardPrefs.smartSuggestions = it; smartSuggestions = it },
+                        autoCapitalise = autoCapitalise,
+                        onAutoCapitaliseChange = { keyboardPrefs.autoCapitalise = it; autoCapitalise = it },
                         handwriting = handwriting,
                         onHandwritingChange = { on ->
                             keyboardPrefs.handwriting = on
@@ -206,6 +209,7 @@ class MainActivity : ComponentActivity() {
         feel = keyboardPrefs.feel
         clipboardHistory = keyboardPrefs.clipboardHistory
         smartSuggestions = keyboardPrefs.smartSuggestions
+        autoCapitalise = keyboardPrefs.autoCapitalise
         handwriting = keyboardPrefs.handwriting
         appLanguage = AppLanguage.current(this)
     }

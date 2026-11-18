@@ -10,6 +10,7 @@ import io.github.thegbguy.nepalikeyboard.domain.clipboard.InMemoryClipboardStora
 import io.github.thegbguy.nepalikeyboard.domain.Backspace
 import io.github.thegbguy.nepalikeyboard.domain.handwriting.HandwritingRecognizer
 import io.github.thegbguy.nepalikeyboard.domain.handwriting.InkStroke
+import io.github.thegbguy.nepalikeyboard.domain.model.CapsMode
 import io.github.thegbguy.nepalikeyboard.domain.model.EnterAction
 import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.KeyData
@@ -116,6 +117,12 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
     private var lastShiftPressTime: Long = 0
     private val DOUBLE_TAP_TIMEOUT_MS = 450L // Time window for double-tap detection (300 ms was too quick on a phone)
 
+    // Shift was turned on by auto-capitalisation, not by the user, so it may be turned off again
+    private var autoShifted = false
+    // The text before the cursor when the user last tapped Shift: auto-capitalisation leaves their
+    // choice alone until the text changes
+    private var shiftTappedAt: String? = null
+
     // Transliteration engine for romanized to Devanagari conversion
     private val transliterationEngine: TransliterationEngine = NepaliTransliterationEngine()
 
@@ -150,6 +157,10 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             KeyType.SPACER -> { /* Do nothing */ }
         }
         if (keepStopChoice) fullStopChoice = true
+        if (key.keyType != KeyType.MODIFIER) {
+            lastShiftPressTime = 0 // Shift, a letter, Shift is not a double tap
+            updateAutoShift()
+        }
     }
 
     /**
@@ -637,6 +648,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         if (!field.prefersEnglish) prefs.typeNepali = mode != LanguageMode.ENGLISH
         // Shift and caps lock are English-only state; don't carry them into the other layout
         lastShiftPressTime = 0
+        autoShifted = false
         _state.update {
             it.copy(
                 currentLanguage = mode,
@@ -649,6 +661,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             )
         }
         updateLayout()
+        updateAutoShift()
     }
 
     /**
@@ -720,6 +733,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         // Reset shift after character input (unless caps lock)
         if (_state.value.isShifted && !_state.value.isCapsLock) {
             _state.update { it.copy(isShifted = false) }
+            autoShifted = false
         }
     }
 
@@ -766,6 +780,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         commitDirect(alternate)
         if (_state.value.isShifted && !_state.value.isCapsLock) {
             _state.update { it.copy(isShifted = false) }
+            autoShifted = false
         }
     }
 
@@ -914,6 +929,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 // Shift key - handle single tap, double tap (caps lock), and caps lock toggle
                 val currentTime = clock()
                 val currentState = _state.value
+                // The user decides now; auto-capitalisation waits until the text changes
+                autoShifted = false
+                shiftTappedAt = if (autoCapsApplies()) inputConnection?.textBeforeCursor(AutoCaps.CONTEXT) else null
 
                 when {
                     // If caps lock is already enabled, turn it off
@@ -926,8 +944,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                         }
                         lastShiftPressTime = 0 // Reset double-tap detection
                     }
-                    // If shift was pressed recently (double-tap), enable caps lock (English only)
-                    currentState.currentLanguage == LanguageMode.ENGLISH && currentState.isShifted
+                    // If shift was pressed recently (double-tap), enable caps lock (English only). The
+                    // first tap may have turned Shift off when auto-capitalisation had turned it on.
+                    currentState.currentLanguage == LanguageMode.ENGLISH && lastShiftPressTime > 0
                         && (currentTime - lastShiftPressTime) <= DOUBLE_TAP_TIMEOUT_MS -> {
                         _state.update {
                             it.copy(
@@ -963,6 +982,44 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         }
         _state.update { it.copy(isShifted = true, isCapsLock = true) }
         lastShiftPressTime = 0
+        autoShifted = false
+        shiftTappedAt = null
+    }
+
+    /** Auto-capitalisation is on for this field and language: English, the setting on, and the field asking for it. */
+    private fun autoCapsApplies(): Boolean {
+        val st = _state.value
+        return st.currentLanguage == LanguageMode.ENGLISH && prefs.autoCapitalise
+            && st.field.capsMode != CapsMode.NONE && !st.field.isPrivate
+    }
+
+    /**
+     * Turns Shift on where the field wants a capital next (e.g. a new sentence) and off again when
+     * the cursor leaves such a spot. Never touches caps lock or a Shift the user set themselves.
+     * Runs after every key and cursor move; the text isn't read unless the field asks for capitals.
+     */
+    private fun updateAutoShift() {
+        val st = _state.value
+        if (st.isCapsLock) return
+        if (!autoCapsApplies()) {
+            if (autoShifted && st.isShifted) _state.update { it.copy(isShifted = false) }
+            autoShifted = false
+            return
+        }
+        val mode = st.field.capsMode
+        val before = if (mode == CapsMode.CHARACTERS) null else inputConnection?.textBeforeCursor(AutoCaps.CONTEXT)
+        if (shiftTappedAt != null) {
+            if (before == shiftTappedAt) return
+            shiftTappedAt = null
+        }
+        val wanted = AutoCaps.wants(mode, before)
+        if (wanted && !st.isShifted) {
+            _state.update { it.copy(isShifted = true) }
+            autoShifted = true
+        } else if (!wanted && st.isShifted && autoShifted) {
+            _state.update { it.copy(isShifted = false) }
+            autoShifted = false
+        }
     }
 
     private fun handleFunctionKey(key: KeyData) {
@@ -1084,6 +1141,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 updateLayout()
             }
             startPendingVoice()
+            updateAutoShift()
             return
         }
 
@@ -1094,6 +1152,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         }
 
         pendingPoint = false
+        autoShifted = false
+        shiftTappedAt = null
         // Reset state when new input field is focused
         _state.update {
             it.copy(
@@ -1123,6 +1183,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         }
         updateLayout()
         startPendingVoice()
+        updateAutoShift()
     }
 
     /**
@@ -1156,6 +1217,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             }
         }
         refreshSmartActions(hasSelection = hasSelection)
+        updateAutoShift()
     }
 
     /**
