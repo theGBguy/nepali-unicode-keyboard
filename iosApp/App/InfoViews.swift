@@ -32,6 +32,8 @@ struct LicencesView: View {
             items: [
                 ("Nepali word list",
                  "Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0)."),
+                ("English word list",
+                 "Contains word frequencies derived from OpenSubtitles by Hermit Dave’s FrequencyWords, under CC BY-SA 4.0, checked against SCOWL, © Kevin Atkinson, used with permission."),
                 ("Emoji list",
                  "Emoji list and search words derived from Unicode emoji data and CLDR, © Unicode, Inc., under the Unicode License v3. Emoji are drawn by your iPhone’s font."),
                 ("Bikram Sambat calendar",

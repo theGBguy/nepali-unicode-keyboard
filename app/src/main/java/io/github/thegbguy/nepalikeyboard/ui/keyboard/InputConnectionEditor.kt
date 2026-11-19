@@ -19,6 +19,8 @@ class InputConnectionEditor(private val ic: InputConnection) : EditorConnection 
 
     override fun textBeforeCursor(length: Int): String? = ic.getTextBeforeCursor(length, 0)?.toString()
 
+    override fun textAfterCursor(length: Int): String? = ic.getTextAfterCursor(length, 0)?.toString()
+
     override fun selectedText(): String? = ic.getSelectedText(0)?.takeIf { it.isNotEmpty() }?.toString()
 
     override fun deleteBeforeCursor(length: Int) {

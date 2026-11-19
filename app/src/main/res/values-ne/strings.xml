@@ -132,6 +132,8 @@
     <string name="settings_smart_sub">टाइप गर्दा मिति, रकम र एकाइ</string>
     <string name="settings_auto_caps">स्वतः ठूलो अक्षर</string>
     <string name="settings_auto_caps_sub">अङ्ग्रेजी वाक्य ठूलो अक्षरबाट सुरु गर्ने</string>
+    <string name="settings_word_suggestions">शब्द सुझाव</string>
+    <string name="settings_word_suggestions_sub">टाइप गर्दै गर्दा अङ्ग्रेजी शब्द पूरा गर्ने र सच्याउने</string>
     <string name="settings_clipboard">क्लिपबोर्ड इतिहास</string>
     <string name="settings_clipboard_clear">क्लिपबोर्ड इतिहास मेटाउनुहोस्</string>
     <string name="settings_clipboard_clear_title">क्लिपबोर्ड इतिहास मेटाउने?</string>
@@ -169,6 +171,8 @@
     <string name="no_app_to_open">यो खोल्ने एप भेटिएन</string>
     <string name="licences_words_title">नेपाली शब्द सूची</string>
     <string name="licences_words_body">यसमा नेपाली विकिपिडिया (ne.wikipedia.org) बाट निकालिएको शब्द आवृत्ति समावेश छ, जुन Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) लाइसेन्सअन्तर्गत उपलब्ध छ।</string>
+    <string name="licences_words_en_title">अङ्ग्रेजी शब्द सूची</string>
+    <string name="licences_words_en_body">यसमा Hermit Dave को FrequencyWords ले OpenSubtitles बाट निकालेको शब्द आवृत्ति (CC BY-SA 4.0) समावेश छ, जसलाई SCOWL (© Kevin Atkinson, अनुमतिसहित प्रयोग) सँग जाँचिएको छ।</string>
     <string name="licences_libraries_title">खुला स्रोत लाइब्रेरी</string>
     <string name="licences_libraries_body">Jetpack Compose, AndroidX र Kotlin प्रयोग गरी बनाइएको, जुन Apache License 2.0 अन्तर्गत उपलब्ध छन्।</string>
 

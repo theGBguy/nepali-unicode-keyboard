@@ -274,6 +274,7 @@ fun KeyboardView(
             suggestions = if (state.showSuggestionBar) state.suggestions else emptyList(),
             primarySuggestion = buffer.primaryCandidate,
             latinText = if (state.showSuggestionBar) buffer.romanizedText else "",
+            englishWords = state.englishSuggestions,
             isListening = state.isVoiceListening,
             partialResult = state.partialVoiceResult,
             errorMessage = state.voiceError?.messageRes,

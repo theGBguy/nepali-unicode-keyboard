@@ -37,6 +37,9 @@ data class FieldInfo(
     /** The mic is shown here. */
     val allowsVoice: Boolean get() = !isPrivate && !noLearning
 
+    /** English word suggestions: plain text fields only (not email addresses, links or numbers). */
+    val allowsWordSuggestions: Boolean get() = !isPrivate && kind == FieldKind.TEXT
+
     /** Fields where Latin text is expected: open in English instead of the user's Nepali mode. */
     val prefersEnglish: Boolean
         get() = kind == FieldKind.PASSWORD || kind == FieldKind.EMAIL || kind == FieldKind.URI

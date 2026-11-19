@@ -102,6 +102,8 @@ fun SettingsScreen(
     onSmartSuggestionsChange: (Boolean) -> Unit,
     autoCapitalise: Boolean,
     onAutoCapitaliseChange: (Boolean) -> Unit,
+    wordSuggestions: Boolean,
+    onWordSuggestionsChange: (Boolean) -> Unit,
     handwriting: Boolean,
     onHandwritingChange: (Boolean) -> Unit,
     clipboardHistory: Boolean,
@@ -161,6 +163,8 @@ fun SettingsScreen(
                 SwitchRow(R.drawable.ic_ui_lightbulb, stringResource(R.string.settings_smart), smartSuggestions, stringResource(R.string.settings_smart_sub), onSmartSuggestionsChange)
                 RowDivider()
                 SwitchRow(R.drawable.ic_ui_shift, stringResource(R.string.settings_auto_caps), autoCapitalise, stringResource(R.string.settings_auto_caps_sub), onAutoCapitaliseChange)
+                RowDivider()
+                SwitchRow(R.drawable.ic_ui_spellcheck, stringResource(R.string.settings_word_suggestions), wordSuggestions, stringResource(R.string.settings_word_suggestions_sub), onWordSuggestionsChange)
                 RowDivider()
                 // Turning it on first says what goes to Google; turning it off deletes the model.
                 SwitchRow(R.drawable.ic_ui_draw, stringResource(R.string.settings_handwriting), handwriting) { on ->
@@ -464,6 +468,7 @@ fun LicencesScreen(onBack: () -> Unit) {
         ) {
             listOf(
                 R.string.licences_words_title to R.string.licences_words_body,
+                R.string.licences_words_en_title to R.string.licences_words_en_body,
                 R.string.licences_emoji_title to R.string.licences_emoji_body,
                 R.string.licences_calendar_title to R.string.licences_calendar_body,
                 R.string.licences_libraries_title to R.string.licences_libraries_body

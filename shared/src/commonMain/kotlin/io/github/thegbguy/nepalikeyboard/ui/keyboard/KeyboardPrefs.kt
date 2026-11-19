@@ -38,6 +38,9 @@ interface KeyboardPrefs {
     var smartSuggestions: Boolean
     /** Whether English starts a capital where the field asks for one (a new sentence, by default). */
     var autoCapitalise: Boolean
+
+    /** Whether the strip completes and corrects English words as they're typed. */
+    var wordSuggestions: Boolean
     /** The user agreed to handwriting (Google model download and ML Kit diagnostics). */
     var handwriting: Boolean
 
@@ -55,6 +58,7 @@ class InMemoryKeyboardPrefs(
     override var clipboardHistory: Boolean = true,
     override var smartSuggestions: Boolean = true,
     override var autoCapitalise: Boolean = true,
+    override var wordSuggestions: Boolean = true,
     override var handwriting: Boolean = false,
     override var theme: KeyboardTheme = KeyboardTheme.SYSTEM,
     override var keyBorders: Boolean = true

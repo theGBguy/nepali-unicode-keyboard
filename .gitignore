@@ -32,3 +32,4 @@ __pycache__/
 # Swift packages when built with -clonedSourcePackagesDirPath (CI)
 /SourcePackages
 tools/emoji/cldr-cache/
+tools/wordlist/en-cache/

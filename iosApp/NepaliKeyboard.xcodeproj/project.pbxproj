@@ -28,6 +28,7 @@
 		218E73FD84778E2B4AC2C4EA /* emoji.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 23EDEBCB90A18B273AC597D4 /* emoji.tsv */; };
 		434A67BFD1D1FDC28E6F8311 /* emoji_keywords.tsv in Resources */ = {isa = PBXBuildFile; fileRef = B2BB27B9B0B49B9227123CC5 /* emoji_keywords.tsv */; };
 		5A519BE9AF2C7D77B34AB12C /* MLKitDigitalInkRecognition in Frameworks */ = {isa = PBXBuildFile; productRef = AA3222B7C5653B8735DE7EBF /* MLKitDigitalInkRecognition */; };
+		6AF3FEECCC1044B832CBDBC1 /* words_en.tsv in Resources */ = {isa = PBXBuildFile; fileRef = D0DA75BA8D01D8ED28BC4342 /* words_en.tsv */; };
 		7FE35C469ACC666E3DED05DC /* NepaliKeyboardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -68,6 +69,7 @@
 		3B84A07FE0645CB3CF19E15B /* words_ne.tsv */ = {isa = PBXFileReference; path = words_ne.tsv; sourceTree = "<group>"; };
 		A73EB7DB5EFDB42BA65EB3BB /* NepaliKeyboardExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NepaliKeyboardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2BB27B9B0B49B9227123CC5 /* emoji_keywords.tsv */ = {isa = PBXFileReference; path = emoji_keywords.tsv; sourceTree = "<group>"; };
+		D0DA75BA8D01D8ED28BC4342 /* words_en.tsv */ = {isa = PBXFileReference; path = words_en.tsv; sourceTree = "<group>"; };
 		D70AE527B4B79681B96BE64B /* NepaliKeyboard.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NepaliKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -146,6 +148,7 @@
 			children = (
 				B2BB27B9B0B49B9227123CC5 /* emoji_keywords.tsv */,
 				23EDEBCB90A18B273AC597D4 /* emoji.tsv */,
+				D0DA75BA8D01D8ED28BC4342 /* words_en.tsv */,
 				3B84A07FE0645CB3CF19E15B /* words_ne.tsv */,
 			);
 			path = assets;
@@ -299,6 +302,7 @@
 				0FF371E31DB194E24F755ABC /* MLKitDigitalInkRecognition_resource.bundle in Resources */,
 				218E73FD84778E2B4AC2C4EA /* emoji.tsv in Resources */,
 				434A67BFD1D1FDC28E6F8311 /* emoji_keywords.tsv in Resources */,
+				6AF3FEECCC1044B832CBDBC1 /* words_en.tsv in Resources */,
 				17D57443FC2C66966F4E98D0 /* words_ne.tsv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

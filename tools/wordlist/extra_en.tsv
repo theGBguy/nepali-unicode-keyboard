@@ -1,0 +1,93 @@
+# Words the subtitle counts miss or undercount, with estimated counts.
+#
+# Contractions. The OpenSubtitles counts split "don't" into "don" + "'t";
+# these numbers share the split-off parts ('m 4.4M, 're 4.1M, 'll 2.9M, 've 2.0M, 'd 1.1M,
+# 's 14.3M with possessives, 't 9.6M) among the words they come from.
+# word<TAB>count[<TAB>first part, whose count this subtracts]
+I'm	4300000
+you're	2000000
+we're	1000000
+they're	800000
+I'll	1300000
+you'll	500000
+we'll	500000
+it'll	200000
+he'll	150000
+she'll	100000
+they'll	200000
+that'll	80000
+I've	1000000
+you've	400000
+we've	300000
+they've	150000
+could've	50000
+would've	50000
+should've	50000
+I'd	500000
+you'd	200000
+he'd	120000
+she'd	80000
+we'd	100000
+they'd	80000
+it's	4000000
+that's	3000000
+what's	1500000
+there's	1000000
+he's	1200000
+she's	700000
+let's	1200000	let
+here's	300000
+who's	300000
+where's	200000
+how's	100000
+don't	4150000	don
+didn't	1100000	didn
+doesn't	470000	doesn
+isn't	429000	isn
+wasn't	312000	wasn
+aren't	178000	aren
+weren't	88000	weren
+couldn't	233000	couldn
+wouldn't	288000	wouldn
+shouldn't	117000	shouldn
+haven't	258000	haven
+hasn't	70000	hasn
+hadn't	44000	hadn
+can't	1500000	can
+won't	500000	won
+ain't	166000	ain
+o'clock	22000
+ma'am	100000
+y'all	30000
+# Nepal: places, festivals and everyday words people here type in English, which film
+# subtitles rarely use. Counts put them among common words without beating everyday ones.
+Nepal	300000
+Nepali	200000
+Nepalese	30000
+Kathmandu	100000
+Pokhara	50000
+Lalitpur	20000
+Bhaktapur	20000
+Chitwan	20000
+Biratnagar	10000
+Birgunj	10000
+Dharan	10000
+Butwal	10000
+Janakpur	10000
+Itahari	8000
+Hetauda	8000
+Nepalgunj	8000
+Dhangadhi	8000
+Lumbini	15000
+Everest	50000
+Himalaya	20000
+Himalayas	30000
+Terai	10000
+Dashain	30000
+Tihar	30000
+Teej	15000
+Holi	15000
+namaste	50000
+momo	30000
+dai	30000
+didi	30000

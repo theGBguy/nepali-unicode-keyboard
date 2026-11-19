@@ -21,3 +21,32 @@ python3 tools/wordlist/build_wordlist.py /tmp/newiki.xml.bz2
 ```
 
 Then run the unit tests (`NepaliWordEngineTest` checks real words against the list).
+
+# Word list for English suggestions
+
+`app/src/main/assets/words_en.tsv` is built by `build_english_wordlist.py` from:
+
+1. **Word counts from OpenSubtitles 2018**, as published by Hermit Dave's
+   [FrequencyWords](https://github.com/hermitdave/FrequencyWords) (`en_50k`). The content is
+   licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the word list
+   derived from it is shared under the same licence. Subtitles are spoken, everyday English, close
+   to what people type in chats.
+2. **[SCOWL](http://wordlist.aspell.net/)** 2020.12.07, sizes up to 60 (© Kevin Atkinson; permission
+   to use, copy, modify, distribute and sell is granted provided the copyright notice is kept).
+   Its full copyright and permission notice is in `SCOWL-COPYRIGHT.txt`. Only words SCOWL lists are kept, with SCOWL's capitals (I, I'm, London).
+3. **`extra_en.tsv`**: contractions (the subtitle counts split "don't" into "don" + "'t") and
+   Nepal's places, festivals and everyday words, with estimated counts.
+4. **`blocked_en.txt`**: profanity and slurs, never suggested.
+
+Attribution (in the app's Licences screen on both platforms): "Contains word frequencies derived
+from OpenSubtitles by Hermit Dave's FrequencyWords, under CC BY-SA 4.0, checked against SCOWL,
+© Kevin Atkinson, used with permission."
+
+Rebuild after editing `extra_en.tsv` or `blocked_en.txt` (downloads go to the git-ignored
+`tools/wordlist/en-cache/`):
+
+```sh
+python3 tools/wordlist/build_english_wordlist.py
+```
+
+Then run `EnglishWordListTest`.

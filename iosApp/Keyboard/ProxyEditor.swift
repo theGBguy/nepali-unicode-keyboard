@@ -61,6 +61,11 @@ final class ProxyEditor: NSObject, EditorConnection {
         return String(decoding: units, as: UTF16.self)
     }
 
+    func textAfterCursor(length: Int32) -> String? {
+        guard let after = proxy?.documentContextAfterInput else { return nil }
+        return String(decoding: Array(after.utf16.prefix(Int(length))), as: UTF16.self)
+    }
+
     func selectedText() -> String? {
         proxy?.selectedText
     }

@@ -56,7 +56,7 @@ import io.github.thegbguy.nepalikeyboard.ui.keyboard.KeyboardState
 /**
  * The 40dp row above the keys. Shows, in order of priority: the listening state, a voice error,
  * Romanized suggestions (best guess in bold, a smart suggestion, the other guesses scrolling
- * sideways, then the Latin text as typed), smart suggestions, or the emoji and clipboard buttons (plus Paste right
+ * sideways, then the Latin text as typed), English word suggestions, smart suggestions, or the emoji and clipboard buttons (plus Paste right
  * after a copy). Settings sits on the right, and the mic too when the field allows voice.
  * It keeps its height when empty so the keyboard never jumps.
  */
@@ -66,6 +66,8 @@ fun KeyboardStrip(
     suggestions: List<String>,
     primarySuggestion: String,
     latinText: String,
+    /** Completions and corrections of the English word being typed, best first. */
+    englishWords: List<String> = emptyList(),
     isListening: Boolean,
     partialResult: String?,
     @StringRes errorMessage: Int?,
@@ -127,6 +129,17 @@ fun KeyboardStrip(
                     onSmartActionClick = onSmartActionClick,
                     onKeepLatin = onKeepLatin
                 )
+                // The same row for English, without the Latin text: space keeps the word as typed
+                englishWords.isNotEmpty() -> Suggestions(
+                    colors = colors,
+                    words = englishWords,
+                    highlighted = 0,
+                    smartAction = smartActions.firstOrNull(),
+                    latinText = "",
+                    onSuggestionClick = onSuggestionClick,
+                    onSmartActionClick = onSmartActionClick,
+                    onKeepLatin = onKeepLatin
+                )
                 // Smart suggestions take the emoji and clipboard buttons' room; they come back on the next key.
                 smartActions.isNotEmpty() -> androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
                     // Each takes its natural width; if they don't both fit, the longer one may use 60%.
@@ -156,7 +169,7 @@ fun KeyboardStrip(
                 }
             }
         }
-        if (!isListening && latinText.isEmpty()) {
+        if (!isListening && latinText.isEmpty() && englishWords.isEmpty()) {
             if (modeLabel != null) ModeLabel(colors, modeLabel, onModeClick)
             if (keysShown != null) {
                 StripIcon(
@@ -177,7 +190,8 @@ fun KeyboardStrip(
 /**
  * The best guess first (bold), then a smart suggestion, then the other guesses. Words take their
  * natural width and scroll sideways; the next one is cut off at the edge and fades out, which
- * says there's more. The Latin text stays pinned on the right so "keep English" is always one tap.
+ * says there's more. The Latin text (Romanized only) stays pinned on the right so "keep English"
+ * is always one tap.
  */
 @Composable
 private fun Suggestions(
@@ -232,22 +246,24 @@ private fun Suggestions(
                 SmartSlot(colors, smartAction, Modifier.widthIn(max = 200.dp)) { onSmartActionClick(smartAction) }
             }
         }
-        Divider(colors)
-        Box(
-            modifier = Modifier
-                .widthIn(min = 56.dp, max = 120.dp)
-                .fillMaxHeight()
-                .clickable(onClick = onKeepLatin),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = latinText,
-                color = colors.hint,
-                fontSize = 15.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
+        if (latinText.isNotEmpty()) {
+            Divider(colors)
+            Box(
+                modifier = Modifier
+                    .widthIn(min = 56.dp, max = 120.dp)
+                    .fillMaxHeight()
+                    .clickable(onClick = onKeepLatin),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = latinText,
+                    color = colors.hint,
+                    fontSize = 15.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+            }
         }
     }
 }

@@ -18,6 +18,9 @@ interface EditorConnection {
     /** Up to [length] characters before the cursor, or null if the field can't say. */
     fun textBeforeCursor(length: Int): String?
 
+    /** Up to [length] characters after the cursor, or null if the field can't say. */
+    fun textAfterCursor(length: Int): String? = null
+
     /** The selected text, or null/empty when nothing is selected. */
     fun selectedText(): String?
 
