@@ -78,8 +78,14 @@ struct KeyboardStripView: View {
             model.keyDown()
             action()
         } label: {
+            // SF Symbols differ in shape (the clipboard is tall, the scribble wide), so at one font
+            // size they sit at uneven heights. Fit each into the same box instead, centred: the
+            // box is wider than tall so the wide scribble keeps its size.
             Image(systemName: symbol)
-                .font(.system(size: 20))
+                .resizable()
+                .scaledToFit()
+                .fontWeight(.regular)
+                .frame(width: 30, height: 23)
                 .foregroundStyle(colors.hint)
                 .frame(width: 48, height: KeyboardMetrics.stripHeight)
                 .contentShape(Rectangle())

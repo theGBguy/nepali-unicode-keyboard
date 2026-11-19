@@ -9,6 +9,16 @@ enum KeyboardMetrics {
     static let sidePadding: CGFloat = 3
     static let bottomPadding: CGFloat = 4
     static let keyRadius: CGFloat = 7
+    /**
+     * From iOS 26 the system draws a rounded frame around every keyboard and insets ours below its
+     * top edge, where nothing we draw reaches. Rounding our background's top corners makes that
+     * strip read as the frame's rim instead of a band (KeyboardKit does the same).
+     */
+    static var topRadius: CGFloat {
+        if #available(iOS 26, *) { return 20 }
+        return 0
+    }
+
     /** The digit row is this much shorter than the letter rows. */
     static let numberRowInset: CGFloat = 6
 
