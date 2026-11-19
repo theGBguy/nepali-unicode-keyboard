@@ -77,7 +77,8 @@ struct KeyboardRootView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        .background(colors.background)
+        .background(colors.background, in: UnevenRoundedRectangle(
+            topLeadingRadius: KeyboardMetrics.topRadius, topTrailingRadius: KeyboardMetrics.topRadius, style: .continuous))
     }
 }
 
