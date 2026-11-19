@@ -32,6 +32,11 @@ class FakeEditor(var text: String = "") : EditorConnection {
 
     override fun textBeforeCursor(length: Int): String = shown.takeLast(length)
 
+    /** Text after the cursor (the cursor stays before it). */
+    var after = ""
+
+    override fun textAfterCursor(length: Int): String = after.take(length)
+
     override fun selectedText(): String = selection
 
     override fun deleteBeforeCursor(length: Int) {

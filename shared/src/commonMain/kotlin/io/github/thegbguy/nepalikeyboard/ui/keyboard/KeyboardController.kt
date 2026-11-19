@@ -9,6 +9,8 @@ import io.github.thegbguy.nepalikeyboard.domain.clipboard.ClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.CopiedText
 import io.github.thegbguy.nepalikeyboard.domain.clipboard.InMemoryClipboardStorage
 import io.github.thegbguy.nepalikeyboard.domain.Backspace
+import io.github.thegbguy.nepalikeyboard.domain.english.EnglishWordIndex
+import io.github.thegbguy.nepalikeyboard.domain.english.EnglishWordList
 import io.github.thegbguy.nepalikeyboard.domain.handwriting.HandwritingRecognizer
 import io.github.thegbguy.nepalikeyboard.domain.handwriting.InkStroke
 import io.github.thegbguy.nepalikeyboard.domain.model.CapsMode
@@ -89,6 +91,9 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
 
     /** Smart suggestions (amounts, dates, units); replaced in tests. */
     var smartSuggester = SmartSuggester()
+
+    /** English words for the strip, once the platform has loaded them; replaced in tests. */
+    var englishWords: () -> EnglishWordIndex? = { EnglishWordList.index }
 
     /** Wall-clock time for clipboard items and the Shift double-tap; replaced in tests. */
     var clock: () -> Long = ::nowMillis
@@ -727,6 +732,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 isShifted = false,
                 isCapsLock = false,
                 smartActions = emptyList(),
+                englishSuggestions = emptyList(),
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
                 showSuggestionBar = false
@@ -734,6 +740,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         }
         updateLayout()
         updateAutoShift()
+        refreshEnglishSuggestions(hasSelection = false)
     }
 
     /**
@@ -1178,6 +1185,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      * Commits the selected suggestion and clears the buffer.
      */
     fun onSuggestionClick(suggestion: String) {
+        if (_state.value.currentLanguage == LanguageMode.ENGLISH) return applyEnglishSuggestion(suggestion)
         if (_state.value.currentLanguage != LanguageMode.TRANSLITERATION) return
 
         // Commit the selected suggestion (replaces composing text)
@@ -1240,6 +1248,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 copied = null,
                 pasteSuggestion = recentCopyToOffer(field),
                 smartActions = emptyList(),
+                englishSuggestions = emptyList(),
                 feel = prefs.feel,
                 currentLanguage = language,
                 isShifted = false,
@@ -1292,6 +1301,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             }
         }
         refreshSmartActions(hasSelection = hasSelection)
+        refreshEnglishSuggestions(hasSelection = hasSelection)
         updateAutoShift()
     }
 
@@ -1329,6 +1339,38 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         if (stopAction == null) fullStopChoice = false
         val all = if (stopAction != null) listOf(stopAction) else actions
         if (all != st.smartActions) _state.update { it.copy(smartActions = all) }
+    }
+
+    /**
+     * Offers completions and corrections of the English word the cursor is at the end of. Like
+     * smart suggestions, it runs on every cursor update and reads nothing when it's off, in
+     * private, number, email and link fields, or while a panel or a selection is open.
+     */
+    private fun refreshEnglishSuggestions(hasSelection: Boolean) {
+        val st = _state.value
+        val index = englishWords()
+        val on = index != null && prefs.wordSuggestions && st.currentLanguage == LanguageMode.ENGLISH && !hasSelection &&
+            st.field.allowsWordSuggestions && searchBox == null && !st.showEmoji && !st.showClipboard && st.handwriting == null
+        val words = if (!on) emptyList() else {
+            val ic = editor()
+            val word = ic?.textBeforeCursor(EnglishWordIndex.MAX_LENGTH + 1)
+                ?.let { EnglishWordIndex.currentWord(it, ic.textAfterCursor(1)) }
+            if (word == null) emptyList() else index!!.suggest(word, KeyboardState.MAX_STRIP_WORDS)
+        }
+        if (words != st.englishSuggestions) _state.update { it.copy(englishSuggestions = words) }
+    }
+
+    /** Replaces the English word before the cursor with [word] and a space. */
+    private fun applyEnglishSuggestion(word: String) {
+        val ic = inputConnection ?: return
+        val typed = ic.textBeforeCursor(EnglishWordIndex.MAX_LENGTH + 1)
+            ?.let { EnglishWordIndex.currentWord(it, null) } ?: return
+        ic.beginBatchEdit()
+        ic.deleteBeforeCursor(typed.length)
+        ic.commitText("$word ")
+        ic.endBatchEdit()
+        _state.update { it.copy(englishSuggestions = emptyList(), smartActions = emptyList()) }
+        updateAutoShift()
     }
 
     /**
@@ -1627,6 +1669,8 @@ data class KeyboardState(
     val inkCandidates: List<String> = emptyList(),
     /** Conversions of the text before the cursor (amounts, dates, units), at most two. */
     val smartActions: List<SmartAction> = emptyList(),
+    /** Completions and corrections of the English word being typed, best first. */
+    val englishSuggestions: List<String> = emptyList(),
     /** The saved Nepali style, shown checked in the language menu. */
     val nepaliStyle: LanguageMode = LanguageMode.TRANSLITERATION,
     /** Key height, vibration and sound from Settings. */

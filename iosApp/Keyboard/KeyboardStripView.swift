@@ -3,7 +3,8 @@ import NepaliKeyboardShared
 
 /**
  * The 40 pt row above the keys. Shows Romanized suggestions (best guess in bold, a smart
- * suggestion, the other guesses scrolling sideways, then the Latin text as typed) or smart suggestions. It keeps its
+ * suggestion, the other guesses scrolling sideways, then the Latin text as typed), English word
+ * suggestions or smart suggestions. It keeps its
  * height when empty so the keyboard never jumps; with nothing to suggest it shows the emoji button.
  */
 struct KeyboardStripView: View {
@@ -25,7 +26,10 @@ struct KeyboardStripView: View {
         GeometryReader { geometry in
             let slots = slots(smart: smart)
             if !latin.isEmpty {
-                composing(latin: latin, buffer: buffer, smart: smart.first)
+                composing(latin: latin, words: words(buffer), smart: smart.first)
+            } else if !state.englishSuggestions.isEmpty {
+                // The same row for English, without the Latin text: space keeps the word as typed
+                composing(latin: "", words: state.englishSuggestions, smart: smart.first)
             } else if slots.isEmpty && showSettingsHint {
                 Text("Settings are in the Nepali Unicode Keyboard app")
                     .font(.system(size: 15))
@@ -132,9 +136,8 @@ struct KeyboardStripView: View {
      * at their natural width, scrolling sideways. The next one is cut off and fades out at the
      * edge, which says there's more. The Latin text stays pinned on the right.
      */
-    private func composing(latin: String, buffer: TransliterationBuffer, smart: SmartAction?) -> some View {
-        let words = words(buffer)
-        return HStack(spacing: 0) {
+    private func composing(latin: String, words: [String], smart: SmartAction?) -> some View {
+        HStack(spacing: 0) {
             GeometryReader { viewport in
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -172,11 +175,13 @@ struct KeyboardStripView: View {
                     }
                 )
             }
-            divider
-            slot(latin, color: colors.hint, bold: false, size: 15) { model.keepLatin() }
-                .frame(minWidth: 56, maxWidth: 120)
-                .fixedSize(horizontal: true, vertical: false)
-                .accessibilityHint(Text("Keep as typed"))
+            if !latin.isEmpty {
+                divider
+                slot(latin, color: colors.hint, bold: false, size: 15) { model.keepLatin() }
+                    .frame(minWidth: 56, maxWidth: 120)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .accessibilityHint(Text("Keep as typed"))
+            }
         }
         .frame(maxHeight: .infinity)
     }

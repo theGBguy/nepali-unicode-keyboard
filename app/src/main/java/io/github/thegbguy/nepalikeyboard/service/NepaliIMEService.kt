@@ -32,6 +32,8 @@ import io.github.thegbguy.nepalikeyboard.domain.model.FieldInfo
 import io.github.thegbguy.nepalikeyboard.domain.model.from
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliWordList
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.loadAsync
+import io.github.thegbguy.nepalikeyboard.domain.english.EnglishWordList
+import io.github.thegbguy.nepalikeyboard.domain.english.loadAsync
 import io.github.thegbguy.nepalikeyboard.domain.voice.SpeechRecognitionManager
 import io.github.thegbguy.nepalikeyboard.locale.AppLanguage
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.ComposeKeyboardView
@@ -85,6 +87,7 @@ class NepaliIMEService : InputMethodService(),
 
         // Load the Romanized-typing word list in the background
         NepaliWordList.loadAsync(this)
+        EnglishWordList.loadAsync(this)
         EmojiData.loadAsync(this)
 
         keyboard.prefs = keyboardPrefs

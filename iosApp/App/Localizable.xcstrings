@@ -121,6 +121,16 @@
         }
       }
     },
+    "Complete and correct English words as you type": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइप गर्दै गर्दा अङ्ग्रेजी शब्द पूरा गर्ने र सच्याउने"
+          }
+        }
+      }
+    },
     "Consonants": {
       "localizations": {
         "ne": {
@@ -137,6 +147,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "यसमा नेपाली विकिपिडिया (ne.wikipedia.org) बाट निकालिएको शब्द आवृत्ति समावेश छ, जुन Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) लाइसेन्सअन्तर्गत उपलब्ध छ।"
+          }
+        }
+      }
+    },
+    "Contains word frequencies derived from OpenSubtitles by Hermit Dave’s FrequencyWords, under CC BY-SA 4.0, checked against SCOWL, © Kevin Atkinson, used with permission.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यसमा Hermit Dave को FrequencyWords ले OpenSubtitles बाट निकालेको शब्द आवृत्ति (CC BY-SA 4.0) समावेश छ, जसलाई SCOWL (© Kevin Atkinson, अनुमतिसहित प्रयोग) सँग जाँचिएको छ।"
           }
         }
       }
@@ -197,6 +217,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "इमोजी सूची र खोज शब्दहरू Unicode इमोजी डेटा र CLDR बाट लिइएको, © Unicode, Inc., Unicode License v3 अन्तर्गत। इमोजी तपाईंको iPhone को फन्टले देखाउँछ।"
+          }
+        }
+      }
+    },
+    "English word list": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अङ्ग्रेजी शब्द सूची"
           }
         }
       }
@@ -1027,6 +1057,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "iPhone सेटिङमा किबोर्डको आवाज खुला हुँदा"
+          }
+        }
+      }
+    },
+    "Word suggestions": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शब्द सुझाव"
           }
         }
       }

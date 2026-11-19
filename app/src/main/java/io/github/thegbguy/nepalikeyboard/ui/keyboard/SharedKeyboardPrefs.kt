@@ -80,6 +80,11 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         get() = prefs.getBoolean(KEY_AUTO_CAPITALISE, true)
         set(value) = prefs.edit { putBoolean(KEY_AUTO_CAPITALISE, value) }
 
+    /** On by default. */
+    override var wordSuggestions: Boolean
+        get() = prefs.getBoolean(KEY_WORD_SUGGESTIONS, true)
+        set(value) = prefs.edit { putBoolean(KEY_WORD_SUGGESTIONS, value) }
+
     /** Off until the user agrees in the keyboard or in Settings. */
     override var handwriting: Boolean
         get() = prefs.getBoolean(KEY_HANDWRITING, false)
@@ -91,6 +96,7 @@ class SharedKeyboardPrefs(context: Context) : KeyboardPrefs {
         const val KEY_CLIPBOARD_HISTORY = "clipboard_history"
         const val KEY_SMART_SUGGESTIONS = "smart_suggestions"
         const val KEY_AUTO_CAPITALISE = "auto_capitalise"
+        const val KEY_WORD_SUGGESTIONS = "word_suggestions"
         const val KEY_HANDWRITING = "handwriting"
         const val KEY_EMOJI_RECENTS = "emoji_recents"
         const val KEY_HEIGHT = "key_height"

@@ -136,6 +136,8 @@
     <string name="settings_smart_sub">Dates, amounts and units as you type</string>
     <string name="settings_auto_caps">Auto-capitalisation</string>
     <string name="settings_auto_caps_sub">Start English sentences with a capital</string>
+    <string name="settings_word_suggestions">Word suggestions</string>
+    <string name="settings_word_suggestions_sub">Complete and correct English words as you type</string>
     <string name="settings_clipboard">Clipboard history</string>
     <string name="settings_clipboard_clear">Clear clipboard history</string>
     <string name="settings_clipboard_clear_title">Clear clipboard history?</string>
@@ -173,6 +175,8 @@
     <string name="no_app_to_open">No app found to open this</string>
     <string name="licences_words_title">Nepali word list</string>
     <string name="licences_words_body">Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).</string>
+    <string name="licences_words_en_title">English word list</string>
+    <string name="licences_words_en_body">Contains word frequencies derived from OpenSubtitles by Hermit Dave’s FrequencyWords, under CC BY-SA 4.0, checked against SCOWL, © Kevin Atkinson, used with permission.</string>
     <string name="licences_libraries_title">Open-source libraries</string>
     <string name="licences_libraries_body">Built with Jetpack Compose, AndroidX and Kotlin, available under the Apache License 2.0.</string>
 
