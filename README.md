@@ -27,13 +27,14 @@ A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for And
 
 - **Romanized typing.** Type `namaste` and get नमस्ते. Suggestions come from a built-in Nepali word list. Half letters, ञ and the eyelash ra (र्‍य) can be typed directly, and a typing guide in the app shows what to type for each letter.
 - **Traditional layout.** Nepali Unicode (traditional) with long-press shift characters.
+- **English word suggestions.** Completions and corrections of the English word you're typing (`becuse` → because, `dont` → don't), from a built-in English word list; English sentences start with a capital where the field asks for it.
 - **Smart suggestions.** Bikram Sambat dates (`aaja`, `bholi`, `2026-10-21`), amounts in Nepali digits and words, and land/gold units (aana, ropani, tola).
 - **Handwriting** with ML Kit Digital Ink, opt-in.
 - **Voice typing** (Android) through the phone's speech service.
 - **Physical keyboards** (Android). Romanized typing goes through the same engine; traditional typing uses the standard Windows Nepali layout. Ctrl + Space switches the language, and the screen shows just the suggestion strip, with a button to bring up the keys.
 - **Accessibility.** Works with TalkBack and VoiceOver: keys read their character (vowel signs and marks by name, e.g. "आ vowel sign", "Halanta"; Devanagari is spoken with a Hindi voice where no Nepali one is installed), the language key reads the current mode, and long-press actions are in the actions menu.
 - **Themes.** Nine keyboard themes (System, Light, Dark, Himalaya, Lali Gurans, Terai, Midnight, Dusk, Paper), with an option for flat keys without borders.
-- A flag on the language key (🇳🇵 / 🇬🇧) shows which language you're typing. Emoji, clipboard history, English and Nepali app UI.
+- A flag on the language key (🇳🇵 / 🇬🇧) shows which language you're typing. Emoji with search in English or Nepali, clipboard history, English and Nepali app UI.
 - **Privacy.** Nothing you type leaves the phone. On Android, password fields get plain English with no suggestions or voice; on iOS, the system switches to Apple's keyboard.
 
 ## Platforms
@@ -82,7 +83,7 @@ xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard \
 | `shared/src/commonMain` | `KeyboardController` (what every key, panel and suggestion does), transliteration engine, calendar, numbers, units, smart suggestions, clipboard history, key layouts (Kotlin Multiplatform, shared with iOS, unit-tested) |
 | `app/src/main/java/.../domain`, `.../data` | Android-only parts: field types from `EditorInfo`, word list loading, voice, handwriting, clipboard |
 | `app/src/main/java/.../ui` | Compose keyboard (drawing `KeyboardController`'s state; `InputConnectionEditor` connects it to the field), setup and settings screens |
-| `app/src/main/assets` | Word list and emoji data (the iOS keyboard bundles the same word list) |
+| `app/src/main/assets` | Nepali and English word lists and emoji data (the iOS keyboard bundles the same files) |
 | `iosApp/App`, `iosApp/Keyboard` | iOS setup app and keyboard extension (SwiftUI over `KeyboardController`; `ProxyEditor` connects it to the field) |
 | `iosApp/Shared` | Settings keys and the clipboard history file used by both iOS targets. The app writes them to the App Group `group.io.github.thegbguy.nepalikeyboard`; the keyboard can only read the group without Full Access, so it keeps what it changes itself in its own defaults |
 | `tools/wordlist`, `tools/emoji` | Scripts that regenerate the assets |

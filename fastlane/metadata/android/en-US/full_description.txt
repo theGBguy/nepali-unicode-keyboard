@@ -20,7 +20,8 @@ Tap the mic and speak Nepali. Your phone's speech service turns it into text.
 ALSO INCLUDED
 • Nepali and English on one keyboard: the flag key (🇳🇵 / 🇬🇧) switches between English and your Nepali style (Romanized or traditional)
 • Devanagari numbers (०–९), the danda । and ॥
-• Emoji panel with your recently used emoji first
+• English word suggestions: complete and correct words as you type
+• Emoji panel with search in English or Nepali, and your recently used emoji first
 • Clipboard history: your recent copies and pinned items, kept on your phone
 • Three key heights: Short, Normal and Tall
 • Works with a physical keyboard: type Romanized or traditional Nepali, and Ctrl + Space switches the language

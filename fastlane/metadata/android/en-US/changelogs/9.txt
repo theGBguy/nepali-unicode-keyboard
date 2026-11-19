@@ -1,0 +1,5 @@
+What's new in 1.5.0
+• English word suggestions: complete and correct words as you type
+• Search emoji in English or Nepali
+• English sentences start with a capital automatically
+• Bug fixes and enhancements
