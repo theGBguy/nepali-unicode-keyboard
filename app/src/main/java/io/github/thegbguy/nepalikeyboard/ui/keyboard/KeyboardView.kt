@@ -317,63 +317,66 @@ fun KeyboardView(
                 }
         ) {
         val resultsRow = if (search != null) state.currentLayout.rows.firstOrNull { isNumberRow(it) } else null
+        // No early return out of this loop: returning from a composable's inline lambda left the
+        // composition's groups out of step with the layout tree, and closing emoji search (the
+        // results row turning back into the number row) crashed in LayoutNode.insertAt.
         if (!stripOnly || rowsHeight > 0.dp) state.currentLayout.rows.forEach { row ->
             if (row === resultsRow && search != null) {
                 Box(Modifier.fillMaxWidth().padding(bottom = RowGap)) {
                     EmojiResults(colors, state.feel, search, numberRowKeyHeight) { keyboard.onEmojiClick(it) }
                 }
-                return@forEach
-            }
-            val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
-            val isNumberRow = isNumberRow(row)
-            // Indent short letter rows (the 9-key home row) by half a key on each side
-            val indent = if (allCharacters) ((10f - row.sumOf { it.flex.toDouble() }.toFloat()) / 2f).coerceAtLeast(0f) else 0f
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = RowGap),
-            ) {
-                if (indent > 0f) Box(Modifier.weight(indent))
-                row.forEach { key ->
-                    val alternate = keyAlternate(key, state.isShifted)
-                    val isBackspace = key.primary == "⌫"
-                    val isLanguageKey = key.primary == "🌐"
-                    val isShiftKey = key.primary == "⇧"
-                    val visual = keyVisual(key, state, enterLabel, spaceLabel, colors)
-                    val alternateLabel = alternate?.let { stringResource(R.string.key_type_alternate, spokenCharacter(it)) }
-                    val languageOptions = stringResource(R.string.key_language_options)
-                    val capsLock = stringResource(R.string.key_caps_lock)
-                    Key(
-                        key = key,
-                        visual = visual,
-                        a11y = KeyA11y(
-                            label = visual.description ?: spokenCharacter(visual.text ?: key.primary),
-                            state = if (isLanguageKey) languageName(state.currentLanguage) else null,
-                            selected = isShiftKey && state.isShifted,
-                            actions = when {
-                                isLanguageKey -> listOf(CustomAccessibilityAction(languageOptions) { keyboard.onLanguageLongPress(); true })
-                                isShiftKey && state.currentLanguage == LanguageMode.ENGLISH && !state.isCapsLock ->
-                                    listOf(CustomAccessibilityAction(capsLock) { keyboard.onShiftLongPress(); true })
-                                alternate != null && alternateLabel != null -> listOf(CustomAccessibilityAction(alternateLabel) { keyboard.onKeyLongPress(alternate); true })
-                                else -> emptyList()
-                            }
-                        ),
-                        colors = colors,
-                        height = if (isNumberRow) numberRowKeyHeight else keyHeight,
-                        feel = state.feel,
-                        onTap = { keyboard.onKeyClick(key) },
-                        onLongPress = when {
-                            isLanguageKey -> ({ keyboard.onLanguageLongPress() })
-                            isShiftKey -> ({ keyboard.onShiftLongPress() })
-                            alternate != null -> ({ keyboard.onKeyLongPress(alternate) })
-                            else -> null
-                        },
-                        onRepeatStart = if (isBackspace) ({ keyboard.onBackspaceLongPressStart() }) else null,
-                        onRepeatEnd = if (isBackspace) ({ keyboard.onBackspaceLongPressEnd() }) else null,
-                        modifier = Modifier.weight(key.flex)
-                    )
+            } else {
+                val allCharacters = row.all { it.keyType == KeyType.CHARACTER }
+                val isNumberRow = isNumberRow(row)
+                // Indent short letter rows (the 9-key home row) by half a key on each side
+                val indent = if (allCharacters) ((10f - row.sumOf { it.flex.toDouble() }.toFloat()) / 2f).coerceAtLeast(0f) else 0f
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = RowGap),
+                ) {
+                    if (indent > 0f) Box(Modifier.weight(indent))
+                    row.forEach { key ->
+                        val alternate = keyAlternate(key, state.isShifted)
+                        val isBackspace = key.primary == "⌫"
+                        val isLanguageKey = key.primary == "🌐"
+                        val isShiftKey = key.primary == "⇧"
+                        val visual = keyVisual(key, state, enterLabel, spaceLabel, colors)
+                        val alternateLabel = alternate?.let { stringResource(R.string.key_type_alternate, spokenCharacter(it)) }
+                        val languageOptions = stringResource(R.string.key_language_options)
+                        val capsLock = stringResource(R.string.key_caps_lock)
+                        Key(
+                            key = key,
+                            visual = visual,
+                            a11y = KeyA11y(
+                                label = visual.description ?: spokenCharacter(visual.text ?: key.primary),
+                                state = if (isLanguageKey) languageName(state.currentLanguage) else null,
+                                selected = isShiftKey && state.isShifted,
+                                actions = when {
+                                    isLanguageKey -> listOf(CustomAccessibilityAction(languageOptions) { keyboard.onLanguageLongPress(); true })
+                                    isShiftKey && state.currentLanguage == LanguageMode.ENGLISH && !state.isCapsLock ->
+                                        listOf(CustomAccessibilityAction(capsLock) { keyboard.onShiftLongPress(); true })
+                                    alternate != null && alternateLabel != null -> listOf(CustomAccessibilityAction(alternateLabel) { keyboard.onKeyLongPress(alternate); true })
+                                    else -> emptyList()
+                                }
+                            ),
+                            colors = colors,
+                            height = if (isNumberRow) numberRowKeyHeight else keyHeight,
+                            feel = state.feel,
+                            onTap = { keyboard.onKeyClick(key) },
+                            onLongPress = when {
+                                isLanguageKey -> ({ keyboard.onLanguageLongPress() })
+                                isShiftKey -> ({ keyboard.onShiftLongPress() })
+                                alternate != null -> ({ keyboard.onKeyLongPress(alternate) })
+                                else -> null
+                            },
+                            onRepeatStart = if (isBackspace) ({ keyboard.onBackspaceLongPressStart() }) else null,
+                            onRepeatEnd = if (isBackspace) ({ keyboard.onBackspaceLongPressEnd() }) else null,
+                            modifier = Modifier.weight(key.flex)
+                        )
+                    }
+                    if (indent > 0f) Box(Modifier.weight(indent))
                 }
-                if (indent > 0f) Box(Modifier.weight(indent))
             }
         }
         }
