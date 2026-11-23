@@ -76,7 +76,8 @@ object EnglishLayout {
                 KeyData("🌐", keyType = KeyType.FUNCTION),
                 KeyData(",", "!", longPress = listOf("!", "?", ";", ":")),
                 KeyData(" ", keyType = KeyType.ACTION, flex = 3f),
-                KeyData(".", ".", longPress = listOf(".", ",", "!", "?")),
+                // Long-press types the first alternate: ? (testers asked; comma has its own key)
+                KeyData(".", ".", longPress = listOf("?", "!", ",")),
                 KeyData("↵", keyType = KeyType.ACTION, flex = 1.2f)
             )
         )
