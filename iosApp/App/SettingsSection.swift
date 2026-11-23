@@ -170,7 +170,7 @@ struct TypingSettings: View {
     }
 }
 
-/** App, Help and Legal: the same rows as Android's Settings. */
+/** App, Help, More from this developer and Legal: the same rows as Android's Settings. */
 struct AboutSettings: View {
     @State private var page: InfoPage?
     @Environment(\.openURL) private var openURL
@@ -181,6 +181,9 @@ struct AboutSettings: View {
     static let sourceCode = URL(string: "https://github.com/theGBguy/nepali-unicode-keyboard")!
     /** Opens the App Store's review page for this app. */
     static let rate = URL(string: "https://apps.apple.com/app/id6831912584?action=write-review")!
+    static let properPdf = URL(string: "https://apps.apple.com/app/id6760956540")!
+    static let properImage = URL(string: "https://apps.apple.com/app/id6778331646")!
+    static let kmlKmzViewer = URL(string: "https://apps.apple.com/app/id6818108327")!
 
     var body: some View {
         VStack(spacing: 0) {
@@ -199,6 +202,23 @@ struct AboutSettings: View {
                 RowDivider()
                 LinkRow(icon: "star", title: "Rate on the App Store", subtitle: "Helps other Nepali speakers find it") {
                     openURL(Self.rate)
+                }
+            }
+            .padding(.top, 28)
+            // The developer's iPhone apps; their names stay in English, as on the App Store
+            SettingsGroup("More from this developer") {
+                LinkRow(icon: "ProperPDFIcon", title: "ProperPDF", subtitle: "Merge, split, sign and shrink PDFs", appIcon: true) {
+                    openURL(Self.properPdf)
+                }
+                RowDivider()
+                LinkRow(icon: "ProperImageIcon", title: "ProperImage", subtitle: "Turn HEIC photos into JPG and resize them",
+                        appIcon: true) {
+                    openURL(Self.properImage)
+                }
+                RowDivider()
+                LinkRow(icon: "KmlKmzViewerIcon", title: "KML KMZ Viewer", subtitle: "Open KML and KMZ files on Apple Maps",
+                        appIcon: true) {
+                    openURL(Self.kmlKmzViewer)
                 }
             }
             .padding(.top, 28)
@@ -300,14 +320,25 @@ struct RowLabel: View {
     let title: LocalizedStringKey
     var subtitle: LocalizedStringKey?
     var subtitleColor: Color = .secondary
+    /** [icon] names another app's icon in the asset catalog, not an SF Symbol. */
+    var appIcon = false
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(.primary)
-                .frame(width: 24)
-                .accessibilityHidden(true)
+        // An app icon is a bit larger; the text stays lined up with the other rows
+        HStack(spacing: appIcon ? 8 : 14) {
+            if appIcon {
+                Image(icon)
+                    .resizable()
+                    .frame(width: 30, height: 30)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .accessibilityHidden(true)
+            } else {
+                Image(systemName: icon)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .frame(width: 24)
+                    .accessibilityHidden(true)
+            }
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).foregroundStyle(.primary)
                 if let subtitle {
@@ -340,12 +371,13 @@ struct LinkRow: View {
     var subtitle: LocalizedStringKey?
     var value: String?
     var showsChevron = true
+    var appIcon = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
-                RowLabel(icon: icon, title: title, subtitle: subtitle)
+                RowLabel(icon: icon, title: title, subtitle: subtitle, appIcon: appIcon)
                 Spacer(minLength: 8)
                 if let value {
                     Text(verbatim: value).foregroundStyle(.secondary)

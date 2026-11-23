@@ -111,6 +111,10 @@
     <string name="settings_title">Nepali Unicode Keyboard settings</string>
     <string name="settings_section_app">App</string>
     <string name="settings_section_help">Help</string>
+    <string name="settings_section_more_apps">More from this developer</string>
+    <string name="settings_app_properpdf_sub">Merge, split, sign and shrink PDFs</string>
+    <string name="settings_app_gps_simulator_sub">Set your location anywhere, or play back a GPX route</string>
+    <string name="settings_app_mero_contacts_sub">Big photo buttons so older parents can call family</string>
     <string name="settings_section_legal">Legal</string>
     <string name="settings_nepali_typing">Nepali typing</string>
     <string name="settings_key_height">Key height</string>

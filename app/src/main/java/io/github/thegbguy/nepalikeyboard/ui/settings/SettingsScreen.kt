@@ -74,7 +74,11 @@ private val ScreenPadding = 20.dp
 private val CardShape = RoundedCornerShape(20.dp)
 
 /** Everything a settings row can open; MainActivity turns these into intents and screens. */
-enum class SettingsLink { FIX_KEYBOARD, GUIDE, PRIVACY, FEEDBACK, RATE, PRIVACY_POLICY, TERMS, LICENCES, SOURCE }
+enum class SettingsLink {
+    FIX_KEYBOARD, GUIDE, PRIVACY, FEEDBACK, RATE, PRIVACY_POLICY, TERMS, LICENCES, SOURCE,
+    // More from this developer: their Play listings
+    PROPER_PDF, GPS_SIMULATOR, MERO_CONTACTS
+}
 
 /**
  * The app's home once setup is done: keyboard status, typing settings with a field to try them,
@@ -258,6 +262,15 @@ fun SettingsScreen(
                 LinkRow(R.drawable.ic_ui_star, stringResource(R.string.settings_rate), stringResource(R.string.settings_rate_sub)) { onLink(SettingsLink.RATE) }
             }
 
+            // App names stay in English: they're the names on Google Play.
+            Section(stringResource(R.string.settings_section_more_apps)) {
+                LinkRow(R.drawable.app_icon_properpdf, "ProperPDF", stringResource(R.string.settings_app_properpdf_sub), appIcon = true) { onLink(SettingsLink.PROPER_PDF) }
+                RowDivider()
+                LinkRow(R.drawable.app_icon_gps_simulator, "GPS Simulator", stringResource(R.string.settings_app_gps_simulator_sub), appIcon = true) { onLink(SettingsLink.GPS_SIMULATOR) }
+                RowDivider()
+                LinkRow(R.drawable.app_icon_mero_contacts, "Mero Contacts", stringResource(R.string.settings_app_mero_contacts_sub), appIcon = true) { onLink(SettingsLink.MERO_CONTACTS) }
+            }
+
             Section(stringResource(R.string.settings_section_legal)) {
                 LinkRow(R.drawable.ic_ui_policy, stringResource(R.string.settings_privacy_policy), null) { onLink(SettingsLink.PRIVACY_POLICY) }
                 RowDivider()
@@ -354,6 +367,7 @@ private fun LinkRow(
     title: String,
     subtitle: String?,
     subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    appIcon: Boolean = false,
     onClick: (() -> Unit)?
 ) {
     Row(
@@ -363,8 +377,17 @@ private fun LinkRow(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(painterResource(icon), null, modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurface)
-        Spacer(Modifier.width(16.dp))
+        if (appIcon) {
+            // Another app's own icon, a bit larger, with the text still lined up with the other rows
+            Image(
+                painterResource(icon), null,
+                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
+            )
+            Spacer(Modifier.width(8.dp))
+        } else {
+            Icon(painterResource(icon), null, modifier = Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurface)
+            Spacer(Modifier.width(16.dp))
+        }
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = subtitleColor) }

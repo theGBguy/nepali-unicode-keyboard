@@ -107,6 +107,10 @@
     <string name="settings_title">नेपाली युनिकोड किबोर्ड सेटिङ</string>
     <string name="settings_section_app">एप</string>
     <string name="settings_section_help">सहायता</string>
+    <string name="settings_section_more_apps">यही डेभलपरका अरू एप</string>
+    <string name="settings_app_properpdf_sub">PDF जोड्नुहोस्, छुट्याउनुहोस्, सही गर्नुहोस् र सानो बनाउनुहोस्</string>
+    <string name="settings_app_gps_simulator_sub">जुनसुकै ठाउँमा लोकेसन राख्नुहोस्, वा GPX रुट चलाउनुहोस्</string>
+    <string name="settings_app_mero_contacts_sub">ठूला फोटो बटनले बुवाआमालाई परिवारमा फोन गर्न सजिलो</string>
     <string name="settings_section_legal">कानुनी</string>
     <string name="settings_nepali_typing">नेपाली टाइपिङ</string>
     <string name="settings_key_height">कीको उचाइ</string>

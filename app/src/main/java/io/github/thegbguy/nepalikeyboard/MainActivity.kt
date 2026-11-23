@@ -137,6 +137,9 @@ class MainActivity : ComponentActivity() {
                                 SettingsLink.PRIVACY_POLICY -> open(PRIVACY_POLICY_URL)
                                 SettingsLink.TERMS -> open(TERMS_URL)
                                 SettingsLink.SOURCE -> open(SOURCE_URL)
+                                SettingsLink.PROPER_PDF -> openPlayStore("io.github.thegbguy.pdfmate")
+                                SettingsLink.GPS_SIMULATOR -> openPlayStore("io.github.thegbguy.gpssimulator")
+                                SettingsLink.MERO_CONTACTS -> openPlayStore("io.github.thegbguy.merocontacts")
                             }
                         }
                     )
@@ -235,11 +238,12 @@ class MainActivity : ComponentActivity() {
         start(intent)
     }
 
-    private fun openPlayStore() {
+    /** Opens [appId]'s Play listing (this app's by default), in the Play Store app if there is one. */
+    private fun openPlayStore(appId: String = packageName) {
         try {
-            startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()))
+            startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$appId".toUri()))
         } catch (_: ActivityNotFoundException) {
-            open("https://play.google.com/store/apps/details?id=$packageName")
+            open("https://play.google.com/store/apps/details?id=$appId")
         }
     }
 
