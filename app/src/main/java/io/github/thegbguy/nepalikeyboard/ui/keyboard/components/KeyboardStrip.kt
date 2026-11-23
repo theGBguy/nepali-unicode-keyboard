@@ -96,6 +96,7 @@ fun KeyboardStrip(
     onToggleKeys: () -> Unit = {},
     /** The word picked with Tab or the arrows on a physical keyboard (0 = the best guess). */
     highlightedSuggestion: Int = 0,
+    smartHighlighted: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -123,6 +124,7 @@ fun KeyboardStrip(
                         suggestions.forEach { if (it !in this) add(it) }
                     }.take(KeyboardState.MAX_STRIP_WORDS),
                     highlighted = highlightedSuggestion,
+                    smartPicked = smartHighlighted,
                     smartAction = smartActions.firstOrNull(),
                     latinText = latinText,
                     onSuggestionClick = onSuggestionClick,
@@ -199,6 +201,7 @@ private fun Suggestions(
     words: List<String>,
     highlighted: Int,
     smartAction: SmartAction?,
+    smartPicked: Boolean = false,
     latinText: String,
     onSuggestionClick: (String) -> Unit,
     onSmartActionClick: (SmartAction) -> Unit,
@@ -239,7 +242,9 @@ private fun Suggestions(
                 if (index == 0 && smartAction != null) {
                     Divider(colors)
                     // Up to 2.5 word widths so dates and amounts in words stay readable.
-                    SmartSlot(colors, smartAction, Modifier.widthIn(max = 200.dp)) { onSmartActionClick(smartAction) }
+                    SmartSlot(colors, smartAction, Modifier.widthIn(max = 200.dp), picked = smartPicked) {
+                        onSmartActionClick(smartAction)
+                    }
                 }
             }
             if (words.isEmpty() && smartAction != null) {
@@ -300,16 +305,26 @@ private fun WordSlot(text: String, colors: KeyboardColors, bold: Boolean, picked
  * A smart suggestion: plain text like a word guess, after a small hint-coloured icon so it reads
  * as a conversion.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SmartSlot(
     colors: KeyboardColors,
     action: SmartAction,
     modifier: Modifier,
+    picked: Boolean = false,
     onClick: () -> Unit
 ) {
+    // Picked from a physical keyboard: the same key-coloured box as a picked word.
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(picked) { if (picked) requester.bringIntoView() }
     Row(
         modifier = modifier
             .fillMaxHeight()
+            .bringIntoViewRequester(requester)
+            .then(
+                if (picked) Modifier.padding(vertical = 4.dp).clip(RoundedCornerShape(8.dp)).background(colors.key)
+                else Modifier
+            )
             .clickable(onClick = onClick)
             .padding(horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically,

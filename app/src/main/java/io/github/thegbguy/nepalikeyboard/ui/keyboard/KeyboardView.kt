@@ -297,7 +297,8 @@ fun KeyboardView(
             onModeClick = { keyboard.switchLanguage() },
             keysShown = if (state.hardwareKeyboard) !stripOnly else null,
             onToggleKeys = { keyboard.toggleKeysWithHardwareKeyboard() },
-            highlightedSuggestion = state.highlightedSuggestion
+            highlightedSuggestion = state.highlightedWord,
+            smartHighlighted = state.smartHighlighted
         )
 
         // The keys area eases to the new layout's height and clips while it does
