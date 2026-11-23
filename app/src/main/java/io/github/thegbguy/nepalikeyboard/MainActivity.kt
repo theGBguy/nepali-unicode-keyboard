@@ -37,7 +37,9 @@ import io.github.thegbguy.nepalikeyboard.ui.setup.SetupPrefs
 import io.github.thegbguy.nepalikeyboard.ui.setup.SetupScreen
 import io.github.thegbguy.nepalikeyboard.ui.setup.WarningSheet
 import io.github.thegbguy.nepalikeyboard.ui.theme.NepaliKeyboardTheme
+import io.github.thegbguy.nepalikeyboard.update.AppReview
 import io.github.thegbguy.nepalikeyboard.update.AppUpdates
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -70,6 +72,13 @@ class MainActivity : ComponentActivity() {
         val fakeUpdate = intent.getBooleanExtra(EXTRA_FAKE_UPDATE, false)
         updates = AppUpdates.create(this, fakeUpdate).also { it.start() }
         if (fakeUpdate) updates.simulateFlexibleUpdate(lifecycleScope, updateLauncher)
+        // Once, on a launch after setup (ReviewPrompt), a moment after the screen appears and
+        // after the update check, and not when Play is offering an update
+        val review = AppReview.create(this)
+        if (savedInstanceState == null && review.onLaunch(setupDone)) lifecycleScope.launch {
+            delay(REVIEW_DELAY_MS)
+            if (!updates.hasUpdate) review.ask(this@MainActivity)
+        }
         setContent {
             NepaliKeyboardTheme {
                 val update by updates.state.collectAsState()
@@ -261,6 +270,7 @@ class MainActivity : ComponentActivity() {
 
     private companion object {
         const val SUPPORT_EMAIL = "nepali.indie.dev@gmail.com"
+        private const val REVIEW_DELAY_MS = 2_000L
         // Published from the site repo; must exist before release (Play requires a privacy policy).
         const val PRIVACY_POLICY_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/privacy-policy.html"
         const val TERMS_URL = "https://nepali-indie-dev.github.io/nepali-keyboard/terms-of-service.html"

@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 import UIKit
 
@@ -24,6 +25,9 @@ struct SetupView: View {
     private var style: NepaliStyle = .romanized
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.requestReview) private var requestReview
+    /** The review rule runs once per launch, not each time the view appears. */
+    private static var launchCounted = false
 
     private var setupDone: Bool {
         keyboardAdded ?? setupConfirmed
@@ -105,6 +109,15 @@ struct SetupView: View {
         // Back from Settings: the keyboard may have been added or removed there
         .onChange(of: scenePhase) { phase in
             if phase == .active { keyboardAdded = KeyboardSetup.isAdded() }
+        }
+        // Once, on a launch after setup (ReviewPrompt), a moment after the screen appears
+        .task {
+            guard !Self.launchCounted else { return }
+            Self.launchCounted = true
+            guard ReviewPrompt.onLaunch(setupDone: setupDone) else { return }
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            ReviewPrompt.markAsked()
+            requestReview()
         }
         }
     }

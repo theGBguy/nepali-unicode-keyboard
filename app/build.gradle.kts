@@ -180,6 +180,8 @@ dependencies {
     implementation(libs.mlkit.digital.ink)
     // Play in-app updates (talks to the Play Store app on the phone; no network access of its own)
     implementation(libs.play.app.update.ktx)
+    // Play in-app review (the same: the Play Store app shows the sheet)
+    implementation(libs.play.review.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)
