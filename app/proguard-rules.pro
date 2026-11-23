@@ -21,3 +21,7 @@
 -keep class * implements com.google.firebase.components.ComponentRegistrar {
     <init>();
 }
+
+# Play review-ktx 2.0.2 references this compile-time annotation from play-services-basement, which the
+# app doesn't include. It has no runtime use.
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
