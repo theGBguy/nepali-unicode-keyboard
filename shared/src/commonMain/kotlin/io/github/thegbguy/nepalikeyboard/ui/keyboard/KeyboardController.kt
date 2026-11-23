@@ -27,6 +27,7 @@ import io.github.thegbguy.nepalikeyboard.domain.transliteration.NepaliTransliter
 import io.github.thegbguy.nepalikeyboard.domain.transliteration.TransliterationEngine
 import io.github.thegbguy.nepalikeyboard.domain.voice.VoiceError
 import io.github.thegbguy.nepalikeyboard.domain.voice.VoiceInput
+import io.github.thegbguy.nepalikeyboard.domain.voice.SpokenPunctuation
 import io.github.thegbguy.nepalikeyboard.domain.voice.VoiceListener
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.EnglishLayout
 import io.github.thegbguy.nepalikeyboard.ui.keyboard.layouts.NepaliLayout
@@ -960,21 +961,32 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
      */
     private fun wordToCommit(): String {
         val st = _state.value
-        return st.stripWords.getOrNull(st.highlightedSuggestion)?.takeIf { st.highlightedSuggestion > 0 }
+        return st.stripWords.getOrNull(st.highlightedWord)?.takeIf { st.highlightedWord > 0 }
             ?: transliterationEngine.commitBuffer(st.transliterationBuffer)
     }
 
     /**
      * Tab / Shift + Tab or → / ← on a physical keyboard while a Romanized word is being typed:
-     * moves the highlight across the strip's suggestions by [step]; ending the word then commits
-     * the highlighted one. Returns false when no word is being typed, so the key works as usual.
+     * moves the highlight across the strip's suggestions (and the smart suggestion after the best
+     * guess) by [step]; ending the word then commits the highlighted one. Returns false when no
+     * word is being typed, so the key works as usual.
      */
     fun onHardwareMoveSuggestion(step: Int): Boolean {
         val st = _state.value
         if (st.currentLanguage != LanguageMode.TRANSLITERATION || st.transliterationBuffer.isEmpty()) return false
-        val last = (st.stripWords.size - 1).coerceAtLeast(0)
+        val last = (st.stripSlotCount - 1).coerceAtLeast(0)
         val next = (st.highlightedSuggestion + step).coerceIn(0, last)
         if (next != st.highlightedSuggestion) _state.update { it.copy(highlightedSuggestion = next) }
+        return true
+    }
+
+    /**
+     * Space or Enter on a physical keyboard while the smart suggestion (a date, an amount) is
+     * picked: types it as a tap on it would. False when it isn't picked, so the key works as usual.
+     */
+    fun onHardwareConfirmSmart(): Boolean {
+        val action = _state.value.takeIf { it.smartHighlighted }?.stripSmartAction ?: return false
+        onSmartActionClick(action)
         return true
     }
 
@@ -1338,7 +1350,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
         ) fullStopAction(inputConnection?.textBeforeCursor(2)?.toString().orEmpty()) else null
         if (stopAction == null) fullStopChoice = false
         val all = if (stopAction != null) listOf(stopAction) else actions
-        if (all != st.smartActions) _state.update { it.copy(smartActions = all) }
+        // A smart slot coming or going shifts the strip, so a word picked with Tab starts over.
+        if (all != st.smartActions) _state.update { it.copy(smartActions = all, highlightedSuggestion = 0) }
     }
 
     /**
@@ -1395,7 +1408,8 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
                 smartActions = emptyList(),
                 transliterationBuffer = TransliterationBuffer(),
                 suggestions = emptyList(),
-                showSuggestionBar = false
+                showSuggestionBar = false,
+                highlightedSuggestion = 0
             )
         }
     }
@@ -1446,10 +1460,11 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             }
 
             override fun onResults(results: List<String>) {
-                // Commit the first (best) result
-                val text = results.firstOrNull()
+                // Commit the best result, with spoken punctuation as marks and a space after earlier text
+                val text = results.firstOrNull()?.let(SpokenPunctuation::apply)
                 if (!text.isNullOrEmpty()) {
-                    inputConnection?.commitText(text)
+                    val ic = inputConnection
+                    ic?.commitText(SpokenPunctuation.withLeadingSpace(text, ic.textBeforeCursor(1)))
                 }
                 _state.update {
                     it.copy(
@@ -1476,7 +1491,7 @@ class KeyboardController(scopeFactory: () -> CoroutineScope) {
             }
 
             override fun onPartialResults(partialResults: List<String>) {
-                val partial = partialResults.firstOrNull()
+                val partial = partialResults.firstOrNull()?.let(SpokenPunctuation::apply)
                 if (!partial.isNullOrEmpty()) {
                     _state.update {
                         it.copy(partialVoiceResult = partial)
@@ -1688,7 +1703,10 @@ data class KeyboardState(
     val suggestions: List<String> = emptyList(),
     val transliterationBuffer: TransliterationBuffer = TransliterationBuffer(),
     val showSuggestionBar: Boolean = false,
-    /** Index in [stripWords] picked with Tab or the arrows on a physical keyboard (0 = best guess). */
+    /**
+     * The strip slot picked with Tab or the arrows on a physical keyboard: 0 = best guess, then
+     * [stripSmartAction] if there is one, then the other [stripWords].
+     */
     val highlightedSuggestion: Int = 0,
     // Voice typing state
     val isVoiceListening: Boolean = false,
@@ -1701,6 +1719,28 @@ data class KeyboardState(
             if (transliterationBuffer.primaryCandidate.isNotEmpty()) add(transliterationBuffer.primaryCandidate)
             suggestions.forEach { if (it !in this) add(it) }
         }.take(MAX_STRIP_WORDS)
+
+    /** The smart suggestion the strip shows right after the best guess while a Romanized word is typed. */
+    val stripSmartAction: SmartAction?
+        get() = if (currentLanguage == LanguageMode.TRANSLITERATION && transliterationBuffer.isNotEmpty()) {
+            smartActions.firstOrNull()
+        } else null
+
+    /** How many strip slots Tab moves across: the words plus the smart suggestion. */
+    val stripSlotCount: Int
+        get() = stripWords.size + if (stripSmartAction != null) 1 else 0
+
+    /** The smart suggestion is the picked slot. */
+    val smartHighlighted: Boolean
+        get() = stripSmartAction != null && highlightedSuggestion == 1
+
+    /** Index in [stripWords] of the picked slot; -1 when the smart suggestion is picked. */
+    val highlightedWord: Int
+        get() = when {
+            stripSmartAction == null || highlightedSuggestion == 0 -> highlightedSuggestion
+            highlightedSuggestion == 1 -> -1
+            else -> highlightedSuggestion - 1
+        }
 
     companion object {
         const val MAX_STRIP_WORDS = 6
