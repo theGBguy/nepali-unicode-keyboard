@@ -37,6 +37,11 @@ struct EmojiGridView: UIViewRepresentable {
         view.backgroundColor = .clear
         view.showsVerticalScrollIndicator = false
         view.delaysContentTouches = false
+        // No iOS 26+ edge blur over the emoji (see View.noScrollEdgeEffect)
+        if #available(iOS 26, *) {
+            view.topEdgeEffect.isHidden = true
+            view.bottomEdgeEffect.isHidden = true
+        }
         view.register(EmojiCell.self, forCellWithReuseIdentifier: EmojiCell.id)
         view.register(LabelHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                       withReuseIdentifier: LabelHeader.id)

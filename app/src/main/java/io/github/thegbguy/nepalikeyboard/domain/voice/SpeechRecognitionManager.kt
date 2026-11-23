@@ -2,6 +2,7 @@ package io.github.thegbguy.nepalikeyboard.domain.voice
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -60,6 +61,11 @@ class SpeechRecognitionManager(private val context: Context) : VoiceInput {
             putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "ne-NP")
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+            // Android 13+: ask the recognizer to punctuate and format where it can (it ignores
+            // this for languages it can't format). Spoken marks are handled by SpokenPunctuation.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                putExtra(RecognizerIntent.EXTRA_ENABLE_FORMATTING, RecognizerIntent.FORMATTING_OPTIMIZE_QUALITY)
+            }
         }
 
         try {

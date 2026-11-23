@@ -61,6 +61,10 @@ class HardwareKeyRouter(private val keyboard: () -> KeyboardController) {
             else -> false
         }
         if (pick) return true
+        // Space or Enter types the smart suggestion (today's date…) when Tab picked it
+        val confirm = keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_ENTER ||
+            keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER
+        if (confirm && controller.onHardwareConfirmSmart()) return true
         when (keyCode) {
             KeyEvent.KEYCODE_SPACE -> {
                 controller.onHardwareSpace()

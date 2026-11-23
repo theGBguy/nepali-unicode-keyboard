@@ -94,6 +94,7 @@ struct EmojiResultsRow: View {
                     }
                 }
             }
+            .noScrollEdgeEffect()
         }
     }
 }

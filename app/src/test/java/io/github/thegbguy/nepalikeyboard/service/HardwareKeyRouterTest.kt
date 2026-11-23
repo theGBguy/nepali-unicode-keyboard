@@ -241,6 +241,46 @@ class HardwareKeyRouterTest {
         assertEquals("क् क,क", field.shown)
     }
 
+    /** The app's selection update after a key, which recomputes the smart suggestions. */
+    private fun cursorMoved() = keyboard.onCursorMoved(stillComposing = true, hasComposing = true, hasSelection = false)
+
+    @Test
+    fun `tab reaches the date after the best guess and space types it`() {
+        typeLatin("aaja")
+        cursorMoved()
+        val date = keyboard.state.value.stripSmartAction
+        assertTrue("aaja offers today's date", date != null)
+        assertTrue(press(KeyEvent.KEYCODE_TAB))
+        assertTrue(keyboard.state.value.smartHighlighted)
+        assertTrue(press(KeyEvent.KEYCODE_SPACE, char = ' '))
+        assertEquals(date!!.text, field.shown)
+        assertEquals(0, keyboard.state.value.highlightedSuggestion)
+    }
+
+    @Test
+    fun `enter types the picked date and a second tab moves on to the next word`() {
+        typeLatin("aaja")
+        cursorMoved()
+        val st = keyboard.state.value
+        val date = st.stripSmartAction!!
+        assertEquals(st.stripWords.size + 1, st.stripSlotCount)
+        press(KeyEvent.KEYCODE_TAB)
+        assertTrue(press(KeyEvent.KEYCODE_ENTER))
+        assertEquals(date.text, field.shown)
+
+        field.text = ""
+        typeLatin("aaja")
+        cursorMoved()
+        val words = keyboard.state.value.stripWords
+        if (words.size > 1) {
+            press(KeyEvent.KEYCODE_TAB)
+            press(KeyEvent.KEYCODE_TAB)
+            assertEquals(1, keyboard.state.value.highlightedWord)
+            press(KeyEvent.KEYCODE_SPACE, char = ' ')
+            assertEquals(words[1] + " ", field.shown)
+        }
+    }
+
     @Test
     fun `with no word being typed tab and the arrows go to the app`() {
         assertFalse(press(KeyEvent.KEYCODE_TAB))
