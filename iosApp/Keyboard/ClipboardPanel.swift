@@ -79,6 +79,7 @@ struct ClipboardPanel: View {
                         .padding(.horizontal, 4)
                         .padding(.bottom, 4)
                 }
+                .noScrollEdgeEffect()
             }
 
             bottomRow(tiles)

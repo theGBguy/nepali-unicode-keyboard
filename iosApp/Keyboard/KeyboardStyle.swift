@@ -1,6 +1,22 @@
 import SwiftUI
 import NepaliKeyboardShared
 
+extension View {
+    /**
+     * Turns off the soft blur iOS 26+ draws where a scroll view's content meets its edges. In a
+     * keyboard it lands on the content itself: from iOS 27 it blurs the suggestion strip's words.
+     * The strip draws its own fade where there's more to scroll.
+     */
+    @ViewBuilder
+    func noScrollEdgeEffect() -> some View {
+        if #available(iOS 26, *) {
+            scrollEdgeEffectHidden(true, for: .all)
+        } else {
+            self
+        }
+    }
+}
+
 /** Sizes, in points, matching Android's dp values. */
 enum KeyboardMetrics {
     static let keyGap: CGFloat = 5

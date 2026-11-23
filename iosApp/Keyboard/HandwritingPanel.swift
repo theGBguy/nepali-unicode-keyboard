@@ -100,6 +100,7 @@ struct HandwritingPanel: View {
                     .lineSpacing(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .noScrollEdgeEffect()
             HStack(spacing: 8) {
                 Spacer(minLength: 0)
                 panelButton(String(localized: "Not now"), primary: false) { model.closeHandwriting() }

@@ -161,6 +161,7 @@ struct KeyboardStripView: View {
                         })
                     }
                     .coordinateSpace(name: "words")
+                    .noScrollEdgeEffect()
                     // A new key gives new guesses: show them from the best one again.
                     .onChange(of: words) { _ in proxy.scrollTo(0, anchor: .leading) }
                 }
