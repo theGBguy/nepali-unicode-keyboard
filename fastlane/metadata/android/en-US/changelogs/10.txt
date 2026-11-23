@@ -1,0 +1,5 @@
+What's new in 1.5.1
+• Voice typing: say “अल्पविराम”, “प्रश्नचिन्ह” or “पूर्णविराम” to type , ? ।
+• Long-press . to type ?
+• Physical keyboards: press Tab to pick the date and other smart suggestions
+• Bug fixes and enhancements
