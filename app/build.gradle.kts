@@ -27,8 +27,8 @@ android {
         applicationId = "io.github.thegbguy.nepalikeyboard"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.5.0"
+        versionCode = 10
+        versionName = "1.5.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -180,6 +180,8 @@ dependencies {
     implementation(libs.mlkit.digital.ink)
     // Play in-app updates (talks to the Play Store app on the phone; no network access of its own)
     implementation(libs.play.app.update.ktx)
+    // Play in-app review (the same: the Play Store app shows the sheet)
+    implementation(libs.play.review.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)

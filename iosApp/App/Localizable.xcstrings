@@ -331,6 +331,9 @@
         }
       }
     },
+    "KML KMZ Viewer": {
+      "shouldTranslate": false
+    },
     "Key borders": {
       "localizations": {
         "ne": {
@@ -421,6 +424,16 @@
         }
       }
     },
+    "Merge, split, sign and shrink PDFs": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF जोड्नुहोस्, छुट्याउनुहोस्, सही गर्नुहोस् र सानो बनाउनुहोस्"
+          }
+        }
+      }
+    },
     "Midnight": {
       "localizations": {
         "ne": {
@@ -437,6 +450,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "वि.सं. २००० देखि २०९० सम्मका महिनाका दिन l3lackcurtains को nepali-date-pro-max बाट, MIT licence अन्तर्गत।"
+          }
+        }
+      }
+    },
+    "More from this developer": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यही डेभलपरका अरू एप"
           }
         }
       }
@@ -541,6 +564,16 @@
         }
       }
     },
+    "Open KML and KMZ files on Apple Maps": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KML र KMZ फाइल Apple Maps मा खोल्नुहोस्"
+          }
+        }
+      }
+    },
     "Open Settings": {
       "localizations": {
         "ne": {
@@ -620,6 +653,12 @@
           }
         }
       }
+    },
+    "ProperImage": {
+      "shouldTranslate": false
+    },
+    "ProperPDF": {
+      "shouldTranslate": false
     },
     "Rate on the App Store": {
       "localizations": {
@@ -867,6 +906,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "आफ्ना सेटिङ यहाँ चलाएर हेर्नुहोस्"
+          }
+        }
+      }
+    },
+    "Turn HEIC photos into JPG and resize them": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEIC फोटोलाई JPG बनाउनुहोस् र साइज मिलाउनुहोस्"
           }
         }
       }

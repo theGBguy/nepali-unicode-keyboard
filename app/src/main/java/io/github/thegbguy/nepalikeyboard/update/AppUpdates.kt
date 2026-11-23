@@ -40,6 +40,9 @@ class AppUpdates(private val manager: AppUpdateManager, private val fake: FakeAp
     private val _state = MutableStateFlow<UpdateState>(UpdateState.None)
     val state: StateFlow<UpdateState> = _state
     private var offeredFlexible = false
+    /** Play has an update for us (offered, downloading or ready), so the app shouldn't ask for a review too. */
+    var hasUpdate = false
+        private set
 
     private val listener = InstallStateUpdatedListener { install ->
         _state.value = when (install.installStatus()) {
@@ -57,6 +60,9 @@ class AppUpdates(private val manager: AppUpdateManager, private val fake: FakeAp
     /** Call from onResume. Picks up a finished download and offers an update when Play has one. */
     suspend fun check(launcher: ActivityResultLauncher<IntentSenderRequest>) {
         val info = runCatching { manager.requestAppUpdateInfo() }.onFailure { Log.d(TAG, "Update check failed: ${it.message}") }.getOrNull() ?: return
+        hasUpdate = info.installStatus() == InstallStatus.DOWNLOADED ||
+            info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ||
+            info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
         if (info.installStatus() == InstallStatus.DOWNLOADED) { _state.value = UpdateState.Ready; return }
         val immediate = AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
         when (info.updateAvailability()) {

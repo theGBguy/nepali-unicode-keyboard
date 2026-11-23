@@ -30,7 +30,7 @@ A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for And
 - **English word suggestions.** Completions and corrections of the English word you're typing (`becuse` → because, `dont` → don't), from a built-in English word list; English sentences start with a capital where the field asks for it.
 - **Smart suggestions.** Bikram Sambat dates (`aaja`, `bholi`, `2026-10-21`), amounts in Nepali digits and words, and land/gold units (aana, ropani, tola).
 - **Handwriting** with ML Kit Digital Ink, opt-in.
-- **Voice typing** (Android) through the phone's speech service.
+- **Voice typing** (Android) through the phone's speech service. Say अल्पविराम, प्रश्नचिन्ह or पूर्णविराम for , ? ।
 - **Physical keyboards** (Android). Romanized typing goes through the same engine; traditional typing uses the standard Windows Nepali layout. Ctrl + Space switches the language, and the screen shows just the suggestion strip, with a button to bring up the keys.
 - **Accessibility.** Works with TalkBack and VoiceOver: keys read their character (vowel signs and marks by name, e.g. "आ vowel sign", "Halanta"; Devanagari is spoken with a Hindi voice where no Nepali one is installed), the language key reads the current mode, and long-press actions are in the actions menu.
 - **Themes.** Nine keyboard themes (System, Light, Dark, Himalaya, Lali Gurans, Terai, Midnight, Dusk, Paper), with an option for flat keys without borders.
