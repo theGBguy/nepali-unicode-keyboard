@@ -24,8 +24,9 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
-	<!-- No Dock icon or menu bar: macOS starts it when an app needs it -->
-	<key>LSBackgroundOnly</key>
+	<!-- No Dock icon or menu bar: macOS starts it when an app needs it. An agent, not background
+	     only, so it can show the settings window -->
+	<key>LSUIElement</key>
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
@@ -44,15 +45,16 @@
 	</array>
 	<key>tsInputMethodIconFileKey</key>
 	<string>Romanized.tiff</string>
-	<!-- Two input sources in the input menu; their names are in InfoPlist.strings -->
+	<!-- Two input sources in the input menu; their names are in InfoPlist.strings. The IDs are
+	     written out: Xcode doesn't expand build settings in keys -->
 	<key>ComponentInputModeDict</key>
 	<dict>
 		<key>tsInputModeListKey</key>
 		<dict>
-			<key>$(PRODUCT_BUNDLE_IDENTIFIER).Romanized</key>
+			<key>io.github.thegbguy.inputmethod.NepaliKeyboard.Romanized</key>
 			<dict>
 				<key>TISInputSourceID</key>
-				<string>$(PRODUCT_BUNDLE_IDENTIFIER).Romanized</string>
+				<string>io.github.thegbguy.inputmethod.NepaliKeyboard.Romanized</string>
 				<key>TISIntendedLanguage</key>
 				<string>ne</string>
 				<key>TISIconIsTemplate</key>
@@ -72,10 +74,10 @@
 				<key>tsInputModeDefaultStateKey</key>
 				<true/>
 			</dict>
-			<key>$(PRODUCT_BUNDLE_IDENTIFIER).Traditional</key>
+			<key>io.github.thegbguy.inputmethod.NepaliKeyboard.Traditional</key>
 			<dict>
 				<key>TISInputSourceID</key>
-				<string>$(PRODUCT_BUNDLE_IDENTIFIER).Traditional</string>
+				<string>io.github.thegbguy.inputmethod.NepaliKeyboard.Traditional</string>
 				<key>TISIntendedLanguage</key>
 				<string>ne</string>
 				<key>TISIconIsTemplate</key>
@@ -98,8 +100,8 @@
 		</dict>
 		<key>tsVisibleInputModeOrderedArrayKey</key>
 		<array>
-			<string>$(PRODUCT_BUNDLE_IDENTIFIER).Romanized</string>
-			<string>$(PRODUCT_BUNDLE_IDENTIFIER).Traditional</string>
+			<string>io.github.thegbguy.inputmethod.NepaliKeyboard.Romanized</string>
+			<string>io.github.thegbguy.inputmethod.NepaliKeyboard.Traditional</string>
 		</array>
 	</dict>
 </dict>

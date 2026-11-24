@@ -17,5 +17,10 @@ mkdir -p "$DEST"
 killall NepaliKeyboard 2>/dev/null || true
 rm -rf "$DEST/NepaliKeyboard.app"
 cp -R "$APP" "$DEST/"
+# Only the installed copy may be registered: System Settings reads input modes from whichever
+# copy Launch Services knows, including an outdated build left in DerivedData
+LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+"$LSREGISTER" -u "$APP" 2>/dev/null || true
+"$LSREGISTER" -f -R "$DEST/NepaliKeyboard.app"
 "$DEST/NepaliKeyboard.app/Contents/MacOS/NepaliKeyboard" --install
 echo "Installed $DEST/NepaliKeyboard.app"
