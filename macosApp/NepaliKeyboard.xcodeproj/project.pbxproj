@@ -27,6 +27,8 @@
 		292AE296FFE0F3124A6B4EDA /* InputSourceInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B52CE7C383AA655250D86F0 /* InputSourceInstaller.swift */; };
 		2AFA1F37E704FE6B5B4506B1 /* words_ne.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 3B84A07FE0645CB3CF19E15B /* words_ne.tsv */; };
 		2F9BEFD2B04A148339F17840 /* words_en.tsv in Resources */ = {isa = PBXBuildFile; fileRef = D0DA75BA8D01D8ED28BC4342 /* words_en.tsv */; };
+		46D75E14CC814C4E9AD15D7B /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE43DC0BCB415265E0AD47A /* SettingsWindow.swift */; };
+		48133F9C1C6B12CD5E3A70F3 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 92093591576421E7878F809E /* Localizable.xcstrings */; };
 		67F0CA80D9D2A6B3E7FBA4C3 /* StripPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC453E3695DA29F7BF3625F /* StripPanel.swift */; };
 		7435CDCBF4FD8254C6638C3F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BF3E191FCE03A07FF09F9A67 /* InfoPlist.strings */; };
 		78E473C5E92A12487B0EC07A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD64F805A1BEBC9251CCB234 /* main.swift */; };
@@ -56,6 +58,7 @@
 		3B84A07FE0645CB3CF19E15B /* words_ne.tsv */ = {isa = PBXFileReference; path = words_ne.tsv; sourceTree = "<group>"; };
 		414D4E19818A4397723EE655 /* WordListLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordListLoader.swift; sourceTree = "<group>"; };
 		73C216A0EBD61AC9E30E5BD6 /* IMKEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMKEditor.swift; sourceTree = "<group>"; };
+		92093591576421E7878F809E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		9B52CE7C383AA655250D86F0 /* InputSourceInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSourceInstaller.swift; sourceTree = "<group>"; };
 		AFDB2C07BDBA9C04FC9821AC /* MacKeyboardPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacKeyboardPrefs.swift; sourceTree = "<group>"; };
 		B2AA173B8F068A7114E1075B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -66,6 +69,7 @@
 		DD64F805A1BEBC9251CCB234 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E176249EB9E38844075764FB /* Traditional.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Traditional.tiff; sourceTree = "<group>"; };
 		FB7459438D3FFC639FDC792B /* ne */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ne; path = ne.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FCE43DC0BCB415265E0AD47A /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -143,12 +147,14 @@
 				73C216A0EBD61AC9E30E5BD6 /* IMKEditor.swift */,
 				B2AA173B8F068A7114E1075B /* Info.plist */,
 				9B52CE7C383AA655250D86F0 /* InputSourceInstaller.swift */,
+				92093591576421E7878F809E /* Localizable.xcstrings */,
 				AFDB2C07BDBA9C04FC9821AC /* MacKeyboardPrefs.swift */,
 				B514B06886B7F19497589268 /* MacKeys.swift */,
 				DD64F805A1BEBC9251CCB234 /* main.swift */,
 				07EB3D23C73501097B7DA491 /* NepaliInputController.swift */,
 				B4D3496EE0397B6ADEC78245 /* NepaliKeyboard.entitlements */,
 				0A3D7CA93FE3B8DC67C4F211 /* Romanized.tiff */,
+				FCE43DC0BCB415265E0AD47A /* SettingsWindow.swift */,
 				0CC453E3695DA29F7BF3625F /* StripPanel.swift */,
 				E176249EB9E38844075764FB /* Traditional.tiff */,
 				BF3E191FCE03A07FF09F9A67 /* InfoPlist.strings */,
@@ -232,6 +238,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7435CDCBF4FD8254C6638C3F /* InfoPlist.strings in Resources */,
+				48133F9C1C6B12CD5E3A70F3 /* Localizable.xcstrings in Resources */,
 				ACAABB3481D139B3435CBD1C /* Romanized.tiff in Resources */,
 				FD03789AE164C7008DB0424E /* Traditional.tiff in Resources */,
 				2F9BEFD2B04A148339F17840 /* words_en.tsv in Resources */,
@@ -273,6 +280,7 @@
 				F64F27120377C3E139054935 /* MacKeyboardPrefs.swift in Sources */,
 				20F32B96E4AD9AB7D85337E6 /* MacKeys.swift in Sources */,
 				7A31AF679558FC940C48891E /* NepaliInputController.swift in Sources */,
+				46D75E14CC814C4E9AD15D7B /* SettingsWindow.swift in Sources */,
 				67F0CA80D9D2A6B3E7FBA4C3 /* StripPanel.swift in Sources */,
 				D60E640A1C968FEAAD234B64 /* WordListLoader.swift in Sources */,
 				78E473C5E92A12487B0EC07A /* main.swift in Sources */,
@@ -352,6 +360,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 0.1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -359,6 +368,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
@@ -445,6 +455,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 0.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -453,6 +464,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};

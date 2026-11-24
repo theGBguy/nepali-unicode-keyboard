@@ -1,0 +1,286 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "Built with Kotlin Multiplatform; Kotlin is available under the Apache License 2.0. This keyboard is free software under the GPL-3.0.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotlin Multiplatform बाट बनाइएको; Kotlin, Apache License 2.0 अन्तर्गत उपलब्ध छ। यो किबोर्ड GPL-3.0 अन्तर्गतको स्वतन्त्र सफ्टवेयर हो।"
+          }
+        }
+      }
+    },
+    "Consonants": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "व्यञ्जन"
+          }
+        }
+      }
+    },
+    "Contains word frequencies derived from Nepali Wikipedia (ne.wikipedia.org), available under the Creative Commons Attribution-ShareAlike 4.0 licence (CC BY-SA 4.0).": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यसमा नेपाली विकिपिडिया (ne.wikipedia.org) बाट निकालिएको शब्द आवृत्ति समावेश छ, जुन Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) लाइसेन्सअन्तर्गत उपलब्ध छ।"
+          }
+        }
+      }
+    },
+    "Dates, amounts and units as you type": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइप गर्दा मिति, रकम र एकाइ"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "भयो"
+          }
+        }
+      }
+    },
+    "Globe or Control-Space": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ग्लोब वा कन्ट्रोल-स्पेस"
+          }
+        }
+      }
+    },
+    "Help": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सहायता"
+          }
+        }
+      }
+    },
+    "Licences and credits": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लाइसेन्स र श्रेय"
+          }
+        }
+      }
+    },
+    "Marks and numbers": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "चिह्न र अङ्क"
+          }
+        }
+      }
+    },
+    "Month lengths for BS 2000–2090 from nepali-date-pro-max by l3lackcurtains, under the MIT licence.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "वि.सं. २००० देखि २०९० सम्मका महिनाका दिन l3lackcurtains को nepali-date-pro-max बाट, MIT licence अन्तर्गत।"
+          }
+        }
+      }
+    },
+    "Nepali Unicode Keyboard": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली युनिकोड किबोर्ड"
+          }
+        }
+      }
+    },
+    "Nepali Unicode Keyboard feedback": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नेपाली युनिकोड किबोर्ड प्रतिक्रिया"
+          }
+        }
+      }
+    },
+    "Pick a suggestion": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सुझाव छान्न"
+          }
+        }
+      }
+    },
+    "Privacy policy": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "गोपनीयता नीति"
+          }
+        }
+      }
+    },
+    "Romanized typing guide": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रोमनाइज्ड टाइपिङ गाइड"
+          }
+        }
+      }
+    },
+    "Send feedback": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रतिक्रिया पठाउनुहोस्"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिङ…"
+          }
+        }
+      }
+    },
+    "Smart suggestions": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्मार्ट सुझाव"
+          }
+        }
+      }
+    },
+    "Source code": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सोर्स कोड"
+          }
+        }
+      }
+    },
+    "Switch to English": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "अंग्रेजीमा जान"
+          }
+        }
+      }
+    },
+    "Tab, then Space": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ट्याब, अनि स्पेस"
+          }
+        }
+      }
+    },
+    "Terms of use": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "प्रयोगका सर्तहरू"
+          }
+        }
+      }
+    },
+    "Type how the word sounds. Capitals give ट ठ ड ढ ण and ष. Other spellings show in the suggestions.": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "शब्द जसरी बोलिन्छ त्यसरी नै टाइप गर्नुहोस्। ठूला अक्षरले ट ठ ड ढ ण र ष दिन्छन्। अरू हिज्जे सुझावमा देखिन्छन्।"
+          }
+        }
+      }
+    },
+    "Typing": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "टाइपिङ"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संस्करण"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संस्करण %@"
+          }
+        }
+      }
+    },
+    "Vowel signs and joined letters": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "मात्रा र संयुक्त अक्षर"
+          }
+        }
+      }
+    },
+    "Vowels": {
+      "localizations": {
+        "ne": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "स्वर"
+          }
+        }
+      }
+    }
+  }
+}

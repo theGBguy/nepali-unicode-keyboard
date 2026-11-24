@@ -2,8 +2,8 @@ import Foundation
 import NepaliKeyboardShared
 
 /**
- * Keyboard settings on the Mac. There are no on-screen keys, so only the typing options matter;
- * the rest have fixed values. Key names match Android's and iOS's.
+ * Keyboard settings on the Mac. Only smart suggestions can be changed (in [SettingsView]); the
+ * rest have fixed values. Key names match Android's and iOS's.
  *
  * - Nepali is always on: English is another input source (ABC), picked in the input menu.
  * - The style follows the selected input source ([NepaliInputController] sets it on every switch),
@@ -31,19 +31,12 @@ final class MacKeyboardPrefs: NSObject, KeyboardPrefs {
         set { defaults.set(newValue, forKey: "smart_suggestions") }
     }
 
-    var autoCapitalise: Bool {
-        get { bool("auto_capitalise") }
-        set { defaults.set(newValue, forKey: "auto_capitalise") }
-    }
-
-    var wordSuggestions: Bool {
-        get { bool("word_suggestions") }
-        set { defaults.set(newValue, forKey: "word_suggestions") }
-    }
-
     private func bool(_ key: String) -> Bool { defaults.object(forKey: key) as? Bool ?? true }
 
-    // MARK: On-screen keyboard settings, unused on the Mac
+    // MARK: Unused on the Mac: on-screen keys, and English (the system's ABC source)
+
+    var autoCapitalise = false
+    var wordSuggestions = false
 
     var keyHeight: KeyHeight = .normal
     var vibrate = false

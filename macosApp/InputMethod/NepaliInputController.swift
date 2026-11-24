@@ -99,6 +99,21 @@ final class NepaliInputController: IMKInputController {
         return handled
     }
 
+    // MARK: Input menu
+
+    /** Items under the input source in the menu bar's input menu. */
+    override func menu() -> NSMenu! {
+        let menu = NSMenu()
+        let settings = NSMenuItem(title: String(localized: "Settings…"), action: #selector(showSettings(_:)), keyEquivalent: "")
+        settings.target = self
+        menu.addItem(settings)
+        return menu
+    }
+
+    @objc private func showSettings(_ sender: Any?) {
+        MainActor.assumeIsolated { SettingsWindow.shared.show() }
+    }
+
     // MARK: Input sources
 
     /** A plain text field: macOS doesn't tell an input method more (it's off in password fields). */
