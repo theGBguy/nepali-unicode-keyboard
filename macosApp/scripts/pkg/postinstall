@@ -1,0 +1,14 @@
+#!/bin/sh
+# Runs as root after the input method is copied to /Library/Input Methods. Stops an older copy
+# that's running, then registers the input method and turns on its two input sources for the
+# user who is logged in (input sources are per user).
+APP="/Library/Input Methods/NepaliKeyboard.app"
+
+pkill -x NepaliKeyboard 2>/dev/null || true
+
+USER_NAME=$(stat -f%Su /dev/console)
+if [ -n "$USER_NAME" ] && [ "$USER_NAME" != "root" ]; then
+  USER_ID=$(id -u "$USER_NAME")
+  launchctl asuser "$USER_ID" sudo -u "$USER_NAME" "$APP/Contents/MacOS/NepaliKeyboard" --install || true
+fi
+exit 0

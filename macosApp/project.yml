@@ -12,7 +12,7 @@ settings:
   base:
     DEVELOPMENT_TEAM: 2G9CN64MSN
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "0.1.0"
+    MARKETING_VERSION: "1.5.1"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
     ENABLE_USER_SCRIPT_SANDBOXING: NO
@@ -20,6 +20,10 @@ settings:
     # Nepali strings live in InputMethod/Localizable.xcstrings
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     SWIFT_EMIT_LOC_STRINGS: YES
+  configs:
+    # Xcode adds get-task-allow (debugger attach) to every build; notarization rejects it
+    Release:
+      CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
 targets:
   NepaliKeyboard:
     # An input method is an app bundle that macOS starts in the background and loads from

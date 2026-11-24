@@ -33,3 +33,6 @@ __pycache__/
 /SourcePackages
 tools/emoji/cldr-cache/
 tools/wordlist/en-cache/
+
+# Mac release builds (macosApp/scripts/package.sh)
+/macosApp/build/
