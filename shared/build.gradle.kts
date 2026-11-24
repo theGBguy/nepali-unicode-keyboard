@@ -19,7 +19,8 @@ kotlin {
         withHostTest {}
     }
 
-    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+    // The Mac input method (macosApp/) uses the same framework as the iOS keyboard
+    listOf(iosArm64(), iosSimulatorArm64(), macosArm64(), macosX64()).forEach { target ->
         target.binaries.framework {
             baseName = "NepaliKeyboardShared"
             isStatic = true
