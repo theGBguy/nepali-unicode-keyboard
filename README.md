@@ -1,6 +1,6 @@
 # Nepali Unicode Keyboard
 
-A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for Android, on the App Store for iPhone and iPad, and a [download for the Mac](https://github.com/theGBguy/nepali-unicode-keyboard/releases?q=mac-v&expanded=true). It runs offline and doesn't send or store what you type.
+A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for Android, on the App Store for iPhone and iPad, and a [download for the Mac](https://github.com/theGBguy/nepali-unicode-keyboard/releases?q=mac&expanded=true). It runs offline and doesn't send or store what you type.
 
 <p>
   <a href="https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard"><img src=".github/badges/google-play.png" height="40" alt="Get it on Google Play"></a>
@@ -41,7 +41,7 @@ A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for And
 ## Platforms
 
 - **Android 7.0 or newer.**
-- **macOS 13 or newer** (Apple silicon and Intel). Download `NepaliUnicodeKeyboard-<version>.pkg` from the [latest Mac release](https://github.com/theGBguy/nepali-unicode-keyboard/releases?q=mac-v&expanded=true), open it, then pick **Nepali – Romanized** or **Nepali – Traditional** in the input menu. It's not on the Mac App Store: Apple doesn't allow input methods there. To remove it, delete `/Library/Input Methods/NepaliKeyboard.app` and log out.
+- **macOS 13 or newer** (Apple silicon and Intel). Download `NepaliUnicodeKeyboard-<version>.pkg` from the [latest Mac release](https://github.com/theGBguy/nepali-unicode-keyboard/releases?q=mac&expanded=true), open it, then pick **Nepali – Romanized** or **Nepali – Traditional** in the input menu. It's not on the Mac App Store: Apple doesn't allow input methods there. To remove it, delete `/Library/Input Methods/NepaliKeyboard.app` and log out.
 - **iOS 17 or newer** (iPhone and iPad). No voice typing, because iOS doesn't let keyboards use the microphone, and no physical keyboard support, because iOS doesn't pass hardware key presses to third-party keyboards.
 
 On iOS, clipboard history and handwriting need **Allow Full Access** (iOS hides the pasteboard from keyboards without it, and handwriting downloads its model). Both are opt-in, and everything else works with Full Access off. The history stays on the phone and can be cleared from the app. The keyboard reads the pasteboard only when you tap Paste or open the clipboard panel, because reading a copy from another app makes iOS ask "Allow Paste".
