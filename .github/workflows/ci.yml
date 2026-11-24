@@ -56,7 +56,7 @@ jobs:
           has() { grep -qE "$1" <<< "$files" && echo true || echo false; }
           echo "android=$(has "$build|^(app|shared)/")" >> "$GITHUB_OUTPUT"
           # The iOS app bundles the word list and emoji from the Android assets
-          echo "ios=$(has "$build|^(shared|iosApp|app/src/main/assets)/")" >> "$GITHUB_OUTPUT"
+          echo "ios=$(has "$build|^(shared|iosApp|macosApp|app/src/main/assets)/")" >> "$GITHUB_OUTPUT"
 
   test:
     name: Unit tests and debug build
@@ -163,6 +163,11 @@ jobs:
           xcodebuild -project iosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard
           -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath SourcePackages
           -skipPackageUpdates CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO ARCHS=arm64 build
+      - name: Build the Mac input method
+        run: >
+          xcodebuild -project macosApp/NepaliKeyboard.xcodeproj -scheme NepaliKeyboard
+          -destination 'generic/platform=macOS' CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO
+          ARCHS=arm64 build
       - if: github.ref == 'refs/heads/main' && steps.spm.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:

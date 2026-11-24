@@ -1,0 +1,6 @@
+/* Names in the input menu and in System Settings → Keyboard → Input Sources */
+"CFBundleName" = "Nepali Unicode Keyboard";
+"CFBundleDisplayName" = "Nepali Unicode Keyboard";
+"io.github.thegbguy.inputmethod.NepaliKeyboard" = "Nepali Unicode Keyboard";
+"io.github.thegbguy.inputmethod.NepaliKeyboard.Romanized" = "Nepali – Romanized";
+"io.github.thegbguy.inputmethod.NepaliKeyboard.Traditional" = "Nepali – Traditional";

@@ -25,6 +25,14 @@ You need Android Studio (or the Gradle wrapper) and JDK 17. A debug build needs 
 ./gradlew :app:testDebugUnitTest :shared:testAndroidHostTest
 ```
 
+The Mac input method (`macosApp/`, in progress) needs Xcode and a Mac. Build it, install it for your user and restart it with:
+
+```sh
+macosApp/scripts/install-dev.sh
+```
+
+The first time, add **Nepali – Romanized** and/or **Nepali – Traditional** in System Settings → Keyboard → Text Input → Input Sources (the script tries to turn them on itself). After a change, run the script again; there's no need to log out. `macosApp/project.yml` generates the Xcode project (`cd macosApp && xcodegen generate`).
+
 ### Fixing words
 
 1. Add or adjust the word in `tools/wordlist/colloquial_ne.tsv`.
