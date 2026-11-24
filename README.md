@@ -1,6 +1,6 @@
 # Nepali Unicode Keyboard
 
-A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for Android and on the App Store for iPhone and iPad. It runs offline and doesn't send or store what you type.
+A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for Android, on the App Store for iPhone and iPad, and a [download for the Mac](https://github.com/theGBguy/nepali-unicode-keyboard/releases?q=mac-v&expanded=true). It runs offline and doesn't send or store what you type.
 
 <p>
   <a href="https://play.google.com/store/apps/details?id=io.github.thegbguy.nepalikeyboard"><img src=".github/badges/google-play.png" height="40" alt="Get it on Google Play"></a>
@@ -35,11 +35,13 @@ A keyboard for typing Nepali in Unicode, in any app. It's on Google Play for And
 - **Accessibility.** Works with TalkBack and VoiceOver: keys read their character (vowel signs and marks by name, e.g. "आ vowel sign", "Halanta"; Devanagari is spoken with a Hindi voice where no Nepali one is installed), the language key reads the current mode, and long-press actions are in the actions menu.
 - **Themes.** Nine keyboard themes (System, Light, Dark, Himalaya, Lali Gurans, Terai, Midnight, Dusk, Paper), with an option for flat keys without borders.
 - A flag on the language key (🇳🇵 / 🇬🇧) shows which language you're typing. Emoji with search in English or Nepali, clipboard history, English and Nepali app UI.
-- **Privacy.** Nothing you type leaves the phone. On Android, password fields get plain English with no suggestions or voice; on iOS, the system switches to Apple's keyboard.
+- **Mac.** An input method with the same Romanized and traditional typing, word and smart suggestions in a strip under the cursor, and the typing guide in its settings.
+- **Privacy.** Nothing you type leaves the phone or the Mac. On Android, password fields get plain English with no suggestions or voice; on iOS, the system switches to Apple's keyboard.
 
 ## Platforms
 
 - **Android 7.0 or newer.**
+- **macOS 13 or newer** (Apple silicon and Intel). Download `NepaliUnicodeKeyboard-<version>.pkg` from the [latest Mac release](https://github.com/theGBguy/nepali-unicode-keyboard/releases?q=mac-v&expanded=true), open it, then pick **Nepali – Romanized** or **Nepali – Traditional** in the input menu. It's not on the Mac App Store: Apple doesn't allow input methods there. To remove it, delete `/Library/Input Methods/NepaliKeyboard.app` and log out.
 - **iOS 17 or newer** (iPhone and iPad). No voice typing, because iOS doesn't let keyboards use the microphone, and no physical keyboard support, because iOS doesn't pass hardware key presses to third-party keyboards.
 
 On iOS, clipboard history and handwriting need **Allow Full Access** (iOS hides the pasteboard from keyboards without it, and handwriting downloads its model). Both are opt-in, and everything else works with Full Access off. The history stays on the phone and can be cleared from the app. The keyboard reads the pasteboard only when you tap Paste or open the clipboard panel, because reading a copy from another app makes iOS ask "Allow Paste".

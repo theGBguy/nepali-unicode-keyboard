@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- productbuild distribution for package.sh; @VERSION@ is filled in -->
+<installer-gui-script minSpecVersion="2">
+    <title>Nepali Unicode Keyboard</title>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+    <options customize="never" require-scripts="false" hostArchitectures="arm64,x86_64"/>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <volume-check>
+        <allowed-os-versions>
+            <os-version min="13.0"/>
+        </allowed-os-versions>
+    </volume-check>
+    <choices-outline>
+        <line choice="default">
+            <line choice="io.github.thegbguy.inputmethod.NepaliKeyboard.pkg"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="io.github.thegbguy.inputmethod.NepaliKeyboard.pkg" visible="false">
+        <pkg-ref id="io.github.thegbguy.inputmethod.NepaliKeyboard.pkg"/>
+    </choice>
+    <pkg-ref id="io.github.thegbguy.inputmethod.NepaliKeyboard.pkg" version="@VERSION@" onConclusion="none">NepaliKeyboard-component.pkg</pkg-ref>
+</installer-gui-script>

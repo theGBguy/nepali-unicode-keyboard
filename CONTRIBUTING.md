@@ -31,7 +31,7 @@ The Mac input method (`macosApp/`, in progress) needs Xcode and a Mac. Build it,
 macosApp/scripts/install-dev.sh
 ```
 
-The first time, add **Nepali – Romanized** and/or **Nepali – Traditional** in System Settings → Keyboard → Text Input → Input Sources (the script tries to turn them on itself). After a change, run the script again; there's no need to log out. `macosApp/project.yml` generates the Xcode project (`cd macosApp && xcodegen generate`).
+The first time, add **Nepali – Romanized** and/or **Nepali – Traditional** in System Settings → Keyboard → Text Input → Input Sources (the script tries to turn them on itself). After a change, run the script again; there's no need to log out. `macosApp/project.yml` generates the Xcode project (`cd macosApp && xcodegen generate`). `macosApp/scripts/package.sh` builds the signed, notarized installer for a release (see the script for the signing setup).
 
 ### Fixing words
 
