@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Nepali Unicode Keyboard</string>
+	<key>CFBundleDisplayName</key>
+	<string>Nepali Unicode Keyboard</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<!-- No Dock icon or menu bar: macOS starts it when an app needs it -->
+	<key>LSBackgroundOnly</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>InputMethodConnectionName</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)_Connection</string>
+	<key>InputMethodServerControllerClass</key>
+	<string>NepaliInputController</string>
+	<key>TISInputSourceID</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>TISIntendedLanguage</key>
+	<string>ne</string>
+	<key>tsInputMethodCharacterRepertoireKey</key>
+	<array>
+		<string>Deva</string>
+		<string>Latn</string>
+	</array>
+	<key>tsInputMethodIconFileKey</key>
+	<string>Romanized.tiff</string>
+	<!-- Two input sources in the input menu; their names are in InfoPlist.strings -->
+	<key>ComponentInputModeDict</key>
+	<dict>
+		<key>tsInputModeListKey</key>
+		<dict>
+			<key>$(PRODUCT_BUNDLE_IDENTIFIER).Romanized</key>
+			<dict>
+				<key>TISInputSourceID</key>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER).Romanized</string>
+				<key>TISIntendedLanguage</key>
+				<string>ne</string>
+				<key>TISIconIsTemplate</key>
+				<true/>
+				<key>tsInputModeMenuIconFileKey</key>
+				<string>Romanized.tiff</string>
+				<key>tsInputModeAlternateMenuIconFileKey</key>
+				<string>Romanized.tiff</string>
+				<key>tsInputModePaletteIconFileKey</key>
+				<string>Romanized.tiff</string>
+				<key>tsInputModeScriptKey</key>
+				<string>smUnicode</string>
+				<key>tsInputModeIsVisibleKey</key>
+				<true/>
+				<key>tsInputModePrimaryInScriptKey</key>
+				<true/>
+				<key>tsInputModeDefaultStateKey</key>
+				<true/>
+			</dict>
+			<key>$(PRODUCT_BUNDLE_IDENTIFIER).Traditional</key>
+			<dict>
+				<key>TISInputSourceID</key>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER).Traditional</string>
+				<key>TISIntendedLanguage</key>
+				<string>ne</string>
+				<key>TISIconIsTemplate</key>
+				<true/>
+				<key>tsInputModeMenuIconFileKey</key>
+				<string>Traditional.tiff</string>
+				<key>tsInputModeAlternateMenuIconFileKey</key>
+				<string>Traditional.tiff</string>
+				<key>tsInputModePaletteIconFileKey</key>
+				<string>Traditional.tiff</string>
+				<key>tsInputModeScriptKey</key>
+				<string>smUnicode</string>
+				<key>tsInputModeIsVisibleKey</key>
+				<true/>
+				<key>tsInputModePrimaryInScriptKey</key>
+				<false/>
+				<key>tsInputModeDefaultStateKey</key>
+				<true/>
+			</dict>
+		</dict>
+		<key>tsVisibleInputModeOrderedArrayKey</key>
+		<array>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER).Romanized</string>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER).Traditional</string>
+		</array>
+	</dict>
+</dict>
+</plist>

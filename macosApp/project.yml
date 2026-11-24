@@ -1,0 +1,68 @@
+# Generates NepaliKeyboard.xcodeproj: `cd macosApp && xcodegen generate`.
+# The generated project is committed, so building doesn't need XcodeGen; rerun it only after
+# changing this file. Build, install and restart the input method with scripts/install-dev.sh.
+name: NepaliKeyboard
+options:
+  bundleIdPrefix: io.github.thegbguy
+  deploymentTarget:
+    macOS: "13.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: 2G9CN64MSN
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    ENABLE_HARDENED_RUNTIME: YES
+targets:
+  NepaliKeyboard:
+    # An input method is an app bundle that macOS starts in the background and loads from
+    # ~/Library/Input Methods or /Library/Input Methods
+    type: application
+    platform: macOS
+    scheme: {}
+    sources:
+      - path: InputMethod
+      # The same loader as the iOS keyboard, for the same word lists
+      - path: ../iosApp/Keyboard/WordListLoader.swift
+      # The same word lists as Android and iOS, so every platform suggests the same words
+      - path: ../app/src/main/assets/words_ne.tsv
+        buildPhase: resources
+      - path: ../app/src/main/assets/words_en.tsv
+        buildPhase: resources
+    settings:
+      base:
+        # Must contain ".inputmethod." for macOS to treat the bundle as an input method
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.thegbguy.inputmethod.NepaliKeyboard
+        PRODUCT_NAME: NepaliKeyboard
+        INFOPLIST_FILE: InputMethod/Info.plist
+        # The shared Kotlin code (KeyboardController, transliteration, layouts), built by Gradle
+        FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS: $(inherited) -framework NepaliKeyboardShared
+    entitlements:
+      path: InputMethod/NepaliKeyboard.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        # The connection apps use to reach the input method (InputMethodConnectionName)
+        com.apple.security.temporary-exception.mach-register.global-name: $(PRODUCT_BUNDLE_IDENTIFIER)_Connection
+    dependencies:
+      # Static, so nothing is embedded
+      - target: SharedKotlinFramework
+aggregateTargets:
+  SharedKotlinFramework:
+    buildScripts:
+      - name: Build shared Kotlin framework
+        basedOnDependencyAnalysis: false
+        script: |
+          # Xcode's environment has no JAVA_HOME; Gradle needs JDK 17 or newer
+          if [ -z "$JAVA_HOME" ]; then
+            export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)"
+          fi
+          # The framework is static, so nothing is embedded, but the task still asks for the path
+          # an app target would embed into, which an aggregate target doesn't have
+          export FRAMEWORKS_FOLDER_PATH="${FRAMEWORKS_FOLDER_PATH:-Frameworks}"
+          cd "$SRCROOT/.."
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode
