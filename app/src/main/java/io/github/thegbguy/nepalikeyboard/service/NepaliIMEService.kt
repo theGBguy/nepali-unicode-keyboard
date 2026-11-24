@@ -195,7 +195,7 @@ class NepaliIMEService : InputMethodService(),
 
     // Physical keyboard
 
-    private val hardwareKeys = HardwareKeyRouter { keyboard }
+    private val hardwareKeys = AndroidHardwareKeys { keyboard }
 
     /** A physical keyboard is plugged in (USB, Bluetooth) and not folded away. */
     private fun hasHardwareKeyboard(): Boolean {

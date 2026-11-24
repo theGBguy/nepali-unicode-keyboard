@@ -13,8 +13,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-/** Physical keys → the controller or the app, against a fake field. */
-class HardwareKeyRouterTest {
+/** Android key codes and meta state → the shared router → the controller or the app, against a fake field. */
+class AndroidHardwareKeysTest {
 
     /** Committed text plus the composing word, cursor at the end. */
     private class Field : EditorConnection {
@@ -35,7 +35,7 @@ class HardwareKeyRouterTest {
 
     private lateinit var keyboard: KeyboardController
     private lateinit var field: Field
-    private lateinit var router: HardwareKeyRouter
+    private lateinit var router: AndroidHardwareKeys
 
     @Before
     fun setUp() {
@@ -45,7 +45,7 @@ class HardwareKeyRouterTest {
             it.prefs = InMemoryKeyboardPrefs(typeNepali = true)
         }
         keyboard.onInputStarted(FieldInfo())
-        router = HardwareKeyRouter { keyboard }
+        router = AndroidHardwareKeys { keyboard }
     }
 
     @After
