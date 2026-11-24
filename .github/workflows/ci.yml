@@ -109,7 +109,7 @@ jobs:
         with:
           path: ~/.konan
           key: konan-${{ runner.os }}-${{ runner.arch }}-${{ steps.kotlin.outputs.version }}
-      - run: ./gradlew :shared:iosSimulatorArm64Test
+      - run: ./gradlew :shared:iosSimulatorArm64Test :shared:macosArm64Test
       # Saved from main only, like the Gradle cache; pull requests restore it. Only this job
       # saves it, so the two iOS jobs don't race for the same key.
       - if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
